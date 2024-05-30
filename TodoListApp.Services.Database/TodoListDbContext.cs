@@ -7,4 +7,6 @@ public class TodoListDbContext : DbContext
            : base(options)
     {
     }
+
+    public DbSet<TodoListEntity> TodoLists { get; set; }
 }
