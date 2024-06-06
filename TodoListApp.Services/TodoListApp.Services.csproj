@@ -21,6 +21,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TodoListApp.Services.Database\TodoListApp.Services.Database.csproj" />
+  </ItemGroup>
 
 
 </Project>

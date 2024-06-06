@@ -1,13 +1,17 @@
+using TodoListApp.Services.Database;
 using TodoListApp.Services.Models;
+using TodoListApp.WebApi.Models;
 
 namespace TodoListApp.Services.Interfaces;
 public interface ITodoListService
 {
-    Task<IEnumerable<TodoList>> GetAllTodoListsAsync();
+    Task<PaginatedListResult<TodoListDto>> GetPaginatedTodoListsAsync(int pageNumber, int itemsPerPage);
 
-    Task AddTodoListAsync(TodoList todoList);
+    Task<TodoDetailsDto?> GetTodoListWithTasksAsync(int todoListId);
 
-    Task UpdateTodoListAsync(TodoList todoList);
+    Task<TodoListEntity> AddTodoListAsync(CreateTodoList todoList);
+
+    Task UpdateTodoListAsync(UpdateTodo updateTodo);
 
     Task DeleteTodoListAsync(int id);
 }

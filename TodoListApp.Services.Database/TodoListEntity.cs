@@ -13,14 +13,7 @@ public class TodoListEntity
     [MaxLength(500)]
     public string Description { get; set; } = string.Empty;
 
-    [Required]
-    public DateTime CreatedDate { get; set; }
-
-    public DateTime? DueDate { get; set; }
-
     public int TaskCount { get; set; }
 
-    public bool IsShared { get; set; }
-
-   // public ICollection<TaskEntity> Tasks { get; set; }
+    public ICollection<TaskEntity>? Tasks { get; set; }
 }

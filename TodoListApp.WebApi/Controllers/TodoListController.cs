@@ -1,8 +1,8 @@
-using System.Data.Common;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TodoListApp.Services.Exceptions;
 using TodoListApp.Services.Interfaces;
-using TodoListApp.Services.Models;
+using TodoListApp.WebApi.Logging;
 using TodoListApp.WebApi.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -12,103 +12,120 @@ namespace TodoListApp.WebApi.Controllers;
 public class TodoListController : ControllerBase
 {
     private readonly ITodoListService todoListService;
+    private readonly ILogger<TodoListController> logger;
 
-    public TodoListController(ITodoListService todoListService)
+    public TodoListController(ITodoListService todoListService, ILogger<TodoListController> logger)
     {
         this.todoListService = todoListService;
+        this.logger = logger;
     }
 
     // GET: api/<TodoListController>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TodoListDto>>> GetAllTodoLists()
+    public async Task<IActionResult> GetPaginatedTodoLists([FromQuery] int pageNumber = 1, [FromQuery] int itemsPerPage = 10)
     {
+        this.logger.FetchingPaginatedTodoLists(pageNumber, itemsPerPage);
         try
         {
-            var todoLists = await this.todoListService.GetAllTodoListsAsync();
-            var todoListDtos = todoLists.Select(todoList => new TodoListDto
-            {
-                Id = todoList.Id,
-                Name = todoList.Name,
-                Description = todoList.Description,
-                CreatedDate = todoList.CreatedDate,
-                DueDate = todoList.DueDate,
-                TaskCount = todoList.TaskCount,
-                IsShared = todoList.IsShared,
-            });
-            return this.Ok(todoListDtos);
+            var paginatedTodoLists = await this.todoListService.GetPaginatedTodoListsAsync(pageNumber, itemsPerPage);
+
+            this.logger.SuccessfullyFetchedPaginatedTodoLists();
+
+            return this.Ok(paginatedTodoLists);
         }
-        catch (DbException)
+        catch (TodoListException ex)
         {
-            return this.StatusCode(StatusCodes.Status503ServiceUnavailable, "The database is currently unavailable.");
+            this.logger.TodoListExceptionOccurred(ex);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            this.logger.UnexpectedErrorOccurred(ex);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
         }
+    }
+
+    // GET: api/<TodoListController>
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetTodoList(int id)
+    {
+        var todoListDto = await this.todoListService.GetTodoListWithTasksAsync(id);
+        if (todoListDto == null)
+        {
+            return this.NotFound();
+        }
+
+        return this.Ok(todoListDto);
     }
 
     // POST api/<TodoListController>
     [HttpPost]
-    public async Task<ActionResult<TodoListDto>> PostTodoList(TodoListDto todoListDto)
+    public async Task<ActionResult<int>> PostTodoList(CreateTodoList createTodoList)
     {
         if (!this.ModelState.IsValid)
         {
             return this.BadRequest(this.ModelState);
         }
 
-        var todoList = new TodoList
-        {
-            Name = todoListDto.Name,
-            Description = todoListDto.Description,
-            CreatedDate = DateTime.UtcNow,
-            DueDate = todoListDto.DueDate,
-            TaskCount = 0,
-            IsShared = todoListDto.IsShared,
-        };
-
         try
         {
-            await this.todoListService.AddTodoListAsync(todoList);
-            return this.CreatedAtAction(nameof(this.PostTodoList), todoListDto);
+            var createdTodoList = await this.todoListService.AddTodoListAsync(createTodoList);
+            this.logger.TodoListAdded(createTodoList.Name);
+            return this.CreatedAtAction(nameof(this.PostTodoList), new { id = createdTodoList.Id }, createdTodoList.Id);
         }
         catch (TodoListException ex)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            if (ex.InnerException is DbUpdateException)
+            {
+                this.logger.DatabaseErrorOccurred(ex);
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "A database error occurred while adding the todo list.");
+            }
+            else
+            {
+                this.logger.TodoListExceptionOccurredWhileAddingTodoList(ex.Message, ex);
+                return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        catch (Exception ex)
+        {
+            this.logger.UnexpectedErrorOccurredWhileAddingTodoList(ex);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
         }
     }
 
     // PUT api/<TodoListController>/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutTodoList(int id, TodoListDto todoListDto)
+    public async Task<IActionResult> PutTodoList(int id, UpdateTodo updateTodo)
     {
-        if (id != todoListDto.Id)
+        if (id != updateTodo.Id)
         {
-            return this.BadRequest();
+            return this.BadRequest("ID mismatch between route parameter and request body.");
         }
 
-        var todoList = new TodoList
+        if (!this.ModelState.IsValid)
         {
-            Id = todoListDto.Id,
-            Name = todoListDto.Name,
-            Description = todoListDto.Description,
-            CreatedDate = todoListDto.CreatedDate,
-            DueDate = todoListDto.DueDate,
-            TaskCount = todoListDto.TaskCount,
-            IsShared = todoListDto.IsShared,
-        };
+            return this.BadRequest(this.ModelState);
+        }
 
         try
         {
-            await this.todoListService.UpdateTodoListAsync(todoList);
+            await this.todoListService.UpdateTodoListAsync(updateTodo);
+            this.logger.TodoListUpdated(updateTodo.Id, updateTodo.Name);
             return this.NoContent();
+        }
+        catch (TodoListException ex) when (ex.InnerException is KeyNotFoundException)
+        {
+            return this.NotFound(ex.Message);
         }
         catch (TodoListException ex)
         {
+            this.logger.TodoListExceptionOccurredWhileUpdatingTodoList(ex.Message, ex);
             return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
         }
-        catch (DbException)
+        catch (Exception ex)
         {
-            return this.StatusCode(StatusCodes.Status503ServiceUnavailable, "The database is currently unavailable.");
+            this.logger.UnexpectedErrorOccurredWhileUpdatingTodoList(ex);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
         }
     }
 
@@ -119,15 +136,22 @@ public class TodoListController : ControllerBase
         try
         {
             await this.todoListService.DeleteTodoListAsync(id);
+            this.logger.TodoListDeleted(id);
             return this.NoContent();
+        }
+        catch (TodoListException ex) when (ex.InnerException is KeyNotFoundException)
+        {
+            return this.NotFound(ex.Message);
         }
         catch (TodoListException ex)
         {
-            return this.StatusCode(StatusCodes.Status404NotFound, ex.Message);
+            this.logger.TodoListExceptionOccurredWhileDeletingTodoList(ex.Message, ex);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
         }
-        catch (DbException)
+        catch (Exception ex)
         {
-            return this.StatusCode(StatusCodes.Status503ServiceUnavailable, "The database is currently unavailable.");
+            this.logger.UnexpectedErrorOccurredWhileDeletingTodoList(ex);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
         }
     }
 }
