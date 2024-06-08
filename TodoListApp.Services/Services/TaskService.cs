@@ -31,6 +31,7 @@ public class TaskService : ITaskService
             Status = (WebApi.Models.Tasks.Status)task.Status,
             Assignee = task.Assignee,
             TodoListId = task.TodoListId,
+            IsExpired = task.IsExpired,
         };
 
         return taskDetailsDto;
@@ -38,6 +39,8 @@ public class TaskService : ITaskService
 
     public async Task<TaskDetailsDto> CreateTaskAsync(CreateTaskDto createTaskDto)
     {
+        var currentDate = DateTime.UtcNow;
+
         var task = new TaskEntity
         {
             Title = createTaskDto.Title,
@@ -47,6 +50,7 @@ public class TaskService : ITaskService
             Status = Database.Status.NotStarted,
             Assignee = "DefaultUser",
             TodoListId = createTaskDto.TodoListId,
+            IsExpired = createTaskDto.DueDate.HasValue && createTaskDto.DueDate.Value < currentDate,
         };
 
         var createdTask = await this.taskRepository.AddTaskAsync(task);
@@ -61,21 +65,15 @@ public class TaskService : ITaskService
             Status = (WebApi.Models.Tasks.Status)createdTask.Status,
             Assignee = createdTask.Assignee,
             TodoListId = createdTask.TodoListId,
+            IsExpired = createdTask.IsExpired,
         };
 
         return taskDto;
     }
 
-    public async Task<bool> DeleteTaskAsync(int todoListId, int taskId)
+    public async Task<bool> DeleteTaskAsync(int taskId)
     {
-        var task = await this.taskRepository.GetTaskByIdAsync(todoListId, taskId);
-        if (task is null || task.TodoListId != todoListId)
-        {
-            return false;
-        }
-
-        await this.taskRepository.DeleteTaskAsync(task);
-        return true;
+        return await this.taskRepository.DeleteTaskAsync(taskId);
     }
 
     public async Task<bool> UpdateTaskAsync(int todoListId, int taskId, UpdateTaskDto updateTaskDto)
@@ -90,6 +88,9 @@ public class TaskService : ITaskService
         existingTask.Description = updateTaskDto.Description;
         existingTask.DueDate = updateTaskDto.DueDate;
         existingTask.Status = (Database.Status)updateTaskDto.Status;
+
+        var currentDateTime = DateTime.UtcNow;
+        existingTask.IsExpired = updateTaskDto.DueDate.HasValue && updateTaskDto.DueDate.Value < currentDateTime;
 
         await this.taskRepository.UpdateTaskAsync(todoListId, taskId, existingTask);
         return true;

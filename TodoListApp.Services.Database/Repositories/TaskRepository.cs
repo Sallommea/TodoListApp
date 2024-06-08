@@ -13,14 +13,37 @@ public class TaskRepository : ITaskRepository
     public async Task<TaskEntity> AddTaskAsync(TaskEntity task)
     {
         _ = await this.dbContext.Tasks.AddAsync(task);
+
+        var todoList = await this.dbContext.TodoLists.FindAsync(task.TodoListId);
+        if (todoList != null)
+        {
+            todoList.TaskCount++;
+            _ = this.dbContext.TodoLists.Update(todoList);
+        }
+
         _ = await this.dbContext.SaveChangesAsync();
         return task;
     }
 
-    public async Task DeleteTaskAsync(TaskEntity task)
+    public async Task<bool> DeleteTaskAsync(int taskId)
     {
+        var task = await this.dbContext.Tasks.FindAsync(taskId);
+        if (task == null)
+        {
+            return false;
+        }
+
         _ = this.dbContext.Tasks.Remove(task);
+
+        var todoList = await this.dbContext.TodoLists.FindAsync(task.TodoListId);
+        if (todoList != null && todoList.TaskCount > 0)
+        {
+            todoList.TaskCount--;
+            _ = this.dbContext.TodoLists.Update(todoList);
+        }
+
         _ = await this.dbContext.SaveChangesAsync();
+        return true;
     }
 
     public async Task<TaskEntity?> GetTaskByIdAsync(int todoListId, int taskId)
@@ -42,6 +65,7 @@ public class TaskRepository : ITaskRepository
         existingTask.Description = task.Description;
         existingTask.DueDate = task.DueDate;
         existingTask.Status = task.Status;
+        existingTask.IsExpired = task.IsExpired;
 
         _ = await this.dbContext.SaveChangesAsync();
     }

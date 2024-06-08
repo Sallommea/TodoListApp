@@ -16,4 +16,6 @@ public class TaskDetailsDto
     public string Assignee { get; set; } = string.Empty;
 
     public int TodoListId { get; set; }
+
+    public bool IsExpired { get; set; }
 }

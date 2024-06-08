@@ -8,6 +8,8 @@ public class TaskDto
     public DateTime? DueDate { get; set; }
 
     public Status Status { get; set; }
+
+    public bool IsExpired { get; set; }
 }
 
 public enum Status

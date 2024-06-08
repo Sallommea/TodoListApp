@@ -7,5 +7,5 @@ public interface ITaskRepository
 
     Task UpdateTaskAsync(int todoListId, int taskId, TaskEntity task);
 
-    Task DeleteTaskAsync(TaskEntity task);
+    Task<bool> DeleteTaskAsync(int taskId);
 }

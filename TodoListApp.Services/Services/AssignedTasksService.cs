@@ -16,6 +16,22 @@ public class AssignedTasksService : IAssignedTasksService
     {
         var tasks = await this.assignedTasksRepository.GetTasksByAssigneeAsync(assignee, (Database.Status?)status, sortCriteria);
 
+        var currentDate = DateTime.UtcNow;
+
+        foreach (var t in tasks)
+        {
+            if (t.DueDate.HasValue && t.DueDate.Value < currentDate)
+            {
+                t.IsExpired = true;
+            }
+            else
+            {
+                t.IsExpired = false;
+            }
+        }
+
+        await this.assignedTasksRepository.SaveChangesAsync();
+
         return tasks.Select(t => new TaskDetailsDto
         {
             Id = t.Id,
@@ -26,6 +42,12 @@ public class AssignedTasksService : IAssignedTasksService
             Status = (Status)t.Status,
             Assignee = t.Assignee,
             TodoListId = t.TodoListId,
+            IsExpired = t.IsExpired,
         }).ToList();
+    }
+
+    public async Task<bool> UpdateTaskStatusAsync(UpdateTaskStatus updateTaskStatusDto)
+    {
+        return await this.assignedTasksRepository.UpdateTaskStatusAsync(updateTaskStatusDto.TaskId, (Database.Status)updateTaskStatusDto.Status);
     }
 }

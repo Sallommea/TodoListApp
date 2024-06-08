@@ -63,9 +63,13 @@ public class TodolistRepository : ITodoListRepository
 
         entity.Name = todoList.Name;
         entity.Description = todoList.Description;
-        entity.TaskCount = todoList.TaskCount;
 
         _ = this.dbContext.TodoLists.Update(entity);
+        _ = await this.dbContext.SaveChangesAsync();
+    }
+
+    public async Task SaveChangesAsync()
+    {
         _ = await this.dbContext.SaveChangesAsync();
     }
 }

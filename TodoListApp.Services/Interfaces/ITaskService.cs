@@ -7,7 +7,7 @@ public interface ITaskService
 
     Task<TaskDetailsDto> CreateTaskAsync(CreateTaskDto createTaskDto);
 
-    Task<bool> DeleteTaskAsync(int todoListId, int taskId);
+    Task<bool> DeleteTaskAsync(int taskId);
 
     Task<bool> UpdateTaskAsync(int todoListId, int taskId, UpdateTaskDto updateTaskDto);
 }

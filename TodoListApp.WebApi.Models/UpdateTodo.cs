@@ -11,6 +11,4 @@ public class UpdateTodo
 
     [MaxLength(500)]
     public string Description { get; set; } = string.Empty;
-
-    public int TaskCount { get; set; }
 }

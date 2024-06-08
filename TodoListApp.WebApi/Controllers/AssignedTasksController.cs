@@ -21,4 +21,16 @@ public class AssignedTasksController : ControllerBase
         var tasks = await this.assignedTasksService.GetTasksByAssigneeAsync(assignee, status, sortCriteria);
         return this.Ok(tasks);
     }
+
+    [HttpPut("update-status")]
+    public async Task<IActionResult> UpdateTaskStatus([FromBody] UpdateTaskStatus updateTaskStatusDto)
+    {
+        var result = await this.assignedTasksService.UpdateTaskStatusAsync(updateTaskStatusDto);
+        if (!result)
+        {
+            return this.NotFound();
+        }
+
+        return this.Ok();
+    }
 }

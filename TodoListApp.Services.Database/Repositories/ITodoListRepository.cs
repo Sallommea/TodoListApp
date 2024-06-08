@@ -12,4 +12,6 @@ public interface ITodoListRepository
     Task UpdateTodoListAsync(TodoListEntity todoList);
 
     Task DeleteTodoListAsync(int id);
+
+    Task SaveChangesAsync();
 }

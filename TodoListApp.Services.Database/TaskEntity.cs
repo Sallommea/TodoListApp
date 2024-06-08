@@ -29,6 +29,8 @@ public class TaskEntity
     public int TodoListId { get; set; }
 
     public TodoListEntity? TodoList { get; set; }
+
+    public bool IsExpired { get; set; }
 }
 
 public enum Status

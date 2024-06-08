@@ -49,6 +49,22 @@ public class TodoListService : ITodoListService
             return null;
         }
 
+        var currentDate = DateTime.UtcNow;
+
+        foreach (var task in todoListEntity.Tasks!)
+        {
+            if (task.DueDate.HasValue && task.DueDate.Value < currentDate)
+            {
+                task.IsExpired = true;
+            }
+            else
+            {
+                task.IsExpired = false;
+            }
+        }
+
+        await this.todoListRepo.SaveChangesAsync();
+
         var todoListDto = new TodoDetailsDto
         {
             Id = todoListEntity.Id,
@@ -61,6 +77,7 @@ public class TodoListService : ITodoListService
                 Title = task.Title,
                 DueDate = task.DueDate,
                 Status = (WebApi.Models.Tasks.Status)task.Status,
+                IsExpired = task.IsExpired,
             }).ToList() ?? new List<TaskDto>(),
         };
 
@@ -118,7 +135,6 @@ public class TodoListService : ITodoListService
                 Id = updateTodo.Id,
                 Name = updateTodo.Name,
                 Description = updateTodo.Description,
-                TaskCount = updateTodo.TaskCount,
             };
 
             await this.todoListRepo.UpdateTodoListAsync(entity);

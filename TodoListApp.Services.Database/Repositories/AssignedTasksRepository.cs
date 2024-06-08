@@ -44,4 +44,22 @@ public class AssignedTasksRepository : IAssignedTasksRepository
             .Where(t => t.Assignee == assignee)
             .ToListAsync();
     }
+
+    public async Task<bool> UpdateTaskStatusAsync(int taskId, Status newStatus)
+    {
+        var task = await this.dbContext.Tasks.FindAsync(taskId);
+        if (task == null)
+        {
+            return false;
+        }
+
+        task.Status = newStatus;
+        _ = await this.dbContext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        _ = await this.dbContext.SaveChangesAsync();
+    }
 }

@@ -37,10 +37,10 @@ public class TasksController : ControllerBase
         createdTask);
     }
 
-    [HttpDelete("{todoListId}/tasks/{taskId}")]
-    public async Task<IActionResult> DeleteTask(int todoListId, int taskId)
+    [HttpDelete("{taskId}")]
+    public async Task<IActionResult> DeleteTask(int taskId)
     {
-        var result = await this.taskService.DeleteTaskAsync(todoListId, taskId);
+        var result = await this.taskService.DeleteTaskAsync(taskId);
         if (!result)
         {
             return this.NotFound();
