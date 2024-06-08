@@ -15,10 +15,10 @@ public class AssignedTasksController : ControllerBase
     }
 
     [HttpGet("assigned-to-me")]
-    public async Task<ActionResult<List<TaskDetailsDto>>> GetTasksAssignedToMe([FromQuery] Status? status = null, [FromQuery] string? sortCriteria = null)
+    public async Task<ActionResult<List<TaskDetailsDto>>> GetTasksAssignedToMe(int pageNumber = 1, int tasksPerPage = 10, [FromQuery] Status? status = null, [FromQuery] string? sortCriteria = null)
     {
         var assignee = "DefaultUser"; // to be replaced by the actual user's identity after implementing authorization
-        var tasks = await this.assignedTasksService.GetTasksByAssigneeAsync(assignee, status, sortCriteria);
+        var tasks = await this.assignedTasksService.GetTasksByAssigneeAsync(assignee, pageNumber, tasksPerPage, status, sortCriteria);
         return this.Ok(tasks);
     }
 

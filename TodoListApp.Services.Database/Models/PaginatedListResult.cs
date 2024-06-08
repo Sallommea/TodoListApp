@@ -7,3 +7,10 @@ public class PaginatedListResult<T>
 
     public int? TotalRecords { get; set; }
 }
+
+public class PaginatedTodoListResult
+{
+    public TodoListEntity? TodoList { get; set; }
+
+    public PaginatedListResult<TaskEntity>? PaginatedTasks { get; set; }
+}

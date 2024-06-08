@@ -7,7 +7,7 @@ public interface ITodoListService
 {
     Task<PaginatedListResult<TodoListDto>> GetPaginatedTodoListsAsync(int pageNumber, int itemsPerPage);
 
-    Task<TodoDetailsDto?> GetTodoListWithTasksAsync(int todoListId);
+    Task<TodoDetailsDto?> GetTodoListWithTasksAsync(int todoListId, int taskPageNumber, int tasksPerPage);
 
     Task<TodoListEntity> AddTodoListAsync(CreateTodoList todoList);
 

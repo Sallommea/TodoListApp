@@ -41,17 +41,21 @@ public class TodoListService : ITodoListService
         }
     }
 
-    public async Task<TodoDetailsDto?> GetTodoListWithTasksAsync(int todoListId)
+    public async Task<TodoDetailsDto?> GetTodoListWithTasksAsync(int todoListId, int taskPageNumber, int tasksPerPage)
     {
-        var todoListEntity = await this.todoListRepo.GetTodoListWithTasksAsync(todoListId);
-        if (todoListEntity == null)
+        var result = await this.todoListRepo.GetTodoListWithTasksAsync(todoListId, taskPageNumber, tasksPerPage);
+
+        var todoListEntity = result.TodoList;
+        var paginatedTasks = result.PaginatedTasks;
+
+        if (todoListEntity is null)
         {
             return null;
         }
 
         var currentDate = DateTime.UtcNow;
 
-        foreach (var task in todoListEntity.Tasks!)
+        foreach (var task in paginatedTasks?.ResultList!)
         {
             if (task.DueDate.HasValue && task.DueDate.Value < currentDate)
             {
@@ -65,23 +69,25 @@ public class TodoListService : ITodoListService
 
         await this.todoListRepo.SaveChangesAsync();
 
-        var todoListDto = new TodoDetailsDto
+        var todoListDetailsDto = new TodoDetailsDto
         {
             Id = todoListEntity.Id,
             Name = todoListEntity.Name,
             Description = todoListEntity.Description,
-            TaskCount = todoListEntity.TaskCount,
-            Tasks = todoListEntity.Tasks?.Select(task => new TaskDto
+            Tasks = paginatedTasks.ResultList.Select(task => new TaskDto
             {
                 Id = task.Id,
                 Title = task.Title,
                 DueDate = task.DueDate,
                 Status = (WebApi.Models.Tasks.Status)task.Status,
                 IsExpired = task.IsExpired,
-            }).ToList() ?? new List<TaskDto>(),
+            }).ToList(),
+            TotalTasks = paginatedTasks.TotalRecords,
+            TotalTaskPages = paginatedTasks.TotalPages,
+            CurrentTaskPage = taskPageNumber,
         };
 
-        return todoListDto;
+        return todoListDetailsDto;
     }
 
     public async Task<TodoListEntity> AddTodoListAsync(CreateTodoList todoList)

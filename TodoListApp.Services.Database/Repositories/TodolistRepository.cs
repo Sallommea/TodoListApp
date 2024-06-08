@@ -27,11 +27,46 @@ public class TodolistRepository : ITodoListRepository
         return result;
     }
 
-    public async Task<TodoListEntity?> GetTodoListWithTasksAsync(int todoListId)
+    public async Task<PaginatedTodoListResult> GetTodoListWithTasksAsync(int todoListId, int taskPageNumber, int tasksPerPage)
     {
-        return await this.dbContext.TodoLists
+        var todoList = await this.dbContext.TodoLists
             .Include(tl => tl.Tasks)
             .FirstOrDefaultAsync(tl => tl.Id == todoListId);
+
+        if (todoList == null)
+        {
+            return new PaginatedTodoListResult
+            {
+                TodoList = null,
+                PaginatedTasks = new PaginatedListResult<TaskEntity>
+                {
+                    TotalRecords = 0,
+                    TotalPages = 0,
+                    ResultList = new List<TaskEntity>(),
+                },
+            };
+        }
+
+        var totalTaskPages = (int)Math.Ceiling((double)todoList.TaskCount / tasksPerPage);
+
+        var paginatedTasks = todoList.Tasks?
+       .OrderBy(t => t.Id)
+       .Skip((taskPageNumber - 1) * tasksPerPage)
+       .Take(tasksPerPage)
+       .ToList() ?? new List<TaskEntity>();
+
+        var paginatedTasksResult = new PaginatedListResult<TaskEntity>
+        {
+            TotalRecords = todoList.TaskCount,
+            TotalPages = totalTaskPages,
+            ResultList = paginatedTasks,
+        };
+
+        return new PaginatedTodoListResult
+        {
+            TodoList = todoList,
+            PaginatedTasks = paginatedTasksResult,
+        };
     }
 
     public async Task AddTodoListAsync(TodoListEntity todoList)

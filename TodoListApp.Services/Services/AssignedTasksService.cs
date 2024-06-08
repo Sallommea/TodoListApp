@@ -1,3 +1,4 @@
+using TodoListApp.Services.Database.Models;
 using TodoListApp.Services.Database.Repositories;
 using TodoListApp.Services.Interfaces;
 using TodoListApp.WebApi.Models.Tasks;
@@ -12,27 +13,30 @@ public class AssignedTasksService : IAssignedTasksService
         this.assignedTasksRepository = assignedTasksRepository;
     }
 
-    public async Task<List<TaskDetailsDto>> GetTasksByAssigneeAsync(string assignee, Status? status = null, string? sortCriteria = null)
+    public async Task<PaginatedListResult<TaskDetailsDto>> GetTasksByAssigneeAsync(string assignee, int pageNumber, int tasksPerPage, Status? status = null, string? sortCriteria = null)
     {
-        var tasks = await this.assignedTasksRepository.GetTasksByAssigneeAsync(assignee, (Database.Status?)status, sortCriteria);
+        var tasks = await this.assignedTasksRepository.GetTasksByAssigneeAsync(assignee, pageNumber, tasksPerPage, (Database.Status?)status, sortCriteria);
+
+        if (tasks.TotalRecords == 0)
+        {
+            return new PaginatedListResult<TaskDetailsDto>
+            {
+                TotalRecords = 0,
+                TotalPages = 0,
+                ResultList = new List<TaskDetailsDto>(),
+            };
+        }
 
         var currentDate = DateTime.UtcNow;
 
-        foreach (var t in tasks)
+        foreach (var t in tasks.ResultList!)
         {
-            if (t.DueDate.HasValue && t.DueDate.Value < currentDate)
-            {
-                t.IsExpired = true;
-            }
-            else
-            {
-                t.IsExpired = false;
-            }
+            t.IsExpired = t.DueDate.HasValue && t.DueDate.Value < currentDate;
         }
 
         await this.assignedTasksRepository.SaveChangesAsync();
 
-        return tasks.Select(t => new TaskDetailsDto
+        var taskDetailsDtos = tasks.ResultList.Select(t => new TaskDetailsDto
         {
             Id = t.Id,
             Title = t.Title,
@@ -44,6 +48,13 @@ public class AssignedTasksService : IAssignedTasksService
             TodoListId = t.TodoListId,
             IsExpired = t.IsExpired,
         }).ToList();
+
+        return new PaginatedListResult<TaskDetailsDto>
+        {
+            TotalRecords = tasks.TotalRecords,
+            TotalPages = tasks.TotalPages,
+            ResultList = taskDetailsDtos,
+        };
     }
 
     public async Task<bool> UpdateTaskStatusAsync(UpdateTaskStatus updateTaskStatusDto)

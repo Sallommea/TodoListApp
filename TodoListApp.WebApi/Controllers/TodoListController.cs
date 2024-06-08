@@ -47,12 +47,12 @@ public class TodoListController : ControllerBase
 
     // GET: api/<TodoListController>
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetTodoList(int id)
+    public async Task<IActionResult> GetTodoList(int id, int taskPageNumber = 1, int tasksPerPage = 10)
     {
-        var todoListDto = await this.todoListService.GetTodoListWithTasksAsync(id);
+        var todoListDto = await this.todoListService.GetTodoListWithTasksAsync(id, taskPageNumber, tasksPerPage);
         if (todoListDto == null)
         {
-            return this.NotFound();
+            return this.NotFound(new { message = "Todo list not found." });
         }
 
         return this.Ok(todoListDto);

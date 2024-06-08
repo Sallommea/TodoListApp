@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TodoListApp.Services.Database.Models;
 
 namespace TodoListApp.Services.Database.Repositories;
 public class AssignedTasksRepository : IAssignedTasksRepository
@@ -10,7 +11,7 @@ public class AssignedTasksRepository : IAssignedTasksRepository
         this.dbContext = dbContext;
     }
 
-    public async Task<List<TaskEntity>> GetTasksByAssigneeAsync(string assignee, Status? status = null, string? sortCriteria = null)
+    public async Task<PaginatedListResult<TaskEntity>> GetTasksByAssigneeAsync(string assignee, int pageNumber, int tasksPerPage, Status? status = null, string? sortCriteria = null)
     {
         var query = this.dbContext.Tasks.AsQueryable();
 
@@ -40,9 +41,33 @@ public class AssignedTasksRepository : IAssignedTasksRepository
             }
         }
 
-        return await query
-            .Where(t => t.Assignee == assignee)
-            .ToListAsync();
+        query = query.Where(t => t.Assignee == assignee);
+
+        var totalRecords = await query.CountAsync();
+
+        if (totalRecords == 0)
+        {
+            return new PaginatedListResult<TaskEntity>
+            {
+                TotalRecords = 0,
+                TotalPages = 0,
+                ResultList = new List<TaskEntity>(),
+            };
+        }
+
+        var paginatedTasks = await query
+       .Skip((pageNumber - 1) * tasksPerPage)
+       .Take(tasksPerPage)
+       .ToListAsync();
+
+        var totalPages = (int)Math.Ceiling((double)totalRecords / tasksPerPage);
+
+        return new PaginatedListResult<TaskEntity>
+        {
+            TotalRecords = totalRecords,
+            TotalPages = totalPages,
+            ResultList = paginatedTasks,
+        };
     }
 
     public async Task<bool> UpdateTaskStatusAsync(int taskId, Status newStatus)

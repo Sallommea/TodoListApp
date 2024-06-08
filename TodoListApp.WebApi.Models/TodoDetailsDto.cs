@@ -9,7 +9,11 @@ public class TodoDetailsDto
 
     public string Description { get; set; } = string.Empty;
 
-    public int TaskCount { get; set; }
-
     public ICollection<TaskDto> Tasks { get; set; } = new List<TaskDto>();
+
+    public int? TotalTasks { get; set; }
+
+    public int? TotalTaskPages { get; set; }
+
+    public int? CurrentTaskPage { get; set; }
 }
