@@ -19,7 +19,7 @@ namespace TodoListApp.Services.Database.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    TaskCount = table.Column<int>(type: "int", nullable: false)
+                    TaskCount = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {

@@ -1,11 +1,9 @@
-using TodoListApp.Services.Database.Models;
-
 namespace TodoListApp.Services.Database.Repositories;
 public interface ITodoListRepository
 {
-    Task<PaginatedListResult<TodoListEntity>> GetPaginatedTodoListsAsync(int pageNumber, int itemsPerPage);
+    Task<IEnumerable<TodoListEntity>> GetAllTodoListsAsync();
 
-    Task<PaginatedTodoListResult> GetTodoListWithTasksAsync(int todoListId, int taskPageNumber, int tasksPerPage);
+    Task<TodoListEntity?> GetTodoListWithTasksAsync(int todoListId);
 
     Task AddTodoListAsync(TodoListEntity todoList);
 

@@ -43,4 +43,19 @@ public static partial class LoggerMessages
 
     [LoggerMessage(EventId = 14, Level = LogLevel.Information, Message = "Todo list deleted. ID: {Id}")]
     public static partial void TodoListDeleted(this ILogger logger, int id);
+
+    [LoggerMessage(EventId = 15, Level = LogLevel.Warning, Message = "Todo list with ID {TodoListId} not found.")]
+    public static partial void TodoListNotFound(this ILogger logger, int todoListId);
+
+    [LoggerMessage(EventId = 16, Level = LogLevel.Warning, Message = "Invalid page number: {PageNumber}")]
+    public static partial void InvalidPageNumber(ILogger logger, int pageNumber);
+
+    [LoggerMessage(EventId = 17, Level = LogLevel.Warning, Message = "Invalid items per page: {ItemsPerPage}")]
+    public static partial void InvalidItemsPerPage(ILogger logger, int itemsPerPage);
+
+    [LoggerMessage(EventId = 18, Level = LogLevel.Error, Message = "TodoListException occurred while fetching todo list details with tasks.")]
+    public static partial void TodoListExceptionOccurredWhileGettingTodoDetails(this ILogger logger, Exception ex);
+
+    [LoggerMessage(EventId = 19, Level = LogLevel.Error, Message = "An error occurred while retrieving the todo list with tasks.")]
+    public static partial void UnexpectedErrorOccurredWhileGettingTodoDetails(this ILogger logger, Exception ex);
 }

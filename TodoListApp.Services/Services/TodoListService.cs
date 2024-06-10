@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using TodoListApp.Services.Database;
 using TodoListApp.Services.Database.Repositories;
 using TodoListApp.Services.Exceptions;
@@ -11,22 +12,31 @@ namespace TodoListApp.Services.Services;
 public class TodoListService : ITodoListService
 {
     private readonly ITodoListRepository todoListRepo;
+    private readonly ILogger<TodoListService> logger;
 
-    public TodoListService(ITodoListRepository todoListRepo)
+    public TodoListService(ITodoListRepository todoListRepo, ILogger<TodoListService> logger)
     {
         this.todoListRepo = todoListRepo;
+        this.logger = logger;
     }
 
     public async Task<PaginatedListResult<TodoListDto>> GetPaginatedTodoListsAsync(int pageNumber, int itemsPerPage)
     {
         try
         {
-            var paginatedEntities = await this.todoListRepo.GetPaginatedTodoListsAsync(pageNumber, itemsPerPage);
+            var todoLists = await this.todoListRepo.GetAllTodoListsAsync();
+            var totalRecords = todoLists.Count();
+            var paginatedTodoLists = todoLists
+            .Skip((pageNumber - 1) * itemsPerPage)
+            .Take(itemsPerPage)
+            .ToList();
+
+            var totalPages = (int)Math.Ceiling((double)totalRecords / itemsPerPage);
             var result = new PaginatedListResult<TodoListDto>
             {
-                TotalRecords = paginatedEntities.TotalRecords,
-                TotalPages = paginatedEntities.TotalPages,
-                ResultList = paginatedEntities.ResultList!.Select(e => new TodoListDto
+                TotalRecords = totalRecords,
+                TotalPages = totalPages,
+                ResultList = paginatedTodoLists.Select(e => new TodoListDto
                 {
                     Id = e.Id,
                     Name = e.Name,
@@ -43,51 +53,69 @@ public class TodoListService : ITodoListService
 
     public async Task<TodoDetailsDto?> GetTodoListWithTasksAsync(int todoListId, int taskPageNumber, int tasksPerPage)
     {
-        var result = await this.todoListRepo.GetTodoListWithTasksAsync(todoListId, taskPageNumber, tasksPerPage);
-
-        var todoListEntity = result.TodoList;
-        var paginatedTasks = result.PaginatedTasks;
-
-        if (todoListEntity is null)
+        try
         {
-            return null;
-        }
+            var result = await this.todoListRepo.GetTodoListWithTasksAsync(todoListId);
 
-        var currentDate = DateTime.UtcNow;
-
-        foreach (var task in paginatedTasks?.ResultList!)
-        {
-            if (task.DueDate.HasValue && task.DueDate.Value < currentDate)
+            if (result is null)
             {
-                task.IsExpired = true;
+                throw new TodoListException($"TodoList with ID {todoListId} not found.");
             }
-            else
+
+            var tasks = result.Tasks?.OrderBy(t => t.Id).ToList() ?? new List<TaskEntity>();
+
+            var totalTaskPages = (int)Math.Ceiling((double)tasks.Count / tasksPerPage);
+            var paginatedTasks = tasks
+                .Skip((taskPageNumber - 1) * tasksPerPage)
+                .Take(tasksPerPage)
+                .ToList();
+
+            var currentDate = DateTime.UtcNow;
+
+            foreach (var task in paginatedTasks)
             {
-                task.IsExpired = false;
+                if (task.DueDate.HasValue && task.DueDate.Value < currentDate)
+                {
+                    task.IsExpired = true;
+                }
+                else
+                {
+                    task.IsExpired = false;
+                }
             }
-        }
 
-        await this.todoListRepo.SaveChangesAsync();
+            await this.todoListRepo.SaveChangesAsync();
 
-        var todoListDetailsDto = new TodoDetailsDto
-        {
-            Id = todoListEntity.Id,
-            Name = todoListEntity.Name,
-            Description = todoListEntity.Description,
-            Tasks = paginatedTasks.ResultList.Select(task => new TaskDto
+            var todoListDetailsDto = new TodoDetailsDto
             {
-                Id = task.Id,
-                Title = task.Title,
-                DueDate = task.DueDate,
-                Status = (WebApi.Models.Tasks.Status)task.Status,
-                IsExpired = task.IsExpired,
-            }).ToList(),
-            TotalTasks = paginatedTasks.TotalRecords,
-            TotalTaskPages = paginatedTasks.TotalPages,
-            CurrentTaskPage = taskPageNumber,
-        };
+                Id = result.Id!,
+                Name = result.Name!,
+                Description = result.Description!,
+                Tasks = paginatedTasks.Select(task => new TaskDto
+                {
+                    Id = task.Id,
+                    Title = task.Title,
+                    DueDate = task.DueDate,
+                    Status = (WebApi.Models.Tasks.Status)task.Status,
+                    IsExpired = task.IsExpired,
+                }).ToList(),
+                TotalTasks = tasks.Count,
+                TotalTaskPages = totalTaskPages,
+                CurrentTaskPage = taskPageNumber,
+            };
 
-        return todoListDetailsDto;
+            return todoListDetailsDto;
+        }
+        catch (TodoListException ex)
+        {
+            this.logger.LogWarning(ex, "TodoList not found: {TodoListId}", todoListId);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "An unexpected error occurred while retrieving the todo list with ID {TodoListId}.", todoListId);
+            throw new TodoListException("An unexpected error occurred while retrieving the todo list.", ex);
+        }
     }
 
     public async Task<TodoListEntity> AddTodoListAsync(CreateTodoList todoList)
@@ -106,12 +134,10 @@ public class TodoListService : ITodoListService
         }
         catch (DbUpdateException ex)
         {
-            // Log exception (consider using a logging framework like Serilog or NLog)
             throw new TodoListException("An error occurred while adding the todo list.", ex);
         }
         catch (Exception ex)
         {
-            // Log exception (consider using a logging framework like Serilog or NLog)
             throw new TodoListException("An unexpected error occurred while adding the todo list.", ex);
         }
     }

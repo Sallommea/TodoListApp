@@ -20,6 +20,10 @@ public class TaskRepository : ITaskRepository
             todoList.TaskCount++;
             _ = this.dbContext.TodoLists.Update(todoList);
         }
+        else
+        {
+            throw new KeyNotFoundException($"TodoList with ID {task.TodoListId} not found while adding task.");
+        }
 
         _ = await this.dbContext.SaveChangesAsync();
         return task;
@@ -46,19 +50,19 @@ public class TaskRepository : ITaskRepository
         return true;
     }
 
-    public async Task<TaskEntity?> GetTaskByIdAsync(int todoListId, int taskId)
+    public async Task<TaskEntity?> GetTaskByIdAsync(int taskId)
     {
         return await this.dbContext.Tasks
-        .FirstOrDefaultAsync(t => t.TodoListId == todoListId && t.Id == taskId);
+        .FirstOrDefaultAsync(t => t.Id == taskId);
     }
 
-    public async Task UpdateTaskAsync(int todoListId, int taskId, TaskEntity task)
+    public async Task UpdateTaskAsync(int taskId, TaskEntity task)
     {
-        var existingTask = await this.dbContext.Tasks.FirstOrDefaultAsync(t => t.TodoListId == todoListId && t.Id == taskId);
+        var existingTask = await this.dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == taskId);
 
         if (existingTask == null)
         {
-            throw new KeyNotFoundException($"Task with ID {taskId} not found in TodoList with ID {todoListId}.");
+            throw new KeyNotFoundException($"Task with ID {taskId} not found in TodoList.");
         }
 
         existingTask.Title = task.Title;
@@ -66,7 +70,6 @@ public class TaskRepository : ITaskRepository
         existingTask.DueDate = task.DueDate;
         existingTask.Status = task.Status;
         existingTask.IsExpired = task.IsExpired;
-
         _ = await this.dbContext.SaveChangesAsync();
     }
 }

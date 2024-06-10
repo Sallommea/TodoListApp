@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoListApp.Services.Exceptions;
@@ -24,6 +25,18 @@ public class TodoListController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetPaginatedTodoLists([FromQuery] int pageNumber = 1, [FromQuery] int itemsPerPage = 10)
     {
+        if (pageNumber <= 0)
+        {
+            LoggerMessages.InvalidPageNumber(this.logger, pageNumber);
+            return this.BadRequest(new { message = "Page number must be greater than zero." });
+        }
+
+        if (itemsPerPage <= 0)
+        {
+            LoggerMessages.InvalidItemsPerPage(this.logger, itemsPerPage);
+            return this.BadRequest(new { message = "Items per page must be greater than zero." });
+        }
+
         this.logger.FetchingPaginatedTodoLists(pageNumber, itemsPerPage);
         try
         {
@@ -47,15 +60,41 @@ public class TodoListController : ControllerBase
 
     // GET: api/<TodoListController>
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetTodoList(int id, int taskPageNumber = 1, int tasksPerPage = 10)
+    public async Task<IActionResult> GetTodoList(int id, int pageNumber = 1, int itemsPerPage = 10)
     {
-        var todoListDto = await this.todoListService.GetTodoListWithTasksAsync(id, taskPageNumber, tasksPerPage);
-        if (todoListDto == null)
+        if (pageNumber <= 0)
         {
-            return this.NotFound(new { message = "Todo list not found." });
+            LoggerMessages.InvalidPageNumber(this.logger, pageNumber);
+            return this.BadRequest(new { message = "Page number must be greater than zero." });
         }
 
-        return this.Ok(todoListDto);
+        if (itemsPerPage <= 0)
+        {
+            LoggerMessages.InvalidItemsPerPage(this.logger, itemsPerPage);
+            return this.BadRequest(new { message = "Tasks per page must be greater than zero." });
+        }
+
+        try
+        {
+            var todoListDto = await this.todoListService.GetTodoListWithTasksAsync(id, pageNumber, itemsPerPage);
+            if (todoListDto == null)
+            {
+                this.logger.TodoListNotFound(id);
+                return this.NotFound(new { message = "Todo list not found." });
+            }
+
+            return this.Ok(todoListDto);
+        }
+        catch (TodoListException ex)
+        {
+            this.logger.TodoListExceptionOccurredWhileGettingTodoDetails(ex);
+            return this.NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            this.logger.UnexpectedErrorOccurredWhileGettingTodoDetails(ex);
+            return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An internal server error occurred." });
+        }
     }
 
     // POST api/<TodoListController>
