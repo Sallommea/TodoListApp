@@ -25,6 +25,7 @@ public class TaskService : ITaskService
             var task = await this.taskRepository.GetTaskByIdAsync(taskId);
             if (task == null)
             {
+                TaskLoggerMessages.TaskIdNotFoundToGetTaskDetails(this.logger, taskId);
                 throw new TaskException($"Task with ID {taskId} not found.");
             }
 
@@ -45,13 +46,12 @@ public class TaskService : ITaskService
         }
         catch (TaskException)
         {
-            throw; // Propagate the known exception to the controller
+            throw;
         }
         catch (Exception ex)
         {
-            // Log the exception (assuming logger is injected in the service)
-            this.logger.LogError(ex, "An error occurred while getting task details.");
-            throw; // Propagate the unexpected exception to the controller
+            TaskLoggerMessages.UnexpectedErrorOccurredWhileGettingTaskDetails(this.logger, ex.Message, ex);
+            throw;
         }
     }
 
@@ -93,7 +93,7 @@ public class TaskService : ITaskService
         }
         catch (KeyNotFoundException ex)
         {
-            TodoListLoggerMessages.TodoListNotFound(this.logger, ex);
+            TaskLoggerMessages.ToDoListNotFound(this.logger, ex.Message);
             throw new TodoListException("Unable to create task due to missing TodoList.", ex);
         }
         catch (Exception ex)
@@ -101,7 +101,6 @@ public class TaskService : ITaskService
             TaskLoggerMessages.UnexpectedErrorCreatingTask(this.logger, ex);
             throw new TaskException("An unexpected error occurred while creating the task.", ex);
         }
-
     }
 
     public async Task<bool> DeleteTaskAsync(int taskId)
@@ -111,16 +110,16 @@ public class TaskService : ITaskService
             var result = await this.taskRepository.DeleteTaskAsync(taskId);
             if (!result)
             {
-                this.logger.LogInformation("Task with ID {TaskId} not found in the repository.", taskId);
+                TaskLoggerMessages.TaskIdNotFoundToDelete(this.logger, taskId);
                 return false;
             }
 
-            this.logger.LogInformation("Task with ID {TaskId} deleted successfully from the repository.", taskId);
+            TaskLoggerMessages.TaskDeletedSuccessfully(this.logger, taskId);
             return true;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "An error occurred while deleting task with ID {TaskId}.", taskId);
+            TaskLoggerMessages.UnexpectedErrorOccurredWhileDeletingTask(this.logger, ex.Message, taskId, ex);
             throw;
         }
     }
@@ -146,14 +145,14 @@ public class TaskService : ITaskService
             await this.taskRepository.UpdateTaskAsync(taskId, existingTask);
             return true;
         }
-        catch (KeyNotFoundException ex)
+        catch (KeyNotFoundException)
         {
-            this.logger.LogWarning(ex, "Task with ID {TaskId} not found when trying to update.", taskId);
+            TaskLoggerMessages.TaskIdNotFoundForUpdate(this.logger, taskId);
             return false;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "An error occurred while updating task with ID {TaskId}.", taskId);
+            TaskLoggerMessages.UnexpectedErrorOccurredWhileUpdatingTask(this.logger, ex.Message, taskId, ex);
             throw;
         }
     }

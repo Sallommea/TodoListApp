@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using TodoListApp.Services.Database.Models;
 using TodoListApp.Services.Database.Repositories;
 using TodoListApp.Services.Interfaces;
+using TodoListApp.Services.Logging;
 using TodoListApp.WebApi.Models.Tasks;
 
 namespace TodoListApp.Services.Services;
@@ -63,7 +64,7 @@ public class AssignedTasksService : IAssignedTasksService
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "An error occurred while retrieving tasks for assignee {Assignee}.", assignee);
+            AssignedTasksLoggerMessages.UnexpectedErrorOccurredWhileGettingUserTasks(this.logger, assignee, ex);
             throw;
         }
     }
@@ -75,16 +76,16 @@ public class AssignedTasksService : IAssignedTasksService
             var result = await this.assignedTasksRepository.UpdateTaskStatusAsync(updateTaskStatusDto.TaskId, (Database.Status)updateTaskStatusDto.Status);
             if (!result)
             {
-                this.logger.LogWarning("Task with ID {TaskId} not found for status update.", updateTaskStatusDto.TaskId);
+                AssignedTasksLoggerMessages.InvalidTaskIdForTaskStatusUpdate(this.logger, updateTaskStatusDto.TaskId);
                 return false;
             }
 
-            this.logger.LogInformation("Task with ID {TaskId} status updated to {Status}.", updateTaskStatusDto.TaskId, updateTaskStatusDto.Status);
+            AssignedTasksLoggerMessages.TaskStatusUpdatedSuccessfully(this.logger, updateTaskStatusDto.TaskId);
             return true;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "An error occurred while updating the status of task with ID {TaskId}.", updateTaskStatusDto.TaskId);
+            AssignedTasksLoggerMessages.UnexpectedErrorOccurredWhileUpdatingTaskStatus(this.logger, ex.Message, ex);
             throw;
         }
     }

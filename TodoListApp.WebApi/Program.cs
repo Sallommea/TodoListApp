@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddLogging(loggingBuilder =>
 {
     _ = loggingBuilder.AddConsole();
+    _ = loggingBuilder.AddDebug();
 });
 
 // Add services to the container.

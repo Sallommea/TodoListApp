@@ -35,16 +35,14 @@ public class TasksController : ControllerBase
         }
         catch (TaskException ex)
         {
+            TaskControllerLoggerMessages.TaskExceptionOccurredWhileGettingTaskDetails(this.logger, ex.Message, ex);
             return this.NotFound(new { message = ex.Message });
         }
         catch (Exception ex)
         {
-            // Log the exception (assuming logger is injected in the controller)
-            this.logger.LogError(ex, "An unexpected error occurred while getting task details.");
+            TaskControllerLoggerMessages.UnexpectedErrorOccurredWhileGettingTaskDetails(this.logger, ex.Message, ex);
             return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred. Please try again later." });
         }
-
-
     }
 
     [HttpPost]
@@ -77,7 +75,7 @@ public class TasksController : ControllerBase
         catch (Exception ex)
         {
             TaskControllerLoggerMessages.UnexpectedErrorCreatingTask(this.logger, ex);
-            return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred. Please try again later." });
+            return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred." + ex.Message });
         }
     }
 
@@ -86,7 +84,7 @@ public class TasksController : ControllerBase
     {
         if (taskId <= 0)
         {
-            this.logger.LogWarning("Invalid task ID provided for deletion: {TaskId}", taskId);
+            TaskControllerLoggerMessages.InvalidTaskIdForDeletion(this.logger, taskId);
             return this.BadRequest(new { message = "Invalid task ID." });
         }
 
@@ -95,32 +93,31 @@ public class TasksController : ControllerBase
             var result = await this.taskService.DeleteTaskAsync(taskId);
             if (!result)
             {
-                this.logger.LogInformation("Task with ID {TaskId} not found.", taskId);
+                TaskControllerLoggerMessages.TaskIdNotFoundToDelete(this.logger, taskId);
                 return this.NotFound(new { message = $"Task with ID {taskId} not found." });
             }
 
-            this.logger.LogInformation("Task with ID {TaskId} deleted successfully.", taskId);
+            TaskControllerLoggerMessages.TaskDeletedSuccessfully(this.logger, taskId);
             return this.NoContent();
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "An unexpected error occurred while deleting task with ID {TaskId}.", taskId);
-            return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred. Please try again later." });
+            TaskControllerLoggerMessages.UnexpectedErrorOccurredWhileDeletingTask(this.logger, ex.Message, taskId, ex);
+            return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred." + ex.Message });
         }
     }
 
-    [HttpPut("{todoListId}/tasks/{taskId}")]
+    [HttpPut("{taskId}")]
     public async Task<IActionResult> UpdateTask(int taskId, UpdateTaskDto updateTaskDto)
     {
         if (taskId <= 0)
         {
-            this.logger.LogWarning("Invalid task ID provided for update: {TaskId}", taskId);
+            TaskControllerLoggerMessages.InvalidTaskIdForUpdate(this.logger, taskId);
             return this.BadRequest(new { message = "Invalid task ID." });
         }
 
         if (!this.ModelState.IsValid)
         {
-            this.logger.LogWarning("Validation failed for update task DTO: {ValidationErrors}", ModelState);
             return this.BadRequest(this.ModelState);
         }
 
@@ -129,15 +126,16 @@ public class TasksController : ControllerBase
             var result = await this.taskService.UpdateTaskAsync(taskId, updateTaskDto);
             if (!result)
             {
-                return this.NotFound();
+                TaskControllerLoggerMessages.TaskIdNotFoundToUpdate(this.logger, taskId);
+                return this.NotFound(new { message = $"Task with ID {taskId} not found." });
             }
 
             return this.Ok();
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "An unexpected error occurred while updating task with ID {TaskId}.", taskId);
-            return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred. Please try again later." });
+            TaskControllerLoggerMessages.UnexpectedErrorOccurredWhileUpdatingTask(this.logger, ex.Message, taskId, ex);
+            return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred." + ex.Message });
         }
     }
 }

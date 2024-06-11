@@ -1,6 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.Interfaces;
+using TodoListApp.WebApi.Logging;
 using TodoListApp.WebApi.Models.Tasks;
 
 namespace TodoListApp.WebApi.Controllers;
@@ -22,13 +23,13 @@ public class AssignedTasksController : ControllerBase
     {
         if (pageNumber <= 0)
         {
-            this.logger.LogWarning("Invalid page number: {PageNumber}", pageNumber);
+            AssignedTasksControllerLoggerMessages.InvalidPageNumber(this.logger, pageNumber);
             return this.BadRequest(new { message = "Page number must be greater than zero." });
         }
 
         if (tasksPerPage <= 0)
         {
-            this.logger.LogWarning("Invalid tasks per page: {TasksPerPage}", tasksPerPage);
+            AssignedTasksControllerLoggerMessages.InvalidTasksPerPage(this.logger, tasksPerPage);
             return this.BadRequest(new { message = "Tasks per page must be greater than zero." });
         }
 
@@ -40,7 +41,7 @@ public class AssignedTasksController : ControllerBase
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "An error occurred while retrieving tasks assigned to the user: {ExceptionMessage}", ex.Message);
+            AssignedTasksControllerLoggerMessages.UnexpectedErrorOccurredWhileGettingUserTasks(this.logger, ex.Message, ex);
             return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred." + ex.Message });
         }
     }
@@ -58,16 +59,16 @@ public class AssignedTasksController : ControllerBase
             var result = await this.assignedTasksService.UpdateTaskStatusAsync(updateTaskStatusDto);
             if (!result)
             {
-                this.logger.LogWarning("Task with ID {TaskId} not found.", updateTaskStatusDto.TaskId);
+                AssignedTasksControllerLoggerMessages.InvalidTaskIdForTaskStatusUpdate(this.logger, updateTaskStatusDto.TaskId);
                 return this.NotFound(new { message = $"Task with ID {updateTaskStatusDto.TaskId} not found." });
             }
 
-            this.logger.LogInformation("Task status with ID {TaskId} updated successfully.", updateTaskStatusDto.TaskId);
+            AssignedTasksControllerLoggerMessages.TaskStatusUpdatedSuccessfully(this.logger, updateTaskStatusDto.TaskId);
             return this.Ok();
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "An error occurred while updating the status of task with ID {TaskId}.", updateTaskStatusDto.TaskId);
+            AssignedTasksControllerLoggerMessages.UnexpectedErrorOccurredWhileUpdatingTaskStatus(this.logger, ex.Message, ex);
             return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred." + ex.Message });
         }
     }

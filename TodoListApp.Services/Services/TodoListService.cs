@@ -4,6 +4,7 @@ using TodoListApp.Services.Database;
 using TodoListApp.Services.Database.Repositories;
 using TodoListApp.Services.Exceptions;
 using TodoListApp.Services.Interfaces;
+using TodoListApp.Services.Logging;
 using TodoListApp.Services.Models;
 using TodoListApp.WebApi.Models;
 using TodoListApp.WebApi.Models.Tasks;
@@ -47,6 +48,7 @@ public class TodoListService : ITodoListService
         }
         catch (Exception ex)
         {
+            TodoListLoggerMessages.UnexpectedErrorOccurredWhileRetrievingTodos(this.logger, ex.Message, ex);
             throw new TodoListException("An unexpected error occurred while retrieving the todo lists.", ex);
         }
     }
@@ -108,12 +110,12 @@ public class TodoListService : ITodoListService
         }
         catch (TodoListException ex)
         {
-            this.logger.LogWarning(ex, "TodoList not found: {TodoListId}", todoListId);
+            TodoListLoggerMessages.TodoListNotFound(this.logger, todoListId, ex.Message);
             throw;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "An unexpected error occurred while retrieving the todo list with ID {TodoListId}.", todoListId);
+            TodoListLoggerMessages.UnexpectedErrorOccurred(this.logger, ex.Message, todoListId, ex);
             throw new TodoListException("An unexpected error occurred while retrieving the todo list.", ex);
         }
     }
@@ -134,10 +136,12 @@ public class TodoListService : ITodoListService
         }
         catch (DbUpdateException ex)
         {
+            TodoListLoggerMessages.UnexpectedErrorOccurredWhileAddingTodoList(this.logger, ex.Message, ex);
             throw new TodoListException("An error occurred while adding the todo list.", ex);
         }
         catch (Exception ex)
         {
+            TodoListLoggerMessages.UnexpectedErrorOccurredWhileAddingTodoList(this.logger, ex.Message, ex);
             throw new TodoListException("An unexpected error occurred while adding the todo list.", ex);
         }
     }
@@ -150,10 +154,12 @@ public class TodoListService : ITodoListService
         }
         catch (KeyNotFoundException ex)
         {
+            TodoListLoggerMessages.TodoListNotFound(this.logger, id, ex.Message);
             throw new TodoListException($"TodoList with ID {id} not found.", ex);
         }
         catch (Exception ex)
         {
+            TodoListLoggerMessages.UnexpectedErrorOccurredWhileDeletingTodoList(this.logger, ex.Message, ex);
             throw new TodoListException("An unexpected error occurred while deleting the todo list.", ex);
         }
     }
@@ -173,10 +179,12 @@ public class TodoListService : ITodoListService
         }
         catch (KeyNotFoundException ex)
         {
+            TodoListLoggerMessages.TodoListNotFound(this.logger, updateTodo.Id, ex.Message);
             throw new TodoListException($"TodoList with ID {updateTodo.Id} not found.", ex);
         }
         catch (Exception ex)
         {
+            TodoListLoggerMessages.UnexpectedErrorOccurredWhileUpdatingTodoList(this.logger, ex.Message, ex);
             throw new TodoListException("An unexpected error occurred while updating the todo list.", ex);
         }
     }
