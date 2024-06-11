@@ -1,4 +1,3 @@
-using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.Interfaces;
 using TodoListApp.WebApi.Logging;
@@ -39,10 +38,14 @@ public class AssignedTasksController : ControllerBase
             var tasks = await this.assignedTasksService.GetTasksByAssigneeAsync(assignee, pageNumber, tasksPerPage, status, sortCriteria);
             return this.Ok(tasks);
         }
+        catch (InvalidOperationException ioe)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+        }
         catch (Exception ex)
         {
             AssignedTasksControllerLoggerMessages.UnexpectedErrorOccurredWhileGettingUserTasks(this.logger, ex.Message, ex);
-            return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred." + ex.Message });
+            throw;
         }
     }
 
@@ -66,10 +69,14 @@ public class AssignedTasksController : ControllerBase
             AssignedTasksControllerLoggerMessages.TaskStatusUpdatedSuccessfully(this.logger, updateTaskStatusDto.TaskId);
             return this.Ok();
         }
+        catch (InvalidOperationException ioe)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+        }
         catch (Exception ex)
         {
             AssignedTasksControllerLoggerMessages.UnexpectedErrorOccurredWhileUpdatingTaskStatus(this.logger, ex.Message, ex);
-            return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred." + ex.Message });
+            throw;
         }
     }
 }

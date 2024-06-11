@@ -38,7 +38,7 @@ namespace TodoListApp.Services.Database.Migrations
                     DueDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Assignee = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TodoListId = table.Column<int>(type: "int", nullable: false)
+                    TodoListId = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {

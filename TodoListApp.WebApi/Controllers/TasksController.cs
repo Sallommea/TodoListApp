@@ -38,10 +38,14 @@ public class TasksController : ControllerBase
             TaskControllerLoggerMessages.TaskExceptionOccurredWhileGettingTaskDetails(this.logger, ex.Message, ex);
             return this.NotFound(new { message = ex.Message });
         }
+        catch (InvalidOperationException ioe)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+        }
         catch (Exception ex)
         {
             TaskControllerLoggerMessages.UnexpectedErrorOccurredWhileGettingTaskDetails(this.logger, ex.Message, ex);
-            return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred. Please try again later." });
+            throw;
         }
     }
 
@@ -72,10 +76,14 @@ public class TasksController : ControllerBase
             TaskControllerLoggerMessages.UnexpectedErrorCreatingTask(this.logger, ex);
             return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = ex.Message });
         }
+        catch (InvalidOperationException ioe)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+        }
         catch (Exception ex)
         {
             TaskControllerLoggerMessages.UnexpectedErrorCreatingTask(this.logger, ex);
-            return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred." + ex.Message });
+            throw;
         }
     }
 
@@ -100,10 +108,14 @@ public class TasksController : ControllerBase
             TaskControllerLoggerMessages.TaskDeletedSuccessfully(this.logger, taskId);
             return this.NoContent();
         }
+        catch (InvalidOperationException ioe)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+        }
         catch (Exception ex)
         {
             TaskControllerLoggerMessages.UnexpectedErrorOccurredWhileDeletingTask(this.logger, ex.Message, taskId, ex);
-            return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred." + ex.Message });
+            throw;
         }
     }
 
@@ -132,10 +144,14 @@ public class TasksController : ControllerBase
 
             return this.Ok();
         }
+        catch (InvalidOperationException ioe)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+        }
         catch (Exception ex)
         {
             TaskControllerLoggerMessages.UnexpectedErrorOccurredWhileUpdatingTask(this.logger, ex.Message, taskId, ex);
-            return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An unexpected error occurred." + ex.Message });
+            throw;
         }
     }
 }

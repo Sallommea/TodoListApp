@@ -1,4 +1,3 @@
-using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoListApp.Services.Exceptions;
@@ -51,10 +50,14 @@ public class TodoListController : ControllerBase
             this.logger.TodoListExceptionOccurred(ex);
             return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
         }
+        catch (InvalidOperationException ioe)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+        }
         catch (Exception ex)
         {
             this.logger.UnexpectedErrorOccurred(ex);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            throw;
         }
     }
 
@@ -90,10 +93,14 @@ public class TodoListController : ControllerBase
             this.logger.TodoListExceptionOccurredWhileGettingTodoDetails(ex);
             return this.NotFound(new { message = ex.Message });
         }
+        catch (InvalidOperationException ioe)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+        }
         catch (Exception ex)
         {
             this.logger.UnexpectedErrorOccurredWhileGettingTodoDetails(ex);
-            return this.StatusCode((int)HttpStatusCode.InternalServerError, new { message = "An internal server error occurred." });
+            throw;
         }
     }
 
@@ -125,10 +132,14 @@ public class TodoListController : ControllerBase
                 return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+        catch (InvalidOperationException ioe)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+        }
         catch (Exception ex)
         {
             this.logger.UnexpectedErrorOccurredWhileAddingTodoList(ex);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            throw;
         }
     }
 
@@ -161,10 +172,14 @@ public class TodoListController : ControllerBase
             this.logger.TodoListExceptionOccurredWhileUpdatingTodoList(ex.Message, ex);
             return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
         }
+        catch (InvalidOperationException ioe)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+        }
         catch (Exception ex)
         {
             this.logger.UnexpectedErrorOccurredWhileUpdatingTodoList(ex);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            throw;
         }
     }
 
@@ -187,10 +202,14 @@ public class TodoListController : ControllerBase
             this.logger.TodoListExceptionOccurredWhileDeletingTodoList(ex.Message, ex);
             return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
         }
+        catch (InvalidOperationException ioe)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+        }
         catch (Exception ex)
         {
             this.logger.UnexpectedErrorOccurredWhileDeletingTodoList(ex);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            throw;
         }
     }
 }
