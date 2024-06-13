@@ -14,5 +14,136 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+}
+
+::after,
+::before {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+}
+
+li {
+    list-style: none;
+}
+
+h1 {
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.wrapper {
+    display: flex;
+}
+
+.main {
+    min-height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    transition: all 0.35s ease-in-out;
+    background-color: #fafbfe;
+}
+
+#sidebar {
+    width: 70px;
+    min-width: 70px;
+    z-index: 1000;
+    transition: all 0.35s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    background-color: #f1f3f5;
+}
+
+#sidebar.expand {
+        width: 260px;
+        min-width: 260px;
+    }
+
+#toggle-btn {
+    background-color: transparent;
+    cursor: pointer;
+    border: 0;
+    padding: 1rem 1.5rem;
+}
+
+.button-icon {
+    font-size: 1.5rem;
+    color: #212529;
+}
+
+.sidebar-logo {
+    margin: auto 0;
+}
+
+.sidebar-logo a {
+        color: #212529 !important;
+        font-size: 1.15rem;
+        font-weight: 600;
+    }
+
+#sidebar.expand .sidebar-logo,
+#sidebar.expand a.sidebar-link span {
+    opacity: 1;
+}
+
+a.sidebar-link span,
+.sidebar-logo {
+    opacity: 0;
+    transition: width 0.16s ease-in-out, opacity 0.16s ease-in-out;
+}
+#sidebar.expand .sidebar-search {
+    width: 70%;
+    opacity: 1;
+    background-color: #f1f3f5;
+    border-bottom: 1px solid #212529;
+}
+
+.sidebar-search {
+    width: 0;
+    opacity: 0;
+    transition: width 0.35s ease-in-out, opacity 0.35s ease-in-out;
+    background-color: transparent;
+    border: none;
+    color: #212529;
+    outline: none;
+    padding-left: 0.5rem;
+}
+
+.sidebar-link {
+    padding: 0.5rem;
+    color: #212529;
+}
+
+.sidebar-nav {
+    padding: 2rem 0;
+    flex: 1 1 auto;
+}
+
+a.sidebar-link,
+div.sidebar-link {
+    padding: .625rem 1.625rem;
+    color: #212529;
+    display: block;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    border-left: 3px solid transparent;
+}
+
+    a.sidebar-link ion-icon,
+    a.sidebar-link span,
+    div.sidebar-link ion-icon,
+    div.sidebar-link input {
+        display: inline-block;
+        vertical-align: middle;
+        color: #212529;
+    }
+
+.sidebar-link ion-icon {
+    font-size: 1.1rem;
+    margin-right: .75rem;
+    color: #212529;
 }

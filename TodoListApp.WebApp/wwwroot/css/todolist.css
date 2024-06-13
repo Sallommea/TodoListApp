@@ -1,0 +1,33 @@
+h1{
+    font-size: 36px;
+    padding-top: 2rem;
+}
+.card{
+    padding: 1.5rem 1rem;
+}
+.btn.delete-btn {
+    background-color: #eeeeee;
+    color: #e3374f
+}
+
+.btn.btn-view {
+    background-color: #495057;
+    color: aliceblue;
+}
+
+.page-item.active .page-link {
+    background-color: #495057;
+    border-color: #495057;
+    color: aliceblue;
+}
+
+.page-link {
+    color: #495057;
+}
+.page-link:hover {
+        color: #495057;
+    }
+
+    .page-link:focus {
+        box-shadow:none;
+    }
