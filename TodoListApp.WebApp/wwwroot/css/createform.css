@@ -1,0 +1,18 @@
+.text-center {
+    text-align: start !important;
+}
+
+h1 {
+    font-size: 48px;
+}
+
+.btn.create-btn {
+    background-color: #495057;
+    color: aliceblue;
+    padding: 0.7rem 5rem;
+    border-radius: 16px;
+}
+
+    .btn.create-btn:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }

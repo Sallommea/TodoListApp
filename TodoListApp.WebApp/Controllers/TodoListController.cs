@@ -44,7 +44,7 @@ public class TodoListController : Controller
             this.logger.LogWarning($"Todo list with ID {id} not found: {ex.Message}");
             return this.NotFound();
         }
-        catch (Exception ex)
+        catch (HttpRequestException ex)
         {
             this.logger.LogError(ex, $"Error deleting todo list with ID {id}");
             return this.StatusCode(StatusCodes.Status500InternalServerError);
@@ -57,6 +57,18 @@ public class TodoListController : Controller
         return this.View();
     }
 
+    public async Task<IActionResult> Edit(int id)
+    {
+        var todoDetails = await this.todoListWebApiService.GetTodoListAsync(id);
+        var updateTodo = new UpdateTodo
+        {
+            Id = todoDetails.Id,
+            Name = todoDetails.Name,
+            Description = todoDetails.Description,
+        };
+        return this.View(updateTodo);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(CreateTodoList createTodoList)
     {
@@ -67,12 +79,50 @@ public class TodoListController : Controller
                 _ = await this.todoListWebApiService.AddTodoListAsync(createTodoList);
                 return this.RedirectToAction(nameof(this.Index));
             }
-            catch (Exception ex)
+            catch (HttpRequestException)
             {
                 this.ModelState.AddModelError(string.Empty, "An error occurred while creating the todo list.");
             }
         }
 
         return this.View("CreateTodoList", createTodoList);
+    }
+
+    public async Task<IActionResult> Details(int id, int pageNumber = 1, int itemsPerPage = 10)
+    {
+        try
+        {
+            var todoDetails = await this.todoListWebApiService.GetTodoListAsync(id, pageNumber, itemsPerPage);
+            if (todoDetails == null)
+            {
+                return this.NotFound();
+            }
+
+            return this.View(todoDetails);
+        }
+        catch (HttpRequestException)
+        {
+            return this.StatusCode(500);
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateTodo(UpdateTodo updateTodo)
+    {
+        if (!this.ModelState.IsValid)
+        {
+            return this.View("Edit", updateTodo);
+        }
+
+        try
+        {
+            await this.todoListWebApiService.UpdateTodoListAsync(updateTodo);
+            return this.RedirectToAction("Details", new { id = updateTodo.Id });
+        }
+        catch (HttpRequestException)
+        {
+            this.ModelState.AddModelError(string.Empty, "An error occurred while updating the todo list.");
+            return this.View("Edit", updateTodo);
+        }
     }
 }

@@ -61,10 +61,7 @@ public class TasksController : ControllerBase
         {
             var createdTask = await this.taskService.CreateTaskAsync(createTaskDto);
             TaskControllerLoggerMessages.TaskCreatedSuccessfully(this.logger, createdTask.Id, createdTask.TodoListId);
-            return this.CreatedAtAction(
-            nameof(this.GetTaskDetails),
-            new { todoListId = createdTask.TodoListId, taskId = createdTask.Id },
-            createdTask);
+            return this.Ok(createdTask.Id);
         }
         catch (TodoListException ex)
         {

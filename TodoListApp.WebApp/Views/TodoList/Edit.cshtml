@@ -1,0 +1,32 @@
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model TodoListApp.WebApi.Models.UpdateTodo
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/css/todolistcreate.css" />
+}
+
+<div class="container text-center">
+    <h1 class="pb-5 pt-4">Edit Todo</h1>
+
+<form asp-action="UpdateTodo" asp-controller="TodoList" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group mb-5">
+        <label asp-for="Name">Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group mb-5">
+        <label asp-for="Description">Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn create-btn mb-3">Save Changes</button>
+</form>
+
+<div>
+    <a class="btn go-back-button" asp-action="Details" asp-route-id="@Model.Id">Back to Details</a>
+</div>
+</div>

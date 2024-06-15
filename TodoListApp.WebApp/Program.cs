@@ -10,6 +10,11 @@ builder.Services.AddHttpClient<TodoListWebApiService>(client =>
     client.BaseAddress = new Uri("https://localhost:7096/");
 });
 
+builder.Services.AddHttpClient<TaskWebApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7096/");
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

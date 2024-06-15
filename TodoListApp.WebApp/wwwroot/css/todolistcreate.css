@@ -5,7 +5,8 @@ h1{
 .btn.create-btn {
     background-color: #495057;
     color: aliceblue;
-    padding: 1rem 5rem;
+    padding: 0.7rem 5rem;
+    border-radius: 16px;
 }
 
 .btn.create-btn:hover {
@@ -17,4 +18,26 @@ h1{
 
 .form-control:focus {
     box-shadow: none;
+}
+
+
+.btn.go-back-button {
+    border: 2px solid #ced4da;
+    border-radius: 16px;
+    padding: 0.5rem 5rem;
+}
+
+.btn.go-back-button:hover {
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        color: #1971c2;
+    }
+
+.btn.go-back-button:focus,
+.btn.go-back-button:active {
+        box-shadow: none;
+        outline: 0;
+    }
+
+.second-part-color {
+    background-color: #f1f3f5;
 }

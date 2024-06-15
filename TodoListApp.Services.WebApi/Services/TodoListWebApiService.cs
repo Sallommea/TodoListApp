@@ -26,14 +26,28 @@ namespace TodoListApp.Services.WebApi.Services
         public async Task DeleteTodoListAsync(int id)
         {
             var response = await this.httpClient.DeleteAsync($"api/TodoList/{id}");
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
         }
 
         public async Task<int> AddTodoListAsync(CreateTodoList createTodoList)
         {
             var response = await this.httpClient.PostAsJsonAsync("api/TodoList", createTodoList);
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<int>();
+        }
+
+        public async Task<TodoDetailsDto> GetTodoListAsync(int id, int pageNumber = 1, int itemsPerPage = 10)
+        {
+            var response = await this.httpClient.GetAsync($"api/TodoList/{id}?pageNumber={pageNumber}&itemsPerPage={itemsPerPage}");
+
+            var todoDetailsDto = await response.Content.ReadFromJsonAsync<TodoDetailsDto>();
+            return todoDetailsDto ?? new TodoDetailsDto();
+        }
+
+        public async Task UpdateTodoListAsync(UpdateTodo updateTodo)
+        {
+            var response = await this.httpClient.PutAsJsonAsync($"api/TodoList/{updateTodo.Id}", updateTodo);
+            _ = response.EnsureSuccessStatusCode();
         }
     }
 }
