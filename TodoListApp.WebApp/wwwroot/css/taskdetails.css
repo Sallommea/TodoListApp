@@ -1,0 +1,20 @@
+.text-center {
+    text-align: start !important;
+}
+
+h1 {
+    font-size: 48px;
+}
+
+hr {
+    border: 0;
+    border-top: 2px solid #2b8a3e;
+}
+h5 {
+    font-size: 16px;
+    color: #868e96;
+}
+p {
+    font-size: 16px;
+    font-weight: 500;
+}

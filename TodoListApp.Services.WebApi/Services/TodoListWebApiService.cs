@@ -1,4 +1,3 @@
-using System.Net.Http;
 using System.Net.Http.Json;
 using TodoListApp.Services.Models;
 using TodoListApp.WebApi.Models;
@@ -40,8 +39,14 @@ namespace TodoListApp.Services.WebApi.Services
         {
             var response = await this.httpClient.GetAsync($"api/TodoList/{id}?pageNumber={pageNumber}&itemsPerPage={itemsPerPage}");
 
-            var todoDetailsDto = await response.Content.ReadFromJsonAsync<TodoDetailsDto>();
-            return todoDetailsDto ?? new TodoDetailsDto();
+            var todoDetails = await response.Content.ReadFromJsonAsync<TodoDetailsDto>();
+
+            if (todoDetails == null)
+            {
+                throw new InvalidOperationException("Failed to deserialize todo list details.");
+            }
+
+            return todoDetails;
         }
 
         public async Task UpdateTodoListAsync(UpdateTodo updateTodo)

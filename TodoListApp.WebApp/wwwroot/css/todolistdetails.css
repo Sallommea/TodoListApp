@@ -1,3 +1,6 @@
+
+
+
 .full-height-container {
     min-height: 100vh;
     display: flex;
@@ -69,6 +72,76 @@ p{
     transition: box-shadow 0.3s ease;
 }
 
-    .btn.btn-delete:hover {
+.btn.btn-delete:hover {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow effect on hover */
     }
+
+.table thead tr {
+    background-color: #f1f3f5;
+    border-top: none;
+}
+.table > :not(:last-child) > :last-child > * {
+    border-bottom-color: transparent;
+}
+
+.status-column {
+    width: 150px;
+    border-left: 3px solid #868e96;
+    padding: 8px;
+}
+
+.status-icon {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.status-text {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.completed-status {
+    border-left: 3px solid #2b8a3e;
+}
+
+.expired-status {
+    border-left: 3px solid #e3374f;
+}
+
+.expired-date {
+    color: #e3374f;
+}
+
+ion-icon.icon-alert {
+    color: #e3374f;
+}
+
+ion-icon.completed {
+    color: #2b8a3e;
+}
+
+td.status-column{
+   
+    gap: 0.2rem;
+   
+}
+
+.page-item.active .page-link {
+    background-color: #495057 !important;
+    border-color: #495057;
+    color: aliceblue;
+}
+
+a.page-link {
+    color: #495057;
+}
+
+.page-link:hover {
+    color: #495057;
+}
+
+.page-link:focus {
+    box-shadow: none;
+    color: #495057;
+}

@@ -88,7 +88,7 @@ public class TodoListController : Controller
         return this.View("CreateTodoList", createTodoList);
     }
 
-    public async Task<IActionResult> Details(int id, int pageNumber = 1, int itemsPerPage = 10)
+    public async Task<IActionResult> Details(int id, int pageNumber = 1, int itemsPerPage = 2)
     {
         try
         {

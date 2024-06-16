@@ -1,0 +1,34 @@
+@model TodoListApp.WebApi.Models.Tasks.TaskDetailsDto
+
+@{
+    ViewData["Title"] = "Task Details";
+}
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/css/taskdetails.css" />
+}
+
+<div class="container">
+    <h1 class="mb-5">@Model.Title</h1>
+    <div class="row mb-3">
+        <h5 class="col-sm-4 fw-bold">Status</h5>
+        <p class="col-sm-8 ">@Model.Status</p>
+    </div>
+    <div class="row mb-3">
+        <h5 class="col-sm-4 fw-bold">Due Date</h5>
+        <p class="col-sm-8 ">@Model.DueDate?.ToString("MMMM dd, yyyy")</p>
+    </div>
+    <div class="row mb-3">
+        <h5 class="col-sm-4 fw-bold">Assigned To</h5>
+        <p class="col-sm-8 ">@Model.Assignee</p>
+    </div>
+    <div class="row mb-3">
+        <h5 class="col-sm-4">Tags</h5>
+        <p class="col-sm-8">Here Comes tags</p>
+    </div>
+    <hr class="my-4">
+
+    <h4 class="my-4">Description</h4>
+    <div>
+        @Model.Description
+    </div>
+</div>

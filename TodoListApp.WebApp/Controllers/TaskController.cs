@@ -68,4 +68,29 @@ public class TaskController : Controller
             return this.StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred: " + ex.Message);
         }
     }
+
+    public async Task<IActionResult> TaskDetails(int taskId)
+    {
+        if (taskId <= 0)
+        {
+            this.logger.LogInformation(taskId.ToString());
+            return this.BadRequest(new { message = "Invalid task ID." });
+        }
+
+        try
+        {
+            var taskDetails = await this.taskWebApiService.GetTaskDetailsAsync(taskId);
+            return this.View(taskDetails);
+        }
+        catch (HttpRequestException ex)
+        {
+            logger.LogError(ex, "Error occurred while fetching task details");
+            return this.NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ioe)
+        {
+            logger.LogError(ioe, "Invalid operation error occurred");
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An error occurred: " + ioe.Message);
+        }
+    }
 }
