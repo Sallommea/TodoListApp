@@ -18,3 +18,51 @@ p {
     font-size: 16px;
     font-weight: 500;
 }
+.expired-date {
+    color: #e3374f;
+}
+
+.btn.update-btn {
+    border: 2px solid #ced4da;
+    border-radius: 16px;
+}
+
+.btn.update-btn:hover {
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        color: #1971c2;
+    }
+
+.btn.update-btn:focus,
+.btn.update-btn:active {
+        box-shadow: none;
+        outline: 0;
+    }
+
+.status-badge {
+    display: inline-block;
+    padding: 0.5em 0.6em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    color: white;
+}
+
+.status-completed {
+    background-color: #28a745;
+}
+
+.status-notstarted {
+    background-color: #6c757d;
+}
+
+.status-inprogress {
+    background-color: #007bff;
+}
+
+.status-badge:hover {
+    opacity: 0.8;
+}

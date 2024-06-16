@@ -48,4 +48,10 @@ public class TaskWebApiService
 
         return taskDetails;
     }
+
+    public async Task UpdateTaskAsync(int taskId, UpdateTaskDto updateTaskDto)
+    {
+        var response = await this.httpClient.PutAsJsonAsync($"api/tasks/{taskId}", updateTaskDto);
+        _ = response.EnsureSuccessStatusCode();
+    }
 }

@@ -1,0 +1,77 @@
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model PaginatedListResult<TaskDetailsDto>
+@using TodoListApp.Services.Models;
+@using TodoListApp.WebApi.Models.Tasks
+
+@{
+    ViewData["Title"] = "Assigned Tasks";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row mb-3">
+    <div class="col">
+        <form asp-action="Index" method="get" class="form-inline">
+            <select name="status" asp-items="@(Html.GetEnumSelectList<Status>())" class="form-control mr-2">
+                <option value="">All Statuses</option>
+            </select>
+            <select name="sortCriteria" class="form-control mr-2">
+                <option value="">Sort By</option>
+                <option value="dueDate" asp-selected="@(ViewBag.SortCriteria == "dueDate")">Due Date</option>
+                <option value="title" asp-selected="@(ViewBag.SortCriteria == "title")">Title</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Apply</button>
+        </form>
+    </div>
+</div>
+
+@if (Model.ResultList != null && Model.ResultList.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var task in Model.ResultList)
+            {
+                <tr>
+                    <td>@task.Title</td>
+                    <td>@(task.DueDate?.ToString("yyyy-MM-dd") ?? "No due date")</td>
+                    <td> @task.Status
+                    </td>
+                    <td>@task.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <nav class="mt-5" aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link"
+               asp-controller="AssignedTasks"
+               asp-action="Index"
+               asp-route-pageNumber="@i"
+               asp-route-tasksPerPage="@ViewBag.TasksPerPage"
+               asp-route-status="@ViewBag.Status"
+               asp-route-sortCriteria="@ViewBag.SortCriteria">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+else
+{
+    <p>No tasks found.</p>
+}

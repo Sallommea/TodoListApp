@@ -1,21 +1,35 @@
+@using TodoListApp.WebApi.Models.Tasks;
 @model TodoListApp.WebApi.Models.Tasks.TaskDetailsDto
 
 @{
     ViewData["Title"] = "Task Details";
 }
 @section Styles {
-    <link rel="stylesheet" type="text/css" href="~/css/taskdetails.css" />
+    <link rel="stylesheet" type="text/css" href="~/css/taskdetails.css?v=@DateTime.Now.Ticks" />
 }
 
 <div class="container">
     <h1 class="mb-5">@Model.Title</h1>
     <div class="row mb-3">
         <h5 class="col-sm-4 fw-bold">Status</h5>
-        <p class="col-sm-8 ">@Model.Status</p>
+        <p class="col-sm-8 ">
+            <span class="status-badge status-@Model.Status.ToString().ToLower()">
+            @Model.Status
+            </span>
+            </p>
     </div>
     <div class="row mb-3">
         <h5 class="col-sm-4 fw-bold">Due Date</h5>
-        <p class="col-sm-8 ">@Model.DueDate?.ToString("MMMM dd, yyyy")</p>
+        <p class="col-sm-8 @(Model.Status != Status.Completed && Model.IsExpired ? "expired-date" : "")">
+            @if (Model.DueDate.HasValue)
+            {
+                @Model.DueDate.Value.ToString("MMMM dd, yyyy")
+            }
+            else
+            {
+                <span class="no-due-date">No due date set</span>
+            }
+        </p>
     </div>
     <div class="row mb-3">
         <h5 class="col-sm-4 fw-bold">Assigned To</h5>
@@ -24,6 +38,10 @@
     <div class="row mb-3">
         <h5 class="col-sm-4">Tags</h5>
         <p class="col-sm-8">Here Comes tags</p>
+    </div>
+
+    <div>
+        <a href="@Url.Action("EditTask", "Task", new { id = Model.Id })" class="btn update-btn mt-1 mb-1">Update Task</a>
     </div>
     <hr class="my-4">
 

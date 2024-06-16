@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.WebApi.Services;
+using TodoListApp.WebApi.Models;
 using TodoListApp.WebApi.Models.Tasks;
 
 namespace TodoListApp.WebApp.Controllers;
@@ -91,6 +92,58 @@ public class TaskController : Controller
         {
             logger.LogError(ioe, "Invalid operation error occurred");
             return this.StatusCode(StatusCodes.Status500InternalServerError, "An error occurred: " + ioe.Message);
+        }
+    }
+
+    public async Task<IActionResult> EditTask(int id)
+    {
+        var task = await this.taskWebApiService.GetTaskDetailsAsync(id);
+        if (task == null)
+        {
+            return this.NotFound();
+        }
+
+        var updateTaskDto = new UpdateTaskDto
+        {
+            Title = task.Title,
+            Description = task.Description,
+            DueDate = task.DueDate,
+            Status = task.Status,
+        };
+
+        this.ViewData["TaskId"] = id;
+        return this.View(updateTaskDto);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateTask(int id, UpdateTaskDto updateTaskDto)
+    {
+        if (!this.ModelState.IsValid)
+        {
+            this.ViewData["TaskId"] = id;
+            return this.View("EditTask", updateTaskDto);
+        }
+
+        try
+        {
+            if (updateTaskDto.DueDate.HasValue)
+            {
+                var dueDate = updateTaskDto.DueDate.Value;
+
+                if (dueDate.TimeOfDay == TimeSpan.Zero)
+                {
+                    dueDate = dueDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
+                }
+
+                updateTaskDto.DueDate = DateTime.SpecifyKind(dueDate, DateTimeKind.Utc);
+            }
+
+            await this.taskWebApiService.UpdateTaskAsync(id, updateTaskDto);
+            return this.RedirectToAction("TaskDetails", new { taskId = id });
+        }
+        catch (HttpRequestException)
+        {
+            return this.NotFound();
         }
     }
 }
