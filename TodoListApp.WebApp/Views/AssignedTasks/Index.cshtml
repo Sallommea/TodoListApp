@@ -1,59 +1,111 @@
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
 @model PaginatedListResult<TaskDetailsDto>
 @using TodoListApp.Services.Models;
 @using TodoListApp.WebApi.Models.Tasks
-
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/css/todolistdetails.css?v=@DateTime.Now.Ticks" />
+}
 @{
     ViewData["Title"] = "Assigned Tasks";
 }
 
+<div class="container">
 <h1>@ViewData["Title"]</h1>
 
-<div class="row mb-3">
-    <div class="col">
-        <form asp-action="Index" method="get" class="form-inline">
-            <select name="status" asp-items="@(Html.GetEnumSelectList<Status>())" class="form-control mr-2">
-                <option value="">All Statuses</option>
-            </select>
-            <select name="sortCriteria" class="form-control mr-2">
-                <option value="">Sort By</option>
-                <option value="dueDate" asp-selected="@(ViewBag.SortCriteria == "dueDate")">Due Date</option>
-                <option value="title" asp-selected="@(ViewBag.SortCriteria == "title")">Title</option>
-            </select>
-            <button type="submit" class="btn btn-primary">Apply</button>
-        </form>
+    <div class="row mb-3">
+        <div class="col">
+            <form asp-action="Index" method="get" class="form-inline custom-form">
+                <div class="d-flex align-items-center">
+                    <select name="status" class="form-control custom-select mr-3" onchange="this.form.submit()">
+                        <option value="" >Select Status</option>
+                        @foreach (var status in Enum.GetValues(typeof(Status)))
+                        {
+                            <option value="@((int)status)" selected="@(ViewBag.Status != null && (int)ViewBag.Status == (int)status)">@status</option>
+                        }
+                    </select>
+                    <select name="sortCriteria" class="form-control custom-select mr-3" onchange="this.form.submit()">
+                        <option value="">Sort By</option>
+                        <option value="dueDate" selected="@(ViewBag.SortCriteria == "dueDate")">Due Date</option>
+                        <option value="title" selected="@(ViewBag.SortCriteria == "title")">Title</option>
+                    </select>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
 @if (Model.ResultList != null && Model.ResultList.Any())
 {
+    <div class="table-responsive">
     <table class="table">
         <thead>
             <tr>
+                <th class="status-column">Status</th>
                 <th>Title</th>
                 <th>Due Date</th>
-                <th>Status</th>
                 <th>Description</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var task in Model.ResultList)
             {
                 <tr>
-                    <td>@task.Title</td>
-                    <td>@(task.DueDate?.ToString("yyyy-MM-dd") ?? "No due date")</td>
-                    <td> @task.Status
+                    <td class="status-column @(task.Status == Status.Completed ? "completed-status" : "") @(task.Status != Status.Completed && task.IsExpired ? "expired-status" : "")">
+                                <span class="status-icon">
+                                    @if (task.Status != Status.Completed && task.IsExpired)
+                                    {
+                                        <ion-icon class="icon-alert" name="alert-circle-outline"></ion-icon>
+                                    }
+                                    else if (task.Status == Status.Completed)
+                                    {
+                                        <ion-icon class="completed" name="checkmark-circle-outline"></ion-icon>
+                                    }
+                                    else if (task.Status == Status.InProgress)
+                                    {
+                                        <ion-icon name="hourglass-outline"></ion-icon>
+                                    }
+                                    else if (task.Status == Status.NotStarted)
+                                    {
+                                        <ion-icon name="ellipse-outline"></ion-icon>
+                                    }
+                                </span>
+                                <span class="status-text">
+                                    @task.Status
+                                </span>
                     </td>
+                    <td>@task.Title</td>
+                     <td class="@(task.Status != Status.Completed && task.IsExpired ? "expired-date" : "")">@(task.DueDate?.ToString("MMMM dd, yyyy") ?? "No due date")</td>
                     <td>@task.Description</td>
+                    <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-@task.Id" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Change Status
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@task.Id">
+                                        @foreach (var statusOption in Enum.GetValues(typeof(Status)))
+                                        {
+                                            @if ((Status)statusOption != task.Status)
+                                            {
+                                                <li>
+                                                    <form asp-action="ChangeStatus" method="post">
+                                                        <input type="hidden" name="taskId" value="@task.Id" />
+                                                        <input type="hidden" name="newStatus" value="@((int)statusOption)" />
+                                                        <input type="hidden" name="pageNumber" value="@ViewBag.CurrentPage" />
+                                                        <input type="hidden" name="tasksPerPage" value="@ViewBag.TasksPerPage" />
+                                                        <input type="hidden" name="status" value="@ViewBag.Status" />
+                                                        <input type="hidden" name="sortCriteria" value="@ViewBag.SortCriteria" />
+                                                        <button type="submit" class="dropdown-item">@statusOption</button>
+                                                    </form>
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
-
+    </div>
     <nav class="mt-5" aria-label="Page navigation">
         <ul class="pagination justify-content-center">
             @for (int i = 1; i <= Model.TotalPages; i++)
@@ -75,3 +127,4 @@ else
 {
     <p>No tasks found.</p>
 }
+</div>

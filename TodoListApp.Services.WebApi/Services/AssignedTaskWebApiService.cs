@@ -1,7 +1,6 @@
-using System.Net.Http;
+using System.Net;
 using System.Net.Http.Json;
 using TodoListApp.Services.Models;
-using TodoListApp.WebApi.Models;
 using TodoListApp.WebApi.Models.Tasks;
 
 namespace TodoListApp.Services.WebApi.Services;
@@ -47,5 +46,27 @@ public class AssignedTaskWebApiService
         }
 
         throw new HttpRequestException($"Error getting assigned tasks: {response.StatusCode}");
+    }
+
+    public async Task UpdateTaskStatusAsync(UpdateTaskStatus updateTaskStatusDto)
+    {
+        try
+        {
+            var response = await this.httpClient.PutAsJsonAsync("api/AssignedTasks/update-status", updateTaskStatusDto);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new InvalidOperationException($"Task with ID {updateTaskStatusDto.TaskId} not found.");
+                }
+
+                _ = response.EnsureSuccessStatusCode();
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new InvalidOperationException("An error occurred while communicating with the server.", ex);
+        }
     }
 }

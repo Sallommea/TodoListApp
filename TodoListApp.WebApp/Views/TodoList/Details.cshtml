@@ -1,10 +1,5 @@
 @using TodoListApp.WebApi.Models;
 @using TodoListApp.WebApi.Models.Tasks;
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/css/todolistdetails.css?v=@DateTime.Now.Ticks" />
 }
@@ -80,7 +75,7 @@
                                             </span>
                                         </td>
                             <td>@task.Title</td>
-                                        <td class="@(task.Status != Status.Completed && task.IsExpired ? "expired-date" : "")">@task.DueDate?.ToString("MMMM dd, yyyy")</td>
+                             <td class="@(task.Status != Status.Completed && task.IsExpired ? "expired-date" : "")">@task.DueDate?.ToString("MMMM dd, yyyy")</td>
                             <td>
                                <form asp-controller="Task" asp-action="DeleteTask" method="post" style="display:inline;">
                                   <input type="hidden" name="id" value="@task.Id" />
