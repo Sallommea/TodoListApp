@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TodoListApp.Services.Database.Models;
 
 namespace TodoListApp.Services.Database.Repositories;
 public class TaskRepository : ITaskRepository
@@ -71,5 +72,26 @@ public class TaskRepository : ITaskRepository
         existingTask.Status = task.Status;
         existingTask.IsExpired = task.IsExpired;
         _ = await this.dbContext.SaveChangesAsync();
+    }
+
+    public async Task<PaginatedListResult<TaskEntity>> SearchTasksByTitleAsync(int pageNumber, int tasksPerPage, string searchText)
+    {
+        var result = new PaginatedListResult<TaskEntity>();
+        var query = this.dbContext.Tasks.AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchText))
+        {
+            query = query.Where(t => t.Title.Contains(searchText));
+        }
+
+        result.TotalRecords = await query.CountAsync();
+        result.TotalPages = (int)Math.Ceiling((double)result.TotalRecords / tasksPerPage);
+        result.ResultList = await query
+            .OrderByDescending(x => x.Id)
+            .Skip((pageNumber - 1) * tasksPerPage)
+            .Take(tasksPerPage)
+            .ToListAsync();
+
+        return result;
     }
 }

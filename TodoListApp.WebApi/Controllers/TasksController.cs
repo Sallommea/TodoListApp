@@ -2,6 +2,8 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.Exceptions;
 using TodoListApp.Services.Interfaces;
+using TodoListApp.Services.Models;
+using TodoListApp.Services.Services;
 using TodoListApp.WebApi.Logging;
 using TodoListApp.WebApi.Models.Tasks;
 
@@ -17,6 +19,20 @@ public class TasksController : ControllerBase
     {
         this.taskService = taskService;
         this.logger = logger;
+    }
+
+    [HttpGet("paginated")]
+    public async Task<ActionResult<PaginatedListResult<TaskSearchResultDto>>> GetPaginatedTasks(string searchText, int pageNumber = 1, int itemsPerPage = 10)
+    {
+        Console.WriteLine($"searchText: {searchText}, pageNumber: {pageNumber}, itemsPerPage: {itemsPerPage}");
+
+        if (pageNumber <= 0 || itemsPerPage <= 0)
+        {
+            return this.BadRequest("Page number and items per page must be greater than zero.");
+        }
+
+        var paginatedTasks = await this.taskService.GetPaginatedSearchedTasksAsync(pageNumber, itemsPerPage, searchText);
+        return this.Ok(paginatedTasks);
     }
 
     [HttpGet("{taskId}")]
@@ -151,4 +167,5 @@ public class TasksController : ControllerBase
             throw;
         }
     }
+
 }

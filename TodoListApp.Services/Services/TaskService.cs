@@ -4,6 +4,7 @@ using TodoListApp.Services.Database.Repositories;
 using TodoListApp.Services.Exceptions;
 using TodoListApp.Services.Interfaces;
 using TodoListApp.Services.Logging;
+using TodoListApp.Services.Models;
 using TodoListApp.WebApi.Models.Tasks;
 
 namespace TodoListApp.Services.Services;
@@ -155,5 +156,27 @@ public class TaskService : ITaskService
             TaskLoggerMessages.UnexpectedErrorOccurredWhileUpdatingTask(this.logger, ex.Message, taskId, ex);
             throw;
         }
+    }
+
+    public async Task<PaginatedListResult<TaskSearchResultDto>> GetPaginatedSearchedTasksAsync(int pageNumber, int itemsPerPage, string searchText)
+    {
+        var tasks = await this.taskRepository.SearchTasksByTitleAsync(pageNumber, itemsPerPage, searchText);
+        var tasksSearched = (tasks.ResultList ?? new List<TaskEntity>()).Select(t => new TaskSearchResultDto
+        {
+            Id = t.Id,
+            Title = t.Title,
+            Description = t.Description,
+            DueDate = t.DueDate,
+            IsExpired = t.IsExpired,
+        }).ToList();
+
+        var result = new PaginatedListResult<TaskSearchResultDto>
+        {
+            TotalRecords = tasks.TotalRecords,
+            TotalPages = tasks.TotalPages,
+            ResultList = tasksSearched,
+        };
+
+        return result;
     }
 }

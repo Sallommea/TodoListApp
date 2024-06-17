@@ -1,3 +1,4 @@
+using TodoListApp.Services.Models;
 using TodoListApp.WebApi.Models.Tasks;
 
 namespace TodoListApp.Services.Interfaces;
@@ -10,4 +11,6 @@ public interface ITaskService
     Task<bool> DeleteTaskAsync(int taskId);
 
     Task<bool> UpdateTaskAsync(int taskId, UpdateTaskDto updateTaskDto);
+
+    Task<PaginatedListResult<TaskSearchResultDto>> GetPaginatedSearchedTasksAsync(int pageNumber, int itemsPerPage, string searchText);
 }
