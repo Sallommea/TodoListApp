@@ -1,7 +1,5 @@
-using TodoListApp.WebApi.Models.Tags;
-
 namespace TodoListApp.WebApi.Models.Tasks;
-public class TaskDetailsDto
+public class AssignedTasksdto
 {
     public int Id { get; set; }
 
@@ -20,6 +18,4 @@ public class TaskDetailsDto
     public int TodoListId { get; set; }
 
     public bool IsExpired { get; set; }
-
-    public List<TagDto> Tags { get; set; } = new List<TagDto>();
 }

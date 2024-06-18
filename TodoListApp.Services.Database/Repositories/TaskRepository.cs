@@ -54,6 +54,8 @@ public class TaskRepository : ITaskRepository
     public async Task<TaskEntity?> GetTaskByIdAsync(int taskId)
     {
         return await this.dbContext.Tasks
+         .Include(t => t.TaskTags)
+        .ThenInclude(tt => tt.Tag)
         .FirstOrDefaultAsync(t => t.Id == taskId);
     }
 

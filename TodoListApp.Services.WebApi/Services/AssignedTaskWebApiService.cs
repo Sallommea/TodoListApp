@@ -13,7 +13,7 @@ public class AssignedTaskWebApiService
         this.httpClient = httpClient;
     }
 
-    public async Task<PaginatedListResult<TaskDetailsDto>> GetTasksAssignedToMeAsync(
+    public async Task<PaginatedListResult<AssignedTasksdto>> GetTasksAssignedToMeAsync(
         int pageNumber = 1,
         int tasksPerPage = 10,
         Status? status = null,
@@ -41,7 +41,7 @@ public class AssignedTaskWebApiService
 
         if (response.IsSuccessStatusCode)
         {
-            return await response.Content.ReadFromJsonAsync<PaginatedListResult<TaskDetailsDto>>()
+            return await response.Content.ReadFromJsonAsync<PaginatedListResult<AssignedTasksdto>>()
                 ?? throw new InvalidOperationException("Failed to deserialize the response.");
         }
 

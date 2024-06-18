@@ -5,6 +5,7 @@ using TodoListApp.Services.Exceptions;
 using TodoListApp.Services.Interfaces;
 using TodoListApp.Services.Logging;
 using TodoListApp.Services.Models;
+using TodoListApp.WebApi.Models.Tags;
 using TodoListApp.WebApi.Models.Tasks;
 
 namespace TodoListApp.Services.Services;
@@ -41,6 +42,11 @@ public class TaskService : ITaskService
                 Assignee = task.Assignee,
                 TodoListId = task.TodoListId,
                 IsExpired = task.IsExpired,
+                Tags = task.TaskTags?.Select(tt => new TagDto
+                {
+                    Id = tt.Tag.Id,
+                    Name = tt.Tag.Name,
+                }).ToList() ?? new List<TagDto>(),
             };
 
             return taskDetailsDto;

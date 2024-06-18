@@ -31,6 +31,8 @@ public class TaskEntity
     public TodoListEntity? TodoList { get; set; }
 
     public bool IsExpired { get; set; }
+
+    public ICollection<TaskTagEntity> TaskTags { get; set; } = new List<TaskTagEntity>();
 }
 
 public enum Status

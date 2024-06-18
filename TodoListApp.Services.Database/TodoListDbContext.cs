@@ -12,6 +12,10 @@ public class TodoListDbContext : DbContext
 
     public DbSet<TaskEntity> Tasks { get; set; }
 
+    public DbSet<TagEntity> Tags { get; set; }
+
+    public DbSet<TaskTagEntity> TaskTags { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Configure TodoListEntity
@@ -42,6 +46,37 @@ public class TodoListDbContext : DbContext
             _ = entity.HasOne(e => e.TodoList)
                 .WithMany(t => t.Tasks)
                 .HasForeignKey(e => e.TodoListId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            _ = entity.HasMany(t => t.TaskTags)
+                .WithOne(tt => tt.Task)
+                .HasForeignKey(tt => tt.TaskId)
+                .IsRequired(false);
+        });
+
+        _ = modelBuilder.Entity<TagEntity>(entity =>
+        {
+            _ = entity.HasKey(e => e.Id);
+            _ = entity.Property(e => e.Name).IsRequired().HasMaxLength(50);
+
+            _ = entity.HasMany(t => t.TaskTags)
+                .WithOne(tt => tt.Tag)
+                .HasForeignKey(tt => tt.TagId)
+                .IsRequired();
+        });
+
+        _ = modelBuilder.Entity<TaskTagEntity>(entity =>
+        {
+            _ = entity.HasKey(tt => new { tt.TaskId, tt.TagId });
+
+            _ = entity.HasOne(tt => tt.Task)
+                .WithMany(t => t.TaskTags)
+                .HasForeignKey(tt => tt.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            _ = entity.HasOne(tt => tt.Tag)
+                .WithMany(t => t.TaskTags)
+                .HasForeignKey(tt => tt.TagId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

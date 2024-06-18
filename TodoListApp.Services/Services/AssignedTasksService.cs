@@ -17,7 +17,7 @@ public class AssignedTasksService : IAssignedTasksService
         this.logger = logger;
     }
 
-    public async Task<PaginatedListResult<TaskDetailsDto>> GetTasksByAssigneeAsync(string assignee, int pageNumber, int tasksPerPage, Status? status = null, string? sortCriteria = null)
+    public async Task<PaginatedListResult<AssignedTasksdto>> GetTasksByAssigneeAsync(string assignee, int pageNumber, int tasksPerPage, Status? status = null, string? sortCriteria = null)
     {
         try
         {
@@ -25,11 +25,11 @@ public class AssignedTasksService : IAssignedTasksService
 
             if (tasks.TotalRecords == 0)
             {
-                return new PaginatedListResult<TaskDetailsDto>
+                return new PaginatedListResult<AssignedTasksdto>
                 {
                     TotalRecords = 0,
                     TotalPages = 0,
-                    ResultList = new List<TaskDetailsDto>(),
+                    ResultList = new List<AssignedTasksdto>(),
                 };
             }
 
@@ -42,7 +42,7 @@ public class AssignedTasksService : IAssignedTasksService
 
             await this.assignedTasksRepository.SaveChangesAsync();
 
-            var taskDetailsDtos = tasks.ResultList.Select(t => new TaskDetailsDto
+            var taskDetailsDtos = tasks.ResultList.Select(t => new AssignedTasksdto
             {
                 Id = t.Id,
                 Title = t.Title,
@@ -55,7 +55,7 @@ public class AssignedTasksService : IAssignedTasksService
                 IsExpired = t.IsExpired,
             }).ToList();
 
-            return new PaginatedListResult<TaskDetailsDto>
+            return new PaginatedListResult<AssignedTasksdto>
             {
                 TotalRecords = tasks.TotalRecords,
                 TotalPages = tasks.TotalPages,

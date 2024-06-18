@@ -19,7 +19,7 @@ public class AssignedTasksController : ControllerBase
     }
 
     [HttpGet("assigned-to-me")]
-    public async Task<ActionResult<PaginatedListResult<TaskDetailsDto>>> GetTasksAssignedToMeAsync(int pageNumber = 1, int tasksPerPage = 10, [FromQuery] Status? status = null, [FromQuery] string? sortCriteria = null)
+    public async Task<ActionResult<PaginatedListResult<AssignedTasksdto>>> GetTasksAssignedToMeAsync(int pageNumber = 1, int tasksPerPage = 10, [FromQuery] Status? status = null, [FromQuery] string? sortCriteria = null)
     {
         if (pageNumber <= 0)
         {

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.Exceptions;
 using TodoListApp.Services.Interfaces;
 using TodoListApp.Services.Models;
-using TodoListApp.Services.Services;
 using TodoListApp.WebApi.Logging;
 using TodoListApp.WebApi.Models.Tasks;
 
@@ -167,5 +166,4 @@ public class TasksController : ControllerBase
             throw;
         }
     }
-
 }
