@@ -62,6 +62,27 @@ public class TaskService : ITaskService
         }
     }
 
+    public async Task<PaginatedListResult<TaskDto>> GetTasksByTagIdAsync(int tagId, int pageNumber, int pageSize)
+    {
+        var tasks = await this.taskRepository.GetTasksByTagIdAsync(tagId, pageNumber, pageSize);
+
+        var taskDtos = (tasks.ResultList ?? new List<TaskEntity>()).Select(t => new TaskDto
+        {
+            Id = t.Id,
+            Title = t.Title,
+            DueDate = t.DueDate,
+            Status = (WebApi.Models.Tasks.Status)t.Status,
+            IsExpired = t.IsExpired,
+        }).ToList();
+
+        return new PaginatedListResult<TaskDto>
+        {
+            ResultList = taskDtos,
+            TotalPages = tasks.TotalPages,
+            TotalRecords = tasks.TotalRecords,
+        };
+    }
+
     public async Task<TaskDetailsDto> CreateTaskAsync(CreateTaskDto createTaskDto)
     {
         var currentDate = DateTime.UtcNow;

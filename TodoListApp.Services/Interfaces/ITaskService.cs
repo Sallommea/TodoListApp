@@ -1,3 +1,4 @@
+using TodoListApp.Services.Database;
 using TodoListApp.Services.Models;
 using TodoListApp.WebApi.Models.Tasks;
 
@@ -5,6 +6,8 @@ namespace TodoListApp.Services.Interfaces;
 public interface ITaskService
 {
     Task<TaskDetailsDto?> GetTaskDetailsAsync(int taskId);
+
+    Task<PaginatedListResult<TaskDto>> GetTasksByTagIdAsync(int tagId, int pageNumber, int pageSize);
 
     Task<TaskDetailsDto> CreateTaskAsync(CreateTaskDto createTaskDto);
 

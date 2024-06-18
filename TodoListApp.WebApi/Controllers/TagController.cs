@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.Interfaces;
+using TodoListApp.Services.Services;
+using TodoListApp.WebApi.Models.Tags;
 
 namespace TodoListApp.WebApi.Controllers;
 [Route("api/[controller]")]
@@ -11,6 +13,13 @@ public class TagController : ControllerBase
     public TagController(ITagService tagService)
     {
         this.tagService = tagService;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<TagDto>>> GetAllTags()
+    {
+        var tags = await this.tagService.GetAllTagsAsync();
+        return this.Ok(tags);
     }
 
     [HttpPost("AddTagToTask")]

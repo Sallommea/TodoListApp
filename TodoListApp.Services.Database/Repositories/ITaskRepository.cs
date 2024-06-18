@@ -7,6 +7,8 @@ public interface ITaskRepository
 
     Task<TaskEntity> AddTaskAsync(TaskEntity task);
 
+    Task<PaginatedListResult<TaskEntity>> GetTasksByTagIdAsync(int tagId, int pageNumber, int pageSize);
+
     Task UpdateTaskAsync(int taskId, TaskEntity task);
 
     Task<bool> DeleteTaskAsync(int taskId);

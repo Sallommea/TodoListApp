@@ -59,6 +59,29 @@ public class TaskRepository : ITaskRepository
         .FirstOrDefaultAsync(t => t.Id == taskId);
     }
 
+    public async Task<PaginatedListResult<TaskEntity>> GetTasksByTagIdAsync(int tagId, int pageNumber, int pageSize)
+    {
+        var query = this.dbContext.Tasks
+            .Include(t => t.TaskTags)
+            .ThenInclude(tt => tt.Tag)
+            .Where(t => t.TaskTags.Any(tt => tt.TagId == tagId))
+            .OrderByDescending(t => t.CreatedDate);
+
+        var totalCount = await query.CountAsync();
+
+        var tasks = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PaginatedListResult<TaskEntity>
+        {
+            ResultList = tasks,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+            TotalRecords = totalCount,
+        };
+    }
+
     public async Task UpdateTaskAsync(int taskId, TaskEntity task)
     {
         var existingTask = await this.dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == taskId);

@@ -10,6 +10,13 @@ public class TagRepository : ITagRepository
         this.context = context;
     }
 
+    public async Task<IEnumerable<TagEntity>> GetAllTagsAsync()
+    {
+        return await this.context.Tags
+            .Distinct()
+            .ToListAsync();
+    }
+
     public async Task<TagEntity?> GetTagByNameAsync(string normalizedTagName)
     {
         return await this.context.Tags

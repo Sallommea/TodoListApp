@@ -64,6 +64,19 @@ public class TasksController : ControllerBase
         }
     }
 
+    [HttpGet("bytag/{tagId}")]
+    public async Task<ActionResult<PaginatedListResult<TaskDto>>> GetTasksByTag(int tagId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    {
+        if (pageNumber < 1 || pageSize < 1)
+        {
+            return this.BadRequest("Page number and page size must be positive integers.");
+        }
+
+        var result = await this.taskService.GetTasksByTagIdAsync(tagId, pageNumber, pageSize);
+
+        return this.Ok(result);
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateTask(CreateTaskDto createTaskDto)
     {
