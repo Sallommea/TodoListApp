@@ -64,23 +64,34 @@ public class TaskService : ITaskService
 
     public async Task<PaginatedListResult<TaskDto>> GetTasksByTagIdAsync(int tagId, int pageNumber, int pageSize)
     {
-        var tasks = await this.taskRepository.GetTasksByTagIdAsync(tagId, pageNumber, pageSize);
-
-        var taskDtos = (tasks.ResultList ?? new List<TaskEntity>()).Select(t => new TaskDto
+        try
         {
-            Id = t.Id,
-            Title = t.Title,
-            DueDate = t.DueDate,
-            Status = (WebApi.Models.Tasks.Status)t.Status,
-            IsExpired = t.IsExpired,
-        }).ToList();
+            TaskLoggerMessages.GettingTasksByTagId(this.logger, tagId);
 
-        return new PaginatedListResult<TaskDto>
+            var tasks = await this.taskRepository.GetTasksByTagIdAsync(tagId, pageNumber, pageSize);
+
+            var taskDtos = (tasks.ResultList ?? new List<TaskEntity>()).Select(t => new TaskDto
+            {
+                Id = t.Id,
+                Title = t.Title,
+                DueDate = t.DueDate,
+                Status = (WebApi.Models.Tasks.Status)t.Status,
+                IsExpired = t.IsExpired,
+            }).ToList();
+
+            TaskLoggerMessages.TasksByTagIdRetrieved(this.logger, tagId);
+            return new PaginatedListResult<TaskDto>
+            {
+                ResultList = taskDtos,
+                TotalPages = tasks.TotalPages,
+                TotalRecords = tasks.TotalRecords,
+            };
+        }
+        catch (Exception ex)
         {
-            ResultList = taskDtos,
-            TotalPages = tasks.TotalPages,
-            TotalRecords = tasks.TotalRecords,
-        };
+            TaskLoggerMessages.UnexpectedErrorgGettingTasksbyTagId(this.logger, tagId, ex.Message, ex);
+            throw;
+        }
     }
 
     public async Task<TaskDetailsDto> CreateTaskAsync(CreateTaskDto createTaskDto)
@@ -187,23 +198,33 @@ public class TaskService : ITaskService
 
     public async Task<PaginatedListResult<TaskSearchResultDto>> GetPaginatedSearchedTasksAsync(int pageNumber, int itemsPerPage, string searchText)
     {
-        var tasks = await this.taskRepository.SearchTasksByTitleAsync(pageNumber, itemsPerPage, searchText);
-        var tasksSearched = (tasks.ResultList ?? new List<TaskEntity>()).Select(t => new TaskSearchResultDto
+        try
         {
-            Id = t.Id,
-            Title = t.Title,
-            Description = t.Description,
-            DueDate = t.DueDate,
-            IsExpired = t.IsExpired,
-        }).ToList();
+            TaskLoggerMessages.SearchingTasks(this.logger, searchText, pageNumber, itemsPerPage);
 
-        var result = new PaginatedListResult<TaskSearchResultDto>
+            var tasks = await this.taskRepository.SearchTasksByTitleAsync(pageNumber, itemsPerPage, searchText);
+            var tasksSearched = (tasks.ResultList ?? new List<TaskEntity>()).Select(t => new TaskSearchResultDto
+            {
+                Id = t.Id,
+                Title = t.Title,
+                Description = t.Description,
+                DueDate = t.DueDate,
+                IsExpired = t.IsExpired,
+            }).ToList();
+
+            var result = new PaginatedListResult<TaskSearchResultDto>
+            {
+                TotalRecords = tasks.TotalRecords,
+                TotalPages = tasks.TotalPages,
+                ResultList = tasksSearched,
+            };
+            TaskLoggerMessages.SearchedTasksRetrieved(this.logger);
+            return result;
+        }
+        catch (Exception ex)
         {
-            TotalRecords = tasks.TotalRecords,
-            TotalPages = tasks.TotalPages,
-            ResultList = tasksSearched,
-        };
-
-        return result;
+            TaskLoggerMessages.UnexpectedErrorOccurredWhileSearchingTasks(this.logger, ex.Message, searchText, ex);
+            throw;
+        }
     }
 }

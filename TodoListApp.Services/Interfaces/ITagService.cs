@@ -1,5 +1,4 @@
 using TodoListApp.WebApi.Models.Tags;
-using TodoListApp.WebApi.Models.Tasks;
 
 namespace TodoListApp.Services.Interfaces;
 public interface ITagService
@@ -8,4 +7,5 @@ public interface ITagService
 
     Task<TagDto> AddTagToTaskAsync(string tagName, int taskId);
 
+    Task<bool> DeleteTagAsync(int taskId, int tagId);
 }

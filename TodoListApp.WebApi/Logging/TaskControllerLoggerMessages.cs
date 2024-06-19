@@ -37,4 +37,16 @@ public static partial class TaskControllerLoggerMessages
 
     [LoggerMessage(EventId = 12, Level = LogLevel.Information, Message = "Task with ID {TaskId} not found to update task.")]
     public static partial void TaskIdNotFoundToUpdate(this ILogger logger, int taskId);
+
+    [LoggerMessage(EventId = 13, Level = LogLevel.Trace, Message = "Service: Searching tasks with searchText: {searchText}, pageNumber: {pageNumber}, itemsPerPage: {itemsPerPage}")]
+    public static partial void SearchingTasks(this ILogger logger, string searchText, int pageNumber, int itemsPerPage);
+
+    [LoggerMessage(EventId = 14, Level = LogLevel.Information, Message = "Serviece retrieved searched tasks successfully.")]
+    public static partial void SearchedTasksRetrieved(this ILogger logger);
+
+    [LoggerMessage(EventId = 15, Level = LogLevel.Error, Message = "An unexpected error occurred while retrieving task searched with {SearchText}. Error: {Message}")]
+    public static partial void UnexpectedErrorOccurredWhileSearchingTasks(this ILogger logger, string message, string searchText, Exception ex);
+
+    [LoggerMessage(EventId = 16, Level = LogLevel.Error, Message = "An unexpected error occurred while retrieving tasks by Tag Id: {TagId}. Error: {Message}")]
+    public static partial void UnexpectedErrorgGettingTasksbyTagId(this ILogger logger, int tagId, string message, Exception ex);
 }

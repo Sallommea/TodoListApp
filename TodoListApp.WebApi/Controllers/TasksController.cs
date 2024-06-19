@@ -20,18 +20,31 @@ public class TasksController : ControllerBase
         this.logger = logger;
     }
 
-    [HttpGet("paginated")]
+    [HttpGet("bysearchtext")]
     public async Task<ActionResult<PaginatedListResult<TaskSearchResultDto>>> GetPaginatedTasks(string searchText, int pageNumber = 1, int itemsPerPage = 10)
     {
-        Console.WriteLine($"searchText: {searchText}, pageNumber: {pageNumber}, itemsPerPage: {itemsPerPage}");
+        TaskControllerLoggerMessages.SearchingTasks(this.logger, searchText, pageNumber, itemsPerPage);
 
         if (pageNumber <= 0 || itemsPerPage <= 0)
         {
             return this.BadRequest("Page number and items per page must be greater than zero.");
         }
 
-        var paginatedTasks = await this.taskService.GetPaginatedSearchedTasksAsync(pageNumber, itemsPerPage, searchText);
-        return this.Ok(paginatedTasks);
+        try
+        {
+            var paginatedTasks = await this.taskService.GetPaginatedSearchedTasksAsync(pageNumber, itemsPerPage, searchText);
+            TaskControllerLoggerMessages.SearchedTasksRetrieved(this.logger);
+            return this.Ok(paginatedTasks);
+        }
+        catch (InvalidOperationException ioe)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+        }
+        catch (Exception ex)
+        {
+            TaskControllerLoggerMessages.UnexpectedErrorOccurredWhileSearchingTasks(this.logger, ex.Message, searchText, ex);
+            throw;
+        }
     }
 
     [HttpGet("{taskId}")]
@@ -72,9 +85,21 @@ public class TasksController : ControllerBase
             return this.BadRequest("Page number and page size must be positive integers.");
         }
 
-        var result = await this.taskService.GetTasksByTagIdAsync(tagId, pageNumber, pageSize);
+        try
+        {
+            var result = await this.taskService.GetTasksByTagIdAsync(tagId, pageNumber, pageSize);
 
-        return this.Ok(result);
+            return this.Ok(result);
+        }
+        catch (InvalidOperationException ioe)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+        }
+        catch (Exception ex)
+        {
+            TaskControllerLoggerMessages.UnexpectedErrorgGettingTasksbyTagId(this.logger, tagId, ex.Message, ex);
+            throw;
+        }
     }
 
     [HttpPost]

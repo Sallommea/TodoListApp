@@ -10,4 +10,6 @@ public interface ITagRepository
     Task AddTagToTaskAsync(int taskId, int tagId);
 
     Task<TaskTagEntity?> GetTaskTagAsync(int taskId, int tagId);
+
+    Task<bool> DeleteTagAsync(int taskId, int tagId);
 }

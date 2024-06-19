@@ -47,4 +47,33 @@ public class TagRepository : ITagRepository
         return await this.context.TaskTags
             .FirstOrDefaultAsync(tt => tt.TaskId == taskId && tt.TagId == tagId);
     }
+
+    public async Task<bool> DeleteTagAsync(int taskId, int tagId)
+    {
+        var taskTag = await this.context.TaskTags
+           .FirstOrDefaultAsync(tt => tt.TaskId == taskId && tt.TagId == tagId);
+
+        if (taskTag == null)
+        {
+            return false;
+        }
+
+        _ = this.context.TaskTags.Remove(taskTag);
+        _ = await this.context.SaveChangesAsync();
+
+        bool isTagUsedElsewhere = await this.context.TaskTags
+            .AnyAsync(tt => tt.TagId == tagId);
+
+        if (!isTagUsedElsewhere)
+        {
+            var tag = await this.context.Tags.FindAsync(tagId);
+            if (tag != null)
+            {
+                _ = this.context.Tags.Remove(tag);
+                _ = await this.context.SaveChangesAsync();
+            }
+        }
+
+        return true;
+    }
 }

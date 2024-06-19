@@ -2,7 +2,6 @@ using System.Globalization;
 using TodoListApp.Services.Database.Repositories;
 using TodoListApp.Services.Interfaces;
 using TodoListApp.WebApi.Models.Tags;
-using TodoListApp.WebApi.Models.Tasks;
 
 namespace TodoListApp.Services.Services;
 public class TagService : ITagService
@@ -45,5 +44,10 @@ public class TagService : ITagService
         string formattedTagName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(tag.Name);
 
         return new TagDto { Id = tag.Id, Name = formattedTagName };
+    }
+
+    public async Task<bool> DeleteTagAsync(int taskId, int tagId)
+    {
+        return await this.tagRepository.DeleteTagAsync(taskId, tagId);
     }
 }

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.Interfaces;
-using TodoListApp.Services.Services;
 using TodoListApp.WebApi.Models.Tags;
 
 namespace TodoListApp.WebApi.Controllers;
@@ -39,5 +38,18 @@ public class TagController : ControllerBase
         {
             return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
         }
+    }
+
+    [HttpDelete("{taskId}/tags/{tagId}")]
+    public async Task<IActionResult> DeleteTag(int taskId, int tagId)
+    {
+        var result = await this.tagService.DeleteTagAsync(taskId, tagId);
+
+        if (result)
+        {
+            return this.NoContent();
+        }
+
+        return this.NotFound();
     }
 }
