@@ -66,8 +66,6 @@ public class TaskService : ITaskService
     {
         try
         {
-            TaskLoggerMessages.GettingTasksByTagId(this.logger, tagId);
-
             var tasks = await this.taskRepository.GetTasksByTagIdAsync(tagId, pageNumber, pageSize);
 
             var taskDtos = (tasks.ResultList ?? new List<TaskEntity>()).Select(t => new TaskDto
@@ -200,8 +198,6 @@ public class TaskService : ITaskService
     {
         try
         {
-            TaskLoggerMessages.SearchingTasks(this.logger, searchText, pageNumber, itemsPerPage);
-
             var tasks = await this.taskRepository.SearchTasksByTitleAsync(pageNumber, itemsPerPage, searchText);
             var tasksSearched = (tasks.ResultList ?? new List<TaskEntity>()).Select(t => new TaskSearchResultDto
             {

@@ -3,13 +3,13 @@ namespace TodoListApp.WebApi.Logging;
 public static partial class TaskControllerLoggerMessages
 {
     [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Task created successfully. TaskId: {TaskId}, TodoListId: {TodoListId}")]
-    public static partial void TaskCreatedSuccessfully(ILogger logger, int taskId, int todoListId);
+    public static partial void TaskCreatedSuccessfully(this ILogger logger, int taskId, int todoListId);
 
     [LoggerMessage(EventId = 2, Level = LogLevel.Error, Message = "Todo list not found. Unable to create task.")]
-    public static partial void TodoListNotFound(ILogger logger, Exception ex);
+    public static partial void TodoListNotFound(this ILogger logger, Exception ex);
 
     [LoggerMessage(EventId = 3, Level = LogLevel.Error, Message = "An unexpected error occurred while creating the task.")]
-    public static partial void UnexpectedErrorCreatingTask(ILogger logger, Exception ex);
+    public static partial void UnexpectedErrorCreatingTask(this ILogger logger, Exception ex);
 
     [LoggerMessage(EventId = 4, Level = LogLevel.Error, Message = "An error occurred while retrieving the task details. {Message}")]
     public static partial void UnexpectedErrorOccurredWhileGettingTaskDetails(this ILogger logger, string message, Exception ex);
@@ -37,9 +37,6 @@ public static partial class TaskControllerLoggerMessages
 
     [LoggerMessage(EventId = 12, Level = LogLevel.Information, Message = "Task with ID {TaskId} not found to update task.")]
     public static partial void TaskIdNotFoundToUpdate(this ILogger logger, int taskId);
-
-    [LoggerMessage(EventId = 13, Level = LogLevel.Trace, Message = "Service: Searching tasks with searchText: {searchText}, pageNumber: {pageNumber}, itemsPerPage: {itemsPerPage}")]
-    public static partial void SearchingTasks(this ILogger logger, string searchText, int pageNumber, int itemsPerPage);
 
     [LoggerMessage(EventId = 14, Level = LogLevel.Information, Message = "Serviece retrieved searched tasks successfully.")]
     public static partial void SearchedTasksRetrieved(this ILogger logger);

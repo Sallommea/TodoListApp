@@ -48,10 +48,10 @@ public static partial class LoggerMessages
     public static partial void TodoListNotFound(this ILogger logger, int todoListId);
 
     [LoggerMessage(EventId = 16, Level = LogLevel.Warning, Message = "Invalid page number: {PageNumber}")]
-    public static partial void InvalidPageNumber(ILogger logger, int pageNumber);
+    public static partial void InvalidPageNumber(this ILogger logger, int pageNumber);
 
     [LoggerMessage(EventId = 17, Level = LogLevel.Warning, Message = "Invalid items per page: {ItemsPerPage}")]
-    public static partial void InvalidItemsPerPage(ILogger logger, int itemsPerPage);
+    public static partial void InvalidItemsPerPage(this ILogger logger, int itemsPerPage);
 
     [LoggerMessage(EventId = 18, Level = LogLevel.Error, Message = "TodoListException occurred while fetching todo list details with tasks.")]
     public static partial void TodoListExceptionOccurredWhileGettingTodoDetails(this ILogger logger, Exception ex);

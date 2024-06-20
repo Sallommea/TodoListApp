@@ -23,8 +23,6 @@ public class TasksController : ControllerBase
     [HttpGet("bysearchtext")]
     public async Task<ActionResult<PaginatedListResult<TaskSearchResultDto>>> GetPaginatedTasks(string searchText, int pageNumber = 1, int itemsPerPage = 10)
     {
-        TaskControllerLoggerMessages.SearchingTasks(this.logger, searchText, pageNumber, itemsPerPage);
-
         if (pageNumber <= 0 || itemsPerPage <= 0)
         {
             return this.BadRequest("Page number and items per page must be greater than zero.");
