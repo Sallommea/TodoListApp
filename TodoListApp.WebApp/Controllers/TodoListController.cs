@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.WebApi.Services;
 using TodoListApp.WebApi.Models;
+using TodoListApp.WebApp.Logging;
 using TodoListApp.WebApp.Models;
 
 namespace TodoListApp.WebApp.Controllers;
@@ -15,19 +16,38 @@ public class TodoListController : Controller
         this.todoListWebApiService = todoListWebApiService;
     }
 
+#pragma warning disable S6967 // ModelState.IsValid should be called in controller actions
     public async Task<IActionResult> Index(int pageNumber = 1)
     {
-        var paginatedTodoLists = await this.todoListWebApiService.GetPaginatedTodoListsAsync(pageNumber, 9);
-
-        var viewModel = new TodoListViewModel
+        try
         {
-            TodoLists = paginatedTodoLists.ResultList,
-            TotalPages = paginatedTodoLists.TotalPages ?? 0,
-            TotalRecord = paginatedTodoLists.TotalRecords ?? 0,
-            CurrentPage = pageNumber,
-        };
+            var paginatedTodoLists = await this.todoListWebApiService.GetPaginatedTodoListsAsync(pageNumber, 9);
 
-        return this.View(viewModel);
+            var viewModel = new TodoListViewModel
+            {
+                TodoLists = paginatedTodoLists.ResultList,
+                TotalPages = paginatedTodoLists.TotalPages ?? 0,
+                TotalRecord = paginatedTodoLists.TotalRecords ?? 0,
+                CurrentPage = pageNumber,
+            };
+
+            return this.View(viewModel);
+        }
+        catch (HttpRequestException ex)
+        {
+            TodoListLoggerMessages.HTTPErrorWhileGettingLists(this.logger, ex.Message, ex);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while fetching the data. Please try again later." });
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TodoListLoggerMessages.IOEGettingTodoLists(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred." });
+        }
+        catch (Exception ex)
+        {
+            TodoListLoggerMessages.ErrorGettingTodoLists(this.logger, ex.Message, ex);
+            throw;
+        }
     }
 
     [HttpPost]
@@ -36,18 +56,25 @@ public class TodoListController : Controller
         try
         {
             await this.todoListWebApiService.DeleteTodoListAsync(id);
-            this.logger.LogInformation($"Todo list with ID {id} deleted.");
             return this.RedirectToAction("Index");
         }
-        catch (KeyNotFoundException ex)
+        catch (KeyNotFoundException)
         {
-            this.logger.LogWarning($"Todo list with ID {id} not found: {ex.Message}");
             return this.NotFound();
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException)
         {
-            this.logger.LogError(ex, $"Error deleting todo list with ID {id}");
             return this.StatusCode(StatusCodes.Status500InternalServerError);
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TodoListLoggerMessages.IOEWhileDeleting(this.logger, id, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred." });
+        }
+        catch (Exception ex)
+        {
+            TodoListLoggerMessages.ErrorDeletingTodoList(this.logger, id, ex.Message, ex);
+            throw;
         }
     }
 
@@ -59,14 +86,38 @@ public class TodoListController : Controller
 
     public async Task<IActionResult> Edit(int id)
     {
-        var todoDetails = await this.todoListWebApiService.GetTodoListAsync(id);
-        var updateTodo = new UpdateTodo
+        try
         {
-            Id = todoDetails.Id,
-            Name = todoDetails.Name,
-            Description = todoDetails.Description,
-        };
-        return this.View(updateTodo);
+            var todoDetails = await this.todoListWebApiService.GetTodoListAsync(id);
+
+            if (todoDetails == null)
+            {
+                return this.NotFound(new { message = "Todo list not found." });
+            }
+
+            var updateTodo = new UpdateTodo
+            {
+                Id = todoDetails.Id,
+                Name = todoDetails.Name,
+                Description = todoDetails.Description,
+            };
+
+            return this.View(updateTodo);
+        }
+        catch (HttpRequestException)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while fetching the todo list. Please try again later." });
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TodoListLoggerMessages.IOErrorFetchingTodoForUpdate(this.logger, id, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: " + ioe.Message });
+        }
+        catch (Exception ex)
+        {
+            TodoListLoggerMessages.ErrorFetchingTodoForUpdate(this.logger, id, ex.Message, ex);
+            throw;
+        }
     }
 
     [HttpPost]
@@ -82,6 +133,16 @@ public class TodoListController : Controller
             catch (HttpRequestException)
             {
                 this.ModelState.AddModelError(string.Empty, "An error occurred while creating the todo list.");
+            }
+            catch (InvalidOperationException ioe)
+            {
+                TodoListLoggerMessages.IOErrorWhileAddingList(this.logger, ioe.Message, ioe);
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: " + ioe.Message });
+            }
+            catch (Exception ex)
+            {
+                TodoListLoggerMessages.ErrorAddingTodoList(this.logger, ex.Message, ex);
+                throw;
             }
         }
 
@@ -102,7 +163,17 @@ public class TodoListController : Controller
         }
         catch (HttpRequestException)
         {
-            return this.StatusCode(500);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while fetching the data. Please try again later." });
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TodoListLoggerMessages.IOErrorGettingTodo(this.logger, id, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: " + ioe.Message });
+        }
+        catch (Exception ex)
+        {
+            TodoListLoggerMessages.ErrorGettingTodoList(this.logger, id, ex.Message, ex);
+            throw;
         }
     }
 
@@ -123,6 +194,16 @@ public class TodoListController : Controller
         {
             this.ModelState.AddModelError(string.Empty, "An error occurred while updating the todo list.");
             return this.View("Edit", updateTodo);
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TodoListLoggerMessages.IOErrorUpdatingTodo(this.logger, updateTodo.Id, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: " + ioe.Message });
+        }
+        catch (Exception ex)
+        {
+            TodoListLoggerMessages.ErrorUpdatingTodoList(this.logger, updateTodo.Id, ex.Message, ex);
+            throw;
         }
     }
 }

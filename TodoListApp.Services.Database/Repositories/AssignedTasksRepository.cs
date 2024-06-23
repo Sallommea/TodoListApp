@@ -40,6 +40,10 @@ public class AssignedTasksRepository : IAssignedTasksRepository
                     break;
             }
         }
+        else
+        {
+            query = query.OrderByDescending(t => t.Id);
+        }
 
         query = query.Where(t => t.Assignee == assignee);
 

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.WebApi.Services;
-using TodoListApp.WebApi.Models;
 using TodoListApp.WebApi.Models.Tasks;
+using TodoListApp.WebApp.Logging;
 
 namespace TodoListApp.WebApp.Controllers;
 public class TaskController : Controller
@@ -14,6 +14,8 @@ public class TaskController : Controller
         this.taskWebApiService = taskWebApiService;
         this.logger = logger;
     }
+
+#pragma warning disable S6967 // ModelState.IsValid should be called in controller actions
 
     public IActionResult Create(int todoListId)
     {
@@ -40,12 +42,22 @@ public class TaskController : Controller
                     createTask.DueDate = DateTime.SpecifyKind(dueDate, DateTimeKind.Utc);
                 }
 
-                int id = await this.taskWebApiService.AddTaskAsync(createTask);
+                _ = await this.taskWebApiService.AddTaskAsync(createTask);
                 return this.RedirectToAction("Details", "TodoList", new { id = createTask.TodoListId });
             }
             catch (HttpRequestException)
             {
                 this.ModelState.AddModelError(string.Empty, "An error occurred while creating the task.");
+            }
+            catch (InvalidOperationException ioe)
+            {
+                TaskLoggerMessages.IOErrorWhileAddingTask(this.logger, ioe.Message, ioe);
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: while creating the task." });
+            }
+            catch (Exception ex)
+            {
+                TaskLoggerMessages.ErrorAddingTask(this.logger, ex.Message, ex);
+                throw;
             }
         }
 
@@ -55,18 +67,24 @@ public class TaskController : Controller
     [HttpPost]
     public async Task<IActionResult> DeleteTask(int id, int todoListId)
     {
-        this.logger.LogInformation("Attempting to delete task with ID {Id} from todo list {TodoListId}", id, todoListId);
-
         try
         {
             await this.taskWebApiService.DeleteTaskAsync(id);
-            this.logger.LogInformation("Successfully deleted task with ID {Id}", id);
             return this.RedirectToAction("Details", "TodoList", new { id = todoListId });
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException)
         {
-            this.logger.LogError(ex, "Error deleting task with ID {Id}", id);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred: " + ex.Message);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while deleting task.");
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TaskLoggerMessages.IOEWhileDeleting(this.logger, id, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred while deleting task." });
+        }
+        catch (Exception ex)
+        {
+            TaskLoggerMessages.ErrorDeletingTask(this.logger, id, ex.Message, ex);
+            throw;
         }
     }
 
@@ -74,7 +92,6 @@ public class TaskController : Controller
     {
         if (taskId <= 0)
         {
-            this.logger.LogInformation(taskId.ToString());
             return this.BadRequest(new { message = "Invalid task ID." });
         }
 
@@ -85,34 +102,55 @@ public class TaskController : Controller
         }
         catch (HttpRequestException ex)
         {
-            logger.LogError(ex, "Error occurred while fetching task details");
             return this.NotFound(new { message = ex.Message });
         }
         catch (InvalidOperationException ioe)
         {
-            logger.LogError(ioe, "Invalid operation error occurred");
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An error occurred: " + ioe.Message);
+            TaskLoggerMessages.IOErrorGettingTask(this.logger, taskId, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching task.");
+        }
+        catch (Exception ex)
+        {
+            TaskLoggerMessages.ErrorGettingTask(this.logger, taskId, ex.Message, ex);
+            throw;
         }
     }
 
     public async Task<IActionResult> EditTask(int id)
     {
-        var task = await this.taskWebApiService.GetTaskDetailsAsync(id);
-        if (task == null)
+        try
         {
-            return this.NotFound();
+            var task = await this.taskWebApiService.GetTaskDetailsAsync(id);
+            if (task == null)
+            {
+                return this.NotFound();
+            }
+
+            var updateTaskDto = new UpdateTaskDto
+            {
+                Title = task.Title,
+                Description = task.Description,
+                DueDate = task.DueDate,
+                Status = task.Status,
+            };
+
+            this.ViewData["TaskId"] = id;
+            return this.View(updateTaskDto);
         }
-
-        var updateTaskDto = new UpdateTaskDto
+        catch (HttpRequestException)
         {
-            Title = task.Title,
-            Description = task.Description,
-            DueDate = task.DueDate,
-            Status = task.Status,
-        };
-
-        this.ViewData["TaskId"] = id;
-        return this.View(updateTaskDto);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while fetching the task. Please try again later." });
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TaskLoggerMessages.IOErrorFetchingTaskUpdate(this.logger, id, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: " + ioe.Message });
+        }
+        catch (Exception ex)
+        {
+            TaskLoggerMessages.ErrorFetchingTaskForUpdate(this.logger, id, ex.Message, ex);
+            throw;
+        }
     }
 
     [HttpPost]
@@ -143,7 +181,18 @@ public class TaskController : Controller
         }
         catch (HttpRequestException)
         {
-            return this.NotFound();
+            this.ModelState.AddModelError(string.Empty, "An error occurred while updating the task.");
+            return this.View("Edit", updateTaskDto);
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TaskLoggerMessages.IOErrorUpdatingTask(this.logger, id, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: " + ioe.Message });
+        }
+        catch (Exception ex)
+        {
+            TaskLoggerMessages.ErrorUpdatingTask(this.logger, id, ex.Message, ex);
+            throw;
         }
     }
 }

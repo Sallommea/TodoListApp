@@ -68,6 +68,7 @@ public class TodoListService : ITodoListService
 
             var totalTaskPages = (int)Math.Ceiling((double)tasks.Count / tasksPerPage);
             var paginatedTasks = tasks
+                .OrderByDescending(x => x.Id)
                 .Skip((taskPageNumber - 1) * tasksPerPage)
                 .Take(tasksPerPage)
                 .ToList();

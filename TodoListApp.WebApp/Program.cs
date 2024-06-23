@@ -1,23 +1,30 @@
 using TodoListApp.Services.WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddLogging(loggingBuilder =>
+{
+    _ = loggingBuilder.AddConsole();
+    _ = loggingBuilder.AddDebug();
+});
+
+var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"];
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpClient<TodoListWebApiService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7096/");
+    client.BaseAddress = new Uri(apiBaseUrl);
 });
 
 builder.Services.AddHttpClient<TaskWebApiService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7096/");
+    client.BaseAddress = new Uri(apiBaseUrl);
 });
 
 builder.Services.AddHttpClient<AssignedTaskWebApiService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7096/");
+    client.BaseAddress = new Uri(apiBaseUrl);
 });
 
 var app = builder.Build();
@@ -40,6 +47,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=TodoList}/{action=Index}/{id?}");
 
 app.Run();

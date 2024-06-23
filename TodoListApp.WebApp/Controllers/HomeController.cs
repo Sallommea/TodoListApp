@@ -1,30 +1,19 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.WebApp.Models;
+#pragma warning disable S6967 // ModelState.IsValid should be called in controller actions
 
 namespace TodoListApp.WebApp.Controllers;
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> logger;
-
-    public HomeController(ILogger<HomeController> logger)
-    {
-        this.logger = logger;
-    }
-
-    public IActionResult Index()
-    {
-        return this.View();
-    }
-
-    public IActionResult Privacy()
-    {
-        return this.View();
-    }
-
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
+    public IActionResult Error(string? message = null)
     {
-        return this.View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var viewModel = new ErrorViewModel
+        {
+            RequestId = Activity.Current?.Id ?? this.HttpContext.TraceIdentifier,
+            ErrorMessage = message ?? "An error occurred while processing your request.",
+        };
+        return this.View(viewModel);
     }
 }

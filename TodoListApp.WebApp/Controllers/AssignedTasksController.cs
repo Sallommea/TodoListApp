@@ -2,18 +2,22 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.WebApi.Services;
 using TodoListApp.WebApi.Models.Tasks;
+using TodoListApp.WebApp.Logging;
 using TodoListApp.WebApp.Models;
 
 namespace TodoListApp.WebApp.Controllers;
 public class AssignedTasksController : Controller
 {
     private readonly AssignedTaskWebApiService assignedTaskWebApiService;
+    private readonly ILogger<AssignedTasksController> logger;
 
-    public AssignedTasksController(AssignedTaskWebApiService assignedTaskWebApiService)
+    public AssignedTasksController(AssignedTaskWebApiService assignedTaskWebApiService, ILogger<AssignedTasksController> logger)
     {
         this.assignedTaskWebApiService = assignedTaskWebApiService;
+        this.logger = logger;
     }
 
+#pragma warning disable S6967 // ModelState.IsValid should be called in controller actions
     public async Task<IActionResult> Index(int pageNumber = 1, int tasksPerPage = 2, Status? status = null, string? sortCriteria = null)
     {
         try
@@ -53,6 +57,16 @@ public class AssignedTasksController : Controller
         {
             return this.View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? this.HttpContext.TraceIdentifier });
         }
+        catch (InvalidOperationException ioe)
+        {
+            AssignedTasksLoggerMessages.IOErrorWhileFetchingAssignedTasks(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: " + ioe.Message });
+        }
+        catch (Exception ex)
+        {
+            AssignedTasksLoggerMessages.ErrorWhileFetchingAssignedTasks(this.logger, ex.Message, ex);
+            throw;
+        }
     }
 
     [HttpPost]
@@ -70,9 +84,19 @@ public class AssignedTasksController : Controller
 
             return this.RedirectToAction(nameof(this.Index), new { pageNumber, tasksPerPage, status, sortCriteria });
         }
-        catch (Exception)
+        catch (HttpRequestException)
         {
             return this.View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? this.HttpContext.TraceIdentifier });
+        }
+        catch (InvalidOperationException ioe)
+        {
+            AssignedTasksLoggerMessages.IOEWhileChangingStatus(this.logger, taskId, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: " + ioe.Message });
+        }
+        catch (Exception ex)
+        {
+            AssignedTasksLoggerMessages.ErrorWhileChangingStatus(this.logger, taskId, ex.Message, ex);
+            throw;
         }
     }
 }
