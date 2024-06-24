@@ -1,5 +1,7 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using TodoListApp.Services.Models;
 using TodoListApp.Services.WebApi.Logging;
 using TodoListApp.WebApi.Models.Tasks;
 
@@ -96,6 +98,38 @@ public class TaskWebApiService
         catch (Exception ex)
         {
             TaskServiceLoggerMessages.ErrorUpdatingTask(this.logger, taskId, ex.Message, ex);
+            throw;
+        }
+    }
+
+    public async Task<PaginatedListResult<TaskSearchResultDto>> GetPaginatedSearchedTasksAsync(string searchText, int pageNumber = 1, int itemsPerPage = 10)
+    {
+        try
+        {
+            var response = await this.httpClient.GetAsync($"api/tasks/bysearchtext?searchText={Uri.EscapeDataString(searchText)}&pageNumber={pageNumber}&itemsPerPage={itemsPerPage}");
+
+            _ = response.EnsureSuccessStatusCode();
+
+            var result = await response.Content.ReadFromJsonAsync<PaginatedListResult<TaskSearchResultDto>>();
+
+            return result ?? new PaginatedListResult<TaskSearchResultDto>();
+        }
+        catch (HttpRequestException ex)
+        {
+            // Handle HTTP request errors
+            Console.WriteLine($"HTTP request error: {ex.Message}");
+            throw;
+        }
+        catch (JsonException ex)
+        {
+            // Handle JSON parsing errors
+            Console.WriteLine($"JSON parsing error: {ex.Message}");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            // Handle other unexpected errors
+            Console.WriteLine($"Unexpected error: {ex.Message}");
             throw;
         }
     }

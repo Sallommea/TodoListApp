@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.WebApi.Services;
 using TodoListApp.WebApi.Models.Tasks;
 using TodoListApp.WebApp.Logging;
+using TodoListApp.WebApp.Models;
 
 namespace TodoListApp.WebApp.Controllers;
 public class TaskController : Controller
@@ -194,5 +195,31 @@ public class TaskController : Controller
             TaskLoggerMessages.ErrorUpdatingTask(this.logger, id, ex.Message, ex);
             throw;
         }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Search(string searchText, int pageNumber = 1, int itemsPerPage = 4)
+    {
+        var viewModel = new TaskSearchViewModel
+        {
+            SearchText = searchText,
+            CurrentPage = pageNumber,
+            ItemsPerPage = itemsPerPage,
+            SearchPerformed = !string.IsNullOrWhiteSpace(searchText),
+        };
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            var searchResult = await this.taskWebApiService.GetPaginatedSearchedTasksAsync(searchText, pageNumber, itemsPerPage);
+
+            viewModel.Tasks = searchResult.ResultList!;
+            viewModel.TotalPages = searchResult.TotalPages;
+            viewModel.TotalRecords = searchResult.TotalRecords;
+        }
+        else
+        {
+            viewModel.Tasks = new List<TaskSearchResultDto>();
+        }
+
+        return this.View(viewModel);
     }
 }

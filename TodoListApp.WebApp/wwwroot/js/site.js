@@ -18,5 +18,17 @@ searchIcon.addEventListener('click', function (event) {
     event.preventDefault();
 });
 
+document.getElementById('searchForm').addEventListener('submit', function (e) {
+    var searchInput = document.getElementById('searchInput');
+    if (!searchInput.value.trim()) {
+        e.preventDefault(); 
+    }
+});
 
+document.getElementById('searchInput').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault(); 
+        document.getElementById('searchForm').submit();
+    }
+});
  
