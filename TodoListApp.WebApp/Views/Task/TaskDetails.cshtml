@@ -52,6 +52,26 @@
             {
                 <span>No tags</span>
             }
+            <form asp-controller="Tag" asp-action="AddTagToTask" method="post" class="mt-2">
+                <input type="hidden" name="taskId" value="@Model.Id" />
+                <div class="input-group">
+                    <input type="text" name="tagName" class="form-control" placeholder="Enter new tag" required />
+                    <button type="submit" class="btn btn-primary">Add Tag</button>
+                </div>
+            </form>
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success" role="alert">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
         </div>
     </div>
 
