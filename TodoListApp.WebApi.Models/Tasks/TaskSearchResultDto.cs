@@ -10,4 +10,6 @@ public class TaskSearchResultDto
     public DateTime? DueDate { get; set; }
 
     public bool IsExpired { get; set; }
+
+    public Status Status { get; set; }
 }

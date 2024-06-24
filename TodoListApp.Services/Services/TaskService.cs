@@ -206,6 +206,7 @@ public class TaskService : ITaskService
                 Description = t.Description,
                 DueDate = t.DueDate,
                 IsExpired = t.IsExpired,
+                Status = (WebApi.Models.Tasks.Status)t.Status,
             }).ToList();
 
             var result = new PaginatedListResult<TaskSearchResultDto>

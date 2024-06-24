@@ -110,3 +110,7 @@
 .page-link:focus {
         box-shadow: none;
     }
+
+.task-due-date.expired {
+    color: #e3374f;
+}
