@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.WebApi.Services;
 using TodoListApp.WebApi.Models.Tasks;
@@ -200,26 +201,49 @@ public class TaskController : Controller
     [HttpGet]
     public async Task<IActionResult> Search(string searchText, int pageNumber = 1, int itemsPerPage = 4)
     {
-        var viewModel = new TaskSearchViewModel
+        try
         {
-            SearchText = searchText,
-            CurrentPage = pageNumber,
-            ItemsPerPage = itemsPerPage,
-            SearchPerformed = !string.IsNullOrWhiteSpace(searchText),
-        };
-        if (!string.IsNullOrWhiteSpace(searchText))
-        {
-            var searchResult = await this.taskWebApiService.GetPaginatedSearchedTasksAsync(searchText, pageNumber, itemsPerPage);
+            var viewModel = new TaskSearchViewModel
+            {
+                SearchText = searchText,
+                CurrentPage = pageNumber,
+                ItemsPerPage = itemsPerPage,
+                SearchPerformed = !string.IsNullOrWhiteSpace(searchText),
+            };
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                var searchResult = await this.taskWebApiService.GetPaginatedSearchedTasksAsync(searchText, pageNumber, itemsPerPage);
 
-            viewModel.Tasks = searchResult.ResultList!;
-            viewModel.TotalPages = searchResult.TotalPages;
-            viewModel.TotalRecords = searchResult.TotalRecords;
-        }
-        else
-        {
-            viewModel.Tasks = new List<TaskSearchResultDto>();
-        }
+                viewModel.Tasks = searchResult.ResultList!;
+                viewModel.TotalPages = searchResult.TotalPages;
+                viewModel.TotalRecords = searchResult.TotalRecords;
+            }
+            else
+            {
+                viewModel.Tasks = new List<TaskSearchResultDto>();
+            }
 
-        return this.View(viewModel);
+            return this.View(viewModel);
+        }
+        catch (HttpRequestException ex)
+        {
+            TaskLoggerMessages.HTTPErrorGettingSearchedTasks(this.logger, searchText, ex.Message, ex);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while fetching the data. Please try again later." });
+        }
+        catch (JsonException ex)
+        {
+            TaskLoggerMessages.ParsingErrorGettingSearchedTasks(this.logger, searchText, ex.Message, ex);
+            throw;
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TaskLoggerMessages.IOEGettingSearchedTasks(this.logger, searchText, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred." });
+        }
+        catch (Exception ex)
+        {
+            TaskLoggerMessages.ErrorGettingSearchedTasks(this.logger, searchText, ex.Message, ex);
+            throw;
+        }
     }
 }

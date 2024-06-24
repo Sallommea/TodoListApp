@@ -31,4 +31,16 @@ public static partial class TaskLoggerMessages
 
     [LoggerMessage(EventId = 10, Level = LogLevel.Error, Message = "Error while updating task with ID: {Id}. {Message}")]
     public static partial void ErrorUpdatingTask(this ILogger logger, int id, string message, Exception ex);
+
+    [LoggerMessage(EventId = 11, Level = LogLevel.Error, Message = "HTTP Error occured while getting tasks with Search Text: {Text}. {Message}")]
+    public static partial void HTTPErrorGettingSearchedTasks(this ILogger logger, string text, string message, Exception ex);
+
+    [LoggerMessage(EventId = 12, Level = LogLevel.Error, Message = "Json parsing error occurred while getting tasks with Search Text: {Text}. {Message}")]
+    public static partial void ParsingErrorGettingSearchedTasks(this ILogger logger, string text, string message, Exception ex);
+
+    [LoggerMessage(EventId = 13, Level = LogLevel.Error, Message = "Unexpected Error occurred while getting tasks with Search Text: {Text}. {Message}")]
+    public static partial void ErrorGettingSearchedTasks(this ILogger logger, string text, string message, Exception ex);
+
+    [LoggerMessage(EventId = 14, Level = LogLevel.Error, Message = "Invalid Operation Exception occurred while getting tasks with Search Text: {Text}. {Message}")]
+    public static partial void IOEGettingSearchedTasks(this ILogger logger, string text, string message, Exception ex);
 }

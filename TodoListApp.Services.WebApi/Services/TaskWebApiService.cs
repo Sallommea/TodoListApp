@@ -116,17 +116,17 @@ public class TaskWebApiService
         }
         catch (HttpRequestException ex)
         {
-            Console.WriteLine($"HTTP request error: {ex.Message}");
+            TaskServiceLoggerMessages.HTTPErrorGettingSearchedTasks(this.logger, searchText, ex.Message, ex);
             throw;
         }
         catch (JsonException ex)
         {
-            Console.WriteLine($"JSON parsing error: {ex.Message}");
+            TaskServiceLoggerMessages.ParsingErrorGettingSearchedTasks(this.logger, searchText, ex.Message, ex);
             throw;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Unexpected error: {ex.Message}");
+            TaskServiceLoggerMessages.ErrorGettingSearchedTasks(this.logger, searchText, ex.Message, ex);
             throw;
         }
     }

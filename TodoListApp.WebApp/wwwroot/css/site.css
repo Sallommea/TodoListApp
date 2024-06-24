@@ -148,3 +148,7 @@ div.sidebar-link {
     margin-right: .75rem;
     color: #212529;
 }
+
+.sidebar-search::placeholder {
+    font-size: 0.8em;
+}
