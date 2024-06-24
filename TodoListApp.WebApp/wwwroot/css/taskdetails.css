@@ -66,3 +66,12 @@ p {
 .status-badge:hover {
     opacity: 0.8;
 }
+
+.tag-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 2px;
+    border-radius: 15px;
+    color: #fff;
+    font-size: 0.9em;
+}

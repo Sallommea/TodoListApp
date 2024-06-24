@@ -59,13 +59,6 @@ public class TagController : ControllerBase
 
         try
         {
-            bool isTagNameUnique = await this.tagService.IsTagNameUniqueAsync(tagName);
-            if (!isTagNameUnique)
-            {
-                TagControllerLoggerMessages.AddTagToTaskLogWarningTagExists(this.logger, tagName);
-                return this.BadRequest($"A tag with the name '{tagName}' already exists.");
-            }
-
             var tagDto = await this.tagService.AddTagToTaskAsync(tagName, taskId);
             TagControllerLoggerMessages.TagAddedToTask(this.logger, tagName, taskId);
             return this.Ok(tagDto);

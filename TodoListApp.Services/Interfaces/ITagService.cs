@@ -8,6 +8,4 @@ public interface ITagService
     Task<TagDto> AddTagToTaskAsync(string tagName, int taskId);
 
     Task<bool> DeleteTagAsync(int taskId, int tagId);
-
-    Task<bool> IsTagNameUniqueAsync(string tagName);
 }

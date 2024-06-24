@@ -3,6 +3,8 @@
 
 @{
     ViewData["Title"] = "Task Details";
+    var colors = new List<string> { "#ffe066", "#c0eb75", "#74c0fc", "#b197fc", "#faa2c1", "#868e96" };
+    int colorIndex = 0;
 }
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/css/taskdetails.css?v=@DateTime.Now.Ticks" />
@@ -37,7 +39,20 @@
     </div>
     <div class="row mb-3">
         <h5 class="col-sm-4">Tags</h5>
-        <p class="col-sm-8">Here Comes tags</p>
+        <div class="col-sm-8">
+            @if (Model.Tags != null && Model.Tags.Any())
+            {
+                foreach (var tag in Model.Tags)
+                {
+                    <span class="tag-badge" style="background-color: @colors[colorIndex];">@tag.Name</span>
+                    colorIndex = (colorIndex + 1) % colors.Count;
+                }
+            }
+            else
+            {
+                <span>No tags</span>
+            }
+        </div>
     </div>
 
     <div>

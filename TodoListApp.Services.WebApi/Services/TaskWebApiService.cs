@@ -116,19 +116,16 @@ public class TaskWebApiService
         }
         catch (HttpRequestException ex)
         {
-            // Handle HTTP request errors
             Console.WriteLine($"HTTP request error: {ex.Message}");
             throw;
         }
         catch (JsonException ex)
         {
-            // Handle JSON parsing errors
             Console.WriteLine($"JSON parsing error: {ex.Message}");
             throw;
         }
         catch (Exception ex)
         {
-            // Handle other unexpected errors
             Console.WriteLine($"Unexpected error: {ex.Message}");
             throw;
         }

@@ -35,45 +35,35 @@ public class TagService : ITagService
         });
     }
 
-    public async Task<bool> IsTagNameUniqueAsync(string tagName)
-    {
-        try
-        {
-            string normalizedTagName = tagName.Trim().ToLower(CultureInfo.CurrentCulture);
-            var existingTag = await this.tagRepository.GetTagByNameAsync(normalizedTagName);
-            return existingTag == null;
-        }
-        catch (Exception ex)
-        {
-            TagLoggerMessages.ErrorOccurredWhileCheckingTagName(this.logger, tagName, ex.Message, ex);
-            throw new ServiceException("An error occurred while checking if the tag name is unique.", ex);
-        }
-    }
-
     public async Task<TagDto> AddTagToTaskAsync(string tagName, int taskId)
     {
         try
         {
             string normalizedTagName = tagName.Trim().ToLower(CultureInfo.CurrentCulture);
-            var tag = await this.tagRepository.CreateTagAsync(normalizedTagName);
+            var existingTag = await this.tagRepository.GetTagByNameAsync(normalizedTagName);
 
-            if (tag == null)
+            if (existingTag == null)
             {
-                TagLoggerMessages.AddTagToTaskLogWarningFailed(this.logger, tagName);
-                throw new InvalidOperationException("Tag creation failed.");
+                existingTag = await this.tagRepository.CreateTagAsync(normalizedTagName);
+
+                if (existingTag == null)
+                {
+                    TagLoggerMessages.AddTagToTaskLogWarningFailed(this.logger, tagName);
+                    throw new InvalidOperationException("Tag creation failed.");
+                }
             }
 
-            var taskTag = await this.tagRepository.GetTaskTagAsync(taskId, tag.Id);
+            var taskTag = await this.tagRepository.GetTaskTagAsync(taskId, existingTag.Id);
 
             if (taskTag == null)
             {
-                await this.tagRepository.AddTagToTaskAsync(taskId, tag.Id);
+                await this.tagRepository.AddTagToTaskAsync(taskId, existingTag.Id);
                 TagLoggerMessages.TagAddedToTask(this.logger, tagName, taskId);
             }
 
-            string formattedTagName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(tag.Name);
+            string formattedTagName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(existingTag.Name);
 
-            return new TagDto { Id = tag.Id, Name = formattedTagName };
+            return new TagDto { Id = existingTag.Id, Name = formattedTagName };
         }
         catch (InvalidOperationException ioe)
         {
