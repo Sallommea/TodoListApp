@@ -44,7 +44,14 @@
             {
                 foreach (var tag in Model.Tags)
                 {
-                    <span class="tag-badge" style="background-color: @colors[colorIndex];">@tag.Name</span>
+                    <span class="tag-badge" style="background-color: @colors[colorIndex];">
+                        @tag.Name
+                        <form asp-controller="Tag" asp-action="DeleteTag" method="post" style="display: inline;">
+                            <input type="hidden" name="taskId" value="@Model.Id" />
+                            <input type="hidden" name="tagId" value="@tag.Id" />
+                            <button type="submit" class="delete-tag" onclick="return confirm('Are you sure you want to delete this tag?');">×</button>
+                        </form>
+                        </span>
                     colorIndex = (colorIndex + 1) % colors.Count;
                 }
             }
@@ -52,11 +59,11 @@
             {
                 <span>No tags</span>
             }
-            <form asp-controller="Tag" asp-action="AddTagToTask" method="post" class="mt-2">
+            <form asp-controller="Tag" asp-action="AddTagToTask" method="post" class="mt-2 custom-tag-form">
                 <input type="hidden" name="taskId" value="@Model.Id" />
-                <div class="input-group">
-                    <input type="text" name="tagName" class="form-control" placeholder="Enter new tag" required />
-                    <button type="submit" class="btn btn-primary">Add Tag</button>
+                <div class="custom-input-group">
+                    <input type="text" name="tagName" class="custom-form-control" placeholder="Enter new tag" required />
+                    <button type="submit" class="custom-btn">Add Tag</button>
                 </div>
             </form>
             @if (TempData["ErrorMessage"] != null)

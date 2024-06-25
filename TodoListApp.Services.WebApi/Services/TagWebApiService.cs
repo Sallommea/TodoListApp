@@ -1,6 +1,8 @@
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Web;
 using Microsoft.Extensions.Logging;
+using TodoListApp.Services.WebApi.Logging;
 using TodoListApp.WebApi.Models.Tags;
 
 namespace TodoListApp.Services.WebApi.Services;
@@ -13,6 +15,40 @@ public class TagWebApiService
     {
         this.httpClient = httpClient;
         this.logger = logger;
+    }
+
+    public async Task<IEnumerable<TagDto>> GetAllTagsAsync()
+    {
+        try
+        {
+            var response = await this.httpClient.GetAsync("api/Tag");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var tags = await response.Content.ReadFromJsonAsync<IEnumerable<TagDto>>();
+                return tags ?? Enumerable.Empty<TagDto>();
+            }
+            else
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Error getting tags. Status code: {response.StatusCode}, Content: {content}");
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            TagServiceLoggerMessages.HTTPErrorWhileGettingTags(this.logger, ex.Message, ex);
+            throw;
+        }
+        catch (JsonException ex)
+        {
+            TagServiceLoggerMessages.JSONParsingErrorWhileGettingTags(this.logger, ex.Message, ex);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            TagServiceLoggerMessages.UnexpectedErrorWhileGettingTags(this.logger, ex.Message, ex);
+            throw;
+        }
     }
 
     public async Task<TagDto> AddTagToTaskAsync(string tagName, int taskId)
@@ -39,11 +75,7 @@ public class TagWebApiService
             }
             else
             {
-                var statusCode = response.StatusCode;
-
                 var errorMessage = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Status Code: {statusCode}");
-                Console.WriteLine($"Error Message: {errorMessage}");
                 throw new HttpRequestException($"Error adding tag to task: {errorMessage}");
             }
         }
@@ -51,8 +83,33 @@ public class TagWebApiService
         {
             throw new FormatException("Error deserializing the response", jex);
         }
+        catch (HttpRequestException ex)
+        {
+            TagServiceLoggerMessages.HTTPErrorAddingTagToTask(this.logger, ex.Message, ex);
+            throw;
+        }
         catch (Exception ex)
         {
+            TagServiceLoggerMessages.ErrorAddingTagToTask(this.logger, ex.Message, ex);
+            throw;
+        }
+    }
+
+    public async Task DeleteTagAsync(int taskId, int tagId)
+    {
+        try
+        {
+            var response = await this.httpClient.DeleteAsync($"api/Tag/{taskId}/tags/{tagId}");
+            _ = response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException ex)
+        {
+            TaskServiceLoggerMessages.HTTPErrorWhileDeletingTask(this.logger, taskId, ex.Message, ex);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            TaskServiceLoggerMessages.ErrorDeletingTask(this.logger, taskId, ex.Message, ex);
             throw;
         }
     }

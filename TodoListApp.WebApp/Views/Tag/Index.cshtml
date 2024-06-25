@@ -1,0 +1,132 @@
+@using TodoListApp.WebApi.Models.Tasks;
+@model TagIndexViewModel
+@{
+    ViewData["Title"] = "All Tags";
+}
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/css/tags.css?v=@DateTime.Now.Ticks" />
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">All Tags</h1>
+
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+
+    <div class="tag-container">
+        @if (Model.Tags.Any())
+        {
+            foreach (var tag in Model.Tags)
+            {
+                <a asp-action="Index" asp-route-tagId="@tag.Id" asp-route-pageNumber="1" asp-route-pageSize="@Model.PageSize"
+           class="tag-badge @(Model.SelectedTagId == tag.Id ? "selected" : "")">
+                    @tag.Name
+                </a>
+            }
+        }
+        else
+        {
+            <p>No tags found.</p>
+        }
+    </div>
+
+    @if (Model.SelectedTagId.HasValue)
+    {
+        <div id="task-container" class="mt-5">
+            <h4 class="mb-5">Tasks for selected tag</h4>
+            @if (Model.Tasks.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="status-column">STATUS</th>
+                                <th>TITLE</th>
+                                <th>DUEDATE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var task in Model.Tasks)
+                            {
+                                <tr>
+                                    <td class="status-column  @(task.Status == Status.Completed ? "completed-status" : "") @(task.Status != Status.Completed && task.IsExpired ? "expired-status" : "")">
+
+                                        <span class="status-icon">
+                                            @if (task.Status != Status.Completed && task.IsExpired)
+                                            {
+                                                <ion-icon class="icon-alert" name="alert-circle-outline"></ion-icon>
+                                            }
+                                            else if (task.Status == Status.Completed)
+                                            {
+                                                <ion-icon class="completed" name="checkmark-circle-outline"></ion-icon>
+                                            }
+                                            else if (task.Status == Status.InProgress)
+                                            {
+                                                <ion-icon name="hourglass-outline"></ion-icon>
+                                            }
+                                            else if (task.Status == Status.NotStarted)
+                                            {
+                                                <ion-icon name="ellipse-outline"></ion-icon>
+                                            }
+                                        </span>
+                                        <span class="status-text">
+                                            @task.Status
+                                        </span>
+                                    </td>
+                                    <td>@task.Title</td>
+                                    <td class="@(task.Status != Status.Completed && task.IsExpired ? "expired-date" : "")">@(task.DueDate?.ToString("dd MMMM, yyyy") ?? "N/A")</td>
+
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <nav class="mt-5" aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        @if (Model.CurrentPage > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link"
+                       asp-action="Index"
+                       asp-route-tagId="@Model.SelectedTagId"
+                       asp-route-pageNumber="@(Model.CurrentPage - 1)"
+                       asp-route-pageSize="@Model.PageSize">&laquo; Previous</a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                <a class="page-link"
+                       asp-action="Index"
+                       asp-route-tagId="@Model.SelectedTagId"
+                       asp-route-pageNumber="@i" asp-route-pageSize="@Model.PageSize">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.CurrentPage < Model.TotalPages)
+                        {
+                            <li class="page-item">
+                                <a class="page-link"
+                       asp-action="Index"
+                       asp-route-tagId="@Model.SelectedTagId"
+                       asp-route-pageNumber="@(Model.CurrentPage + 1)"
+                       asp-route-pageSize="@Model.PageSize">Next &raquo;</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+            else
+            {
+                <p>No tasks found for this tag.</p>
+            }
+        </div>
+    }
+</div>

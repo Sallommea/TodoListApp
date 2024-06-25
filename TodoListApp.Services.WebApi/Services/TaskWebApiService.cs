@@ -130,4 +130,38 @@ public class TaskWebApiService
             throw;
         }
     }
+
+    public async Task<PaginatedListResult<TaskDto>> GetTasksByTagAsync(int tagId, int pageNumber, int itemsPerPage)
+    {
+        try
+        {
+            var response = await this.httpClient.GetAsync($"api/Tasks/bytag/{tagId}?pageNumber={pageNumber}&pageSize={itemsPerPage}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var paginatedTasks = await response.Content.ReadFromJsonAsync<PaginatedListResult<TaskDto>>();
+                return paginatedTasks ?? new PaginatedListResult<TaskDto>();
+            }
+            else
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Error getting tasks by tag. Status code: {response.StatusCode}, Content: {content}");
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            TaskServiceLoggerMessages.HTTPErrorWhileGettingTasksByTag(this.logger, ex.Message, ex);
+            throw;
+        }
+        catch (JsonException ex)
+        {
+            TaskServiceLoggerMessages.JSONParsingErrorWhileGettingTasksByTag(this.logger, ex.Message, ex);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            TaskServiceLoggerMessages.ErrorGettingTasksByTag(this.logger, ex.Message, ex);
+            throw;
+        }
+    }
 }

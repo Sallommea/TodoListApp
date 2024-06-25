@@ -1,0 +1,136 @@
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tag-badge {
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.tag-badge:hover, .tag-badge.selected {
+        background-color: #e0e0e0;
+        text-decoration: none;
+        color: #228be6;
+    }
+
+.page-item.active .page-link {
+    background-color: #495057;
+    border-color: #495057;
+    color: aliceblue;
+}
+
+.page-link {
+    color: #495057;
+}
+
+.page-link:hover {
+        color: #495057;
+    }
+
+.page-link:focus {
+        box-shadow: none;
+    }
+
+
+.table thead tr {
+    background-color: #f1f3f5;
+    border-top: none;
+}
+
+.table > :not(:last-child) > :last-child > * {
+    border-bottom-color: transparent;
+}
+
+.table {
+    width: 100%;
+}
+
+.table th, .table td {
+        padding: 0.5rem;
+    }
+.status-column {
+    width: 150px;
+    border-left: 3px solid #868e96;
+    padding: 8px;
+}
+
+.table th:nth-child(2), .table td:nth-child(2) {
+    width: 40%;
+}
+
+.table th:nth-child(3), .table td:nth-child(3) {
+    width: 40%;
+}
+
+.table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.table thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+}
+
+.table tbody td {
+    font-size: 0.95rem;
+}
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+
+.status-icon {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.status-text {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.completed-status {
+    border-left: 3px solid #2b8a3e;
+}
+
+.expired-status {
+    border-left: 3px solid #e3374f;
+}
+
+.expired-date {
+    color: #e3374f;
+}
+
+ion-icon.icon-alert {
+    color: #e3374f;
+}
+
+ion-icon.completed {
+    color: #2b8a3e;
+}
+
+td.status-column {
+    gap: 0.2rem;
+}
+
+@media (max-width: 768px) {
+    .status-text {
+        display: none;
+    }
+    .status-column {
+        width: 10px;
+    }
+}

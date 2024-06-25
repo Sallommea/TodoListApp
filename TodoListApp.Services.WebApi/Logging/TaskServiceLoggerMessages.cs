@@ -35,4 +35,14 @@ public static partial class TaskServiceLoggerMessages
 
     [LoggerMessage(EventId = 11, Level = LogLevel.Error, Message = "Unexpected Error occurred while getting tasks with Search Text: {Text}. {Message}")]
     public static partial void ErrorGettingSearchedTasks(this ILogger logger, string text, string message, Exception ex);
+
+    [LoggerMessage(EventId = 12, Level = LogLevel.Error, Message = "HTTP Error occured while getting tasks by tag. {Message}")]
+    public static partial void HTTPErrorWhileGettingTasksByTag(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 13, Level = LogLevel.Error, Message = "Json parsing error occurred while getting tasks by tag. {Message}")]
+    public static partial void JSONParsingErrorWhileGettingTasksByTag(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 14, Level = LogLevel.Error, Message = "Unexpected Error occurred while while getting tasks by tag. {Message}")]
+    public static partial void ErrorGettingTasksByTag(this ILogger logger, string message, Exception ex);
+
 }
