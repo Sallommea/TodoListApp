@@ -1,3 +1,4 @@
+using TodoListApp.WebApi.Models.Comments;
 using TodoListApp.WebApi.Models.Tags;
 
 namespace TodoListApp.WebApi.Models.Tasks;
@@ -22,4 +23,6 @@ public class TaskDetailsDto
     public bool IsExpired { get; set; }
 
     public List<TagDto> Tags { get; set; } = new List<TagDto>();
+
+    public List<CommentDto> Comments { get; set; } = new List<CommentDto>();
 }

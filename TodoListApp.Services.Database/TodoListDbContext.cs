@@ -16,6 +16,8 @@ public class TodoListDbContext : DbContext
 
     public DbSet<TaskTagEntity> TaskTags { get; set; }
 
+    public DbSet<CommentEntity> Comments { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         _ = modelBuilder.Entity<TodoListEntity>(entity =>
@@ -73,6 +75,19 @@ public class TodoListDbContext : DbContext
             _ = entity.HasOne(tt => tt.Tag)
                 .WithMany(t => t.TaskTags)
                 .HasForeignKey(tt => tt.TagId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        _ = modelBuilder.Entity<CommentEntity>(entity =>
+        {
+            _ = entity.HasKey(e => e.Id);
+            _ = entity.Property(e => e.Content).IsRequired().HasMaxLength(1000);
+            _ = entity.Property(e => e.CreatedDate).IsRequired();
+            _ = entity.Property(e => e.UserName).IsRequired().HasMaxLength(100);
+            _ = entity.Property(e => e.UserId).IsRequired(false);
+            _ = entity.HasOne(e => e.Task)
+                .WithMany(t => t.Comments)
+                .HasForeignKey(e => e.TaskId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

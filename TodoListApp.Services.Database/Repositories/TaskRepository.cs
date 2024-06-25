@@ -56,6 +56,7 @@ public class TaskRepository : ITaskRepository
         return await this.dbContext.Tasks
          .Include(t => t.TaskTags)
         .ThenInclude(tt => tt.Tag)
+         .Include(t => t.Comments)
         .FirstOrDefaultAsync(t => t.Id == taskId);
     }
 

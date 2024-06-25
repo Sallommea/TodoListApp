@@ -5,6 +5,7 @@ using TodoListApp.Services.Exceptions;
 using TodoListApp.Services.Interfaces;
 using TodoListApp.Services.Logging;
 using TodoListApp.Services.Models;
+using TodoListApp.WebApi.Models.Comments;
 using TodoListApp.WebApi.Models.Tags;
 using TodoListApp.WebApi.Models.Tasks;
 
@@ -47,6 +48,13 @@ public class TaskService : ITaskService
                     Id = tt.Tag.Id,
                     Name = tt.Tag.Name,
                 }).ToList() ?? new List<TagDto>(),
+                Comments = task.Comments?.Select(c => new CommentDto
+                {
+                    Id = c.Id,
+                    Content = c.Content,
+                    CreatedDate = c.CreatedDate,
+                    UserId = c.UserId
+                }).ToList() ?? new List<CommentDto>(),
             };
 
             return taskDetailsDto;

@@ -33,6 +33,8 @@ public class TaskEntity
     public bool IsExpired { get; set; }
 
     public ICollection<TaskTagEntity> TaskTags { get; set; } = new List<TaskTagEntity>();
+
+    public ICollection<CommentEntity> Comments { get; set; } = new List<CommentEntity>();
 }
 
 public enum Status
