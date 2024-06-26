@@ -53,7 +53,7 @@ public class TaskService : ITaskService
                     Id = c.Id,
                     Content = c.Content,
                     CreatedDate = c.CreatedDate,
-                    UserId = c.UserId
+                    UserId = c.UserId,
                 }).ToList() ?? new List<CommentDto>(),
             };
 
@@ -230,6 +230,46 @@ public class TaskService : ITaskService
         {
             TaskLoggerMessages.UnexpectedErrorOccurredWhileSearchingTasks(this.logger, ex.Message, searchText, ex);
             throw;
+        }
+    }
+
+    public async Task<CommentDto> AddCommentAsync(AddCommentDto addCommentDto)
+    {
+        try
+        {
+            var task = await this.taskRepository.GetTaskByIdAsync(addCommentDto.TaskId);
+            if (task == null)
+            {
+                TaskLoggerMessages.TaskIdNotFoundForAddingComment(this.logger, addCommentDto.TaskId);
+                throw new TaskException($"Task with ID {addCommentDto.TaskId} not found.");
+            }
+
+            var comment = new CommentEntity
+            {
+                TaskId = addCommentDto.TaskId,
+                Content = addCommentDto.Content,
+                CreatedDate = DateTime.UtcNow,
+                UserName = addCommentDto.UserName ?? "Anonymous",
+            };
+
+            await this.taskRepository.AddCommentAsync(comment);
+
+            return new CommentDto
+            {
+                Id = comment.Id,
+                Content = comment.Content,
+                CreatedDate = comment.CreatedDate,
+                UserName = comment.UserName,
+            };
+        }
+        catch (TaskException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            TaskLoggerMessages.UnexpectedErrorAddingCommentOnTask(this.logger, ex.Message, ex);
+            throw new TaskException("An error occurred while adding the comment.", ex);
         }
     }
 }

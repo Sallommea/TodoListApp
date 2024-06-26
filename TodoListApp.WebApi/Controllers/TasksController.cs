@@ -4,6 +4,7 @@ using TodoListApp.Services.Exceptions;
 using TodoListApp.Services.Interfaces;
 using TodoListApp.Services.Models;
 using TodoListApp.WebApi.Logging;
+using TodoListApp.WebApi.Models.Comments;
 using TodoListApp.WebApi.Models.Tasks;
 
 namespace TodoListApp.WebApi.Controllers;
@@ -199,6 +200,40 @@ public class TasksController : ControllerBase
         catch (Exception ex)
         {
             TaskControllerLoggerMessages.UnexpectedErrorOccurredWhileUpdatingTask(this.logger, ex.Message, taskId, ex);
+            throw;
+        }
+    }
+
+    [HttpPost("{taskId}/comments")]
+    public async Task<ActionResult<CommentDto>> AddComment(int taskId, [FromBody] AddCommentDto addCommentDto)
+    {
+        if (taskId != addCommentDto.TaskId)
+        {
+            return this.BadRequest("Task ID in the URL does not match the task ID in the request body.");
+        }
+
+        if (!this.ModelState.IsValid)
+        {
+            return this.BadRequest(this.ModelState);
+        }
+
+        try
+        {
+            var comment = await this.taskService.AddCommentAsync(addCommentDto);
+            return this.CreatedAtAction(nameof(this.GetTaskDetails), new { taskId = comment.Id }, comment);
+        }
+        catch (TaskException ex)
+        {
+            return this.NotFound(ex.Message);
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TaskControllerLoggerMessages.IOExceptionWhileAddingComment(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured");
+        }
+        catch (Exception ex)
+        {
+            TaskControllerLoggerMessages.UnexpectedErrorWhileAddingComment(this.logger, ex.Message, ex);
             throw;
         }
     }

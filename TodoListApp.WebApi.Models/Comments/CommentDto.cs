@@ -9,5 +9,5 @@ public class CommentDto
 
     public string UserName { get; set; } = "Anonymous";
 
-    public string UserId { get; set; } = string.Empty;
+    public string? UserId { get; set; }
 }

@@ -14,4 +14,6 @@ public interface ITaskRepository
     Task<bool> DeleteTaskAsync(int taskId);
 
     Task<PaginatedListResult<TaskEntity>> SearchTasksByTitleAsync(int pageNumber, int tasksPerPage, string searchText);
+
+    Task AddCommentAsync(CommentEntity comment);
 }

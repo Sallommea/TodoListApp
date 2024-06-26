@@ -46,4 +46,10 @@ public static partial class TaskControllerLoggerMessages
 
     [LoggerMessage(EventId = 16, Level = LogLevel.Error, Message = "An unexpected error occurred while retrieving tasks by Tag Id: {TagId}. Error: {Message}")]
     public static partial void UnexpectedErrorgGettingTasksbyTagId(this ILogger logger, int tagId, string message, Exception ex);
+
+    [LoggerMessage(EventId = 17, Level = LogLevel.Error, Message = "An invalid operation exception occured while adding the comment. Error: {Message}")]
+    public static partial void IOExceptionWhileAddingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 18, Level = LogLevel.Error, Message = "An unexpected error occurred adding the comment. Error: {Message}")]
+    public static partial void UnexpectedErrorWhileAddingComment(this ILogger logger, string message, Exception ex);
 }

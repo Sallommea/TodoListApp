@@ -1,5 +1,5 @@
-using TodoListApp.Services.Database;
 using TodoListApp.Services.Models;
+using TodoListApp.WebApi.Models.Comments;
 using TodoListApp.WebApi.Models.Tasks;
 
 namespace TodoListApp.Services.Interfaces;
@@ -16,4 +16,6 @@ public interface ITaskService
     Task<bool> UpdateTaskAsync(int taskId, UpdateTaskDto updateTaskDto);
 
     Task<PaginatedListResult<TaskSearchResultDto>> GetPaginatedSearchedTasksAsync(int pageNumber, int itemsPerPage, string searchText);
+
+    Task<CommentDto> AddCommentAsync(AddCommentDto addCommentDto);
 }

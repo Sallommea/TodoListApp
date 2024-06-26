@@ -120,4 +120,10 @@ public class TaskRepository : ITaskRepository
 
         return result;
     }
+
+    public async Task AddCommentAsync(CommentEntity comment)
+    {
+        _ = await this.dbContext.Comments.AddAsync(comment);
+        _ = await this.dbContext.SaveChangesAsync();
+    }
 }

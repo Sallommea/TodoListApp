@@ -44,4 +44,10 @@ public static partial class TaskLoggerMessages
 
     [LoggerMessage(EventId = 16, Level = LogLevel.Information, Message = "Tasks Retrieved by Tag Id:  {TagId}.")]
     public static partial void TasksByTagIdRetrieved(this ILogger logger, int tagId);
+
+    [LoggerMessage(EventId = 17, Level = LogLevel.Warning, Message = "Task ID not found for adding comment: {TaskId}")]
+    public static partial void TaskIdNotFoundForAddingComment(this ILogger logger, int taskId);
+
+    [LoggerMessage(EventId = 18, Level = LogLevel.Error, Message = "An unexpected error occurred while adding the comment. Error: {Message}")]
+    public static partial void UnexpectedErrorAddingCommentOnTask(this ILogger logger, string message, Exception ex);
 }
