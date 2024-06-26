@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TodoListApp.Services.Database;
 public class CommentEntity
@@ -8,7 +8,7 @@ public class CommentEntity
     public int Id { get; set; }
 
     [Required]
-    [MaxLength(1000)]
+    [MaxLength(1500)]
     public string Content { get; set; } = string.Empty;
 
     [Required]

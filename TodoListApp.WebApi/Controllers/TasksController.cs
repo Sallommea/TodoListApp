@@ -237,4 +237,62 @@ public class TasksController : ControllerBase
             throw;
         }
     }
+
+    [HttpPut("{taskId}/comments/{commentId}")]
+    public async Task<ActionResult<CommentDto>> EditComment(int taskId, int commentId, [FromBody] EditCommentDto editCommentDto)
+    {
+        if (taskId != editCommentDto.TaskId || commentId != editCommentDto.CommentId)
+        {
+            return this.BadRequest("Task ID or Comment ID in the URL does not match the IDs in the request body.");
+        }
+
+        if (!this.ModelState.IsValid)
+        {
+            return this.BadRequest(this.ModelState);
+        }
+
+        try
+        {
+            var updatedComment = await this.taskService.EditCommentAsync(editCommentDto);
+            return this.Ok(updatedComment);
+        }
+        catch (TaskException ex)
+        {
+            return this.NotFound(ex.Message);
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TaskControllerLoggerMessages.IOExceptionWhileEditingComment(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured");
+        }
+        catch (Exception ex)
+        {
+            TaskControllerLoggerMessages.UnexpectedErrorWhileEditingComment(this.logger, ex.Message, ex);
+            throw;
+        }
+    }
+
+    [HttpDelete("{taskId}/comments/{commentId}")]
+    public async Task<ActionResult> DeleteComment(int taskId, int commentId)
+    {
+        try
+        {
+            await this.taskService.DeleteCommentAsync(taskId, commentId);
+            return this.NoContent();
+        }
+        catch (TaskException ex)
+        {
+            return this.NotFound(ex.Message);
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TaskControllerLoggerMessages.IOExceptionWhileDeletingComment(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured");
+        }
+        catch (Exception ex)
+        {
+            TaskControllerLoggerMessages.UnexpectedErrorWhileDeletingComment(this.logger, ex.Message, ex);
+            throw;
+        }
+    }
 }

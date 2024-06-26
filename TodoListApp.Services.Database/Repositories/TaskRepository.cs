@@ -126,4 +126,21 @@ public class TaskRepository : ITaskRepository
         _ = await this.dbContext.Comments.AddAsync(comment);
         _ = await this.dbContext.SaveChangesAsync();
     }
+
+    public async Task<CommentEntity?> GetCommentByIdAsync(int commentId)
+    {
+        return await this.dbContext.Comments.FindAsync(commentId);
+    }
+
+    public async Task UpdateCommentAsync(CommentEntity comment)
+    {
+        _ = this.dbContext.Comments.Update(comment);
+        _ = await this.dbContext.SaveChangesAsync();
+    }
+
+    public async Task DeleteCommentAsync(CommentEntity comment)
+    {
+        this.dbContext.Comments.Remove(comment);
+        await this.dbContext.SaveChangesAsync();
+    }
 }

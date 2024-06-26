@@ -44,5 +44,4 @@ public static partial class TaskServiceLoggerMessages
 
     [LoggerMessage(EventId = 14, Level = LogLevel.Error, Message = "Unexpected Error occurred while while getting tasks by tag. {Message}")]
     public static partial void ErrorGettingTasksByTag(this ILogger logger, string message, Exception ex);
-
 }

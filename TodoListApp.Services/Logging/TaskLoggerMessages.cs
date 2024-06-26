@@ -33,21 +33,39 @@ public static partial class TaskLoggerMessages
     [LoggerMessage(EventId = 10, Level = LogLevel.Error, Message = "An unexpected error occurred while updating task with ID {TaskId}. Error: {Message}")]
     public static partial void UnexpectedErrorOccurredWhileUpdatingTask(this ILogger logger, string message, int taskId, Exception ex);
 
-    [LoggerMessage(EventId = 12, Level = LogLevel.Information, Message = "Serviece retrieved searched tasks successfully.")]
+    [LoggerMessage(EventId = 11, Level = LogLevel.Information, Message = "Serviece retrieved searched tasks successfully.")]
     public static partial void SearchedTasksRetrieved(this ILogger logger);
 
-    [LoggerMessage(EventId = 13, Level = LogLevel.Error, Message = "An unexpected error occurred while retrieving task searched with {SearchText}. Error: {Message}")]
+    [LoggerMessage(EventId = 12, Level = LogLevel.Error, Message = "An unexpected error occurred while retrieving task searched with {SearchText}. Error: {Message}")]
     public static partial void UnexpectedErrorOccurredWhileSearchingTasks(this ILogger logger, string message, string searchText, Exception ex);
 
-    [LoggerMessage(EventId = 14, Level = LogLevel.Error, Message = "An unexpected error occurred while retrieving tasks by Tag Id: {TagId}. Error: {Message}")]
+    [LoggerMessage(EventId = 13, Level = LogLevel.Error, Message = "An unexpected error occurred while retrieving tasks by Tag Id: {TagId}. Error: {Message}")]
     public static partial void UnexpectedErrorgGettingTasksbyTagId(this ILogger logger, int tagId, string message, Exception ex);
 
-    [LoggerMessage(EventId = 16, Level = LogLevel.Information, Message = "Tasks Retrieved by Tag Id:  {TagId}.")]
+    [LoggerMessage(EventId = 14, Level = LogLevel.Information, Message = "Tasks Retrieved by Tag Id:  {TagId}.")]
     public static partial void TasksByTagIdRetrieved(this ILogger logger, int tagId);
 
-    [LoggerMessage(EventId = 17, Level = LogLevel.Warning, Message = "Task ID not found for adding comment: {TaskId}")]
+    [LoggerMessage(EventId = 15, Level = LogLevel.Warning, Message = "Task ID not found for adding comment: {TaskId}")]
     public static partial void TaskIdNotFoundForAddingComment(this ILogger logger, int taskId);
 
-    [LoggerMessage(EventId = 18, Level = LogLevel.Error, Message = "An unexpected error occurred while adding the comment. Error: {Message}")]
+    [LoggerMessage(EventId = 16, Level = LogLevel.Error, Message = "An unexpected error occurred while adding the comment. Error: {Message}")]
     public static partial void UnexpectedErrorAddingCommentOnTask(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 17, Level = LogLevel.Warning, Message = "Comment with ID not found for adding comment: {CommentId}")]
+    public static partial void CommentIdNotFoundForEditingComment(this ILogger logger, int commentId);
+
+    [LoggerMessage(EventId = 18, Level = LogLevel.Warning, Message = "Comment with ID {CommentId} does not belog to the specified task: {TaskId}")]
+    public static partial void CommentIdDoNotBelongToTaskEdit(this ILogger logger, int commentId, int taskId);
+
+    [LoggerMessage(EventId = 19, Level = LogLevel.Error, Message = "An unexpected error occurred while editing the comment. Error: {Message}")]
+    public static partial void UnexpectedErrorEditingCommentOnTask(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 20, Level = LogLevel.Warning, Message = "Comment with ID not found for Deleting comment: {CommentId}")]
+    public static partial void CommentIdNotFoundForDeletingComment(this ILogger logger, int commentId);
+
+    [LoggerMessage(EventId = 21, Level = LogLevel.Warning, Message = "Comment with ID {CommentId} does not belog to the specified task: {TaskId}")]
+    public static partial void CommentIdDoNotBelongToTaskDelete(this ILogger logger, int commentId, int taskId);
+
+    [LoggerMessage(EventId = 22, Level = LogLevel.Error, Message = "An unexpected error occurred while deleting the comment. Error: {Message}")]
+    public static partial void UnexpectedErrorDeletingCommentOnTask(this ILogger logger, string message, Exception ex);
 }

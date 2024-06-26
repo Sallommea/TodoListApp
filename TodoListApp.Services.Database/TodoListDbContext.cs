@@ -81,7 +81,7 @@ public class TodoListDbContext : DbContext
         _ = modelBuilder.Entity<CommentEntity>(entity =>
         {
             _ = entity.HasKey(e => e.Id);
-            _ = entity.Property(e => e.Content).IsRequired().HasMaxLength(1000);
+            _ = entity.Property(e => e.Content).IsRequired().HasMaxLength(1500);
             _ = entity.Property(e => e.CreatedDate).IsRequired();
             _ = entity.Property(e => e.UserName).IsRequired().HasMaxLength(100);
             _ = entity.Property(e => e.UserId).IsRequired(false);

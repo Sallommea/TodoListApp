@@ -52,4 +52,16 @@ public static partial class TaskControllerLoggerMessages
 
     [LoggerMessage(EventId = 18, Level = LogLevel.Error, Message = "An unexpected error occurred adding the comment. Error: {Message}")]
     public static partial void UnexpectedErrorWhileAddingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 19, Level = LogLevel.Error, Message = "An invalid operation exception occured while editing the comment. Error: {Message}")]
+    public static partial void IOExceptionWhileEditingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 20, Level = LogLevel.Error, Message = "An unexpected error occurred editing the comment. Error: {Message}")]
+    public static partial void UnexpectedErrorWhileEditingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 21, Level = LogLevel.Error, Message = "An invalid operation exception occured while deleting the comment. Error: {Message}")]
+    public static partial void IOExceptionWhileDeletingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 22, Level = LogLevel.Error, Message = "An unexpected error occurred deleting the comment. Error: {Message}")]
+    public static partial void UnexpectedErrorWhileDeletingComment(this ILogger logger, string message, Exception ex);
 }

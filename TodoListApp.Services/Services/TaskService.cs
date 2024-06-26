@@ -272,4 +272,74 @@ public class TaskService : ITaskService
             throw new TaskException("An error occurred while adding the comment.", ex);
         }
     }
+
+    public async Task<CommentDto> EditCommentAsync(EditCommentDto editCommentDto)
+    {
+        try
+        {
+            var comment = await this.taskRepository.GetCommentByIdAsync(editCommentDto.CommentId);
+            if (comment == null)
+            {
+                TaskLoggerMessages.CommentIdNotFoundForEditingComment(this.logger, editCommentDto.CommentId);
+                throw new TaskException($"Comment with ID {editCommentDto.CommentId} not found.");
+            }
+
+            if (comment.TaskId != editCommentDto.TaskId)
+            {
+                TaskLoggerMessages.CommentIdDoNotBelongToTaskEdit(this.logger, editCommentDto.CommentId, editCommentDto.TaskId);
+                throw new TaskException($"Comment does not belong to the specified task.");
+            }
+
+            comment.Content = editCommentDto.Content;
+
+            await this.taskRepository.UpdateCommentAsync(comment);
+
+            return new CommentDto
+            {
+                Id = comment.Id,
+                Content = comment.Content,
+                CreatedDate = comment.CreatedDate,
+                UserName = comment.UserName,
+            };
+        }
+        catch (TaskException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            TaskLoggerMessages.UnexpectedErrorEditingCommentOnTask(this.logger, ex.Message, ex);
+            throw new TaskException("An error occurred while editing the comment.", ex);
+        }
+    }
+
+    public async Task DeleteCommentAsync(int taskId, int commentId)
+    {
+        try
+        {
+            var comment = await this.taskRepository.GetCommentByIdAsync(commentId);
+            if (comment == null)
+            {
+                TaskLoggerMessages.CommentIdNotFoundForDeletingComment(this.logger, commentId);
+                throw new TaskException($"Comment with ID {commentId} not found.");
+            }
+
+            if (comment.TaskId != taskId)
+            {
+                TaskLoggerMessages.CommentIdDoNotBelongToTaskDelete(this.logger, commentId, taskId);
+                throw new TaskException($"Comment does not belong to the specified task.");
+            }
+
+            await this.taskRepository.DeleteCommentAsync(comment);
+        }
+        catch (TaskException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            TaskLoggerMessages.UnexpectedErrorDeletingCommentOnTask(this.logger, ex.Message, ex);
+            throw new TaskException("An error occurred while deleting the comment.", ex);
+        }
+    }
 }

@@ -18,4 +18,8 @@ public interface ITaskService
     Task<PaginatedListResult<TaskSearchResultDto>> GetPaginatedSearchedTasksAsync(int pageNumber, int itemsPerPage, string searchText);
 
     Task<CommentDto> AddCommentAsync(AddCommentDto addCommentDto);
+
+    Task<CommentDto> EditCommentAsync(EditCommentDto editCommentDto);
+
+    Task DeleteCommentAsync(int taskId, int commentId);
 }
