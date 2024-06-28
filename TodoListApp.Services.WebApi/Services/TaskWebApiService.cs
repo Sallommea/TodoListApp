@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using TodoListApp.Services.Models;
 using TodoListApp.Services.WebApi.Logging;
+using TodoListApp.WebApi.Models.Comments;
 using TodoListApp.WebApi.Models.Tasks;
 
 namespace TodoListApp.Services.WebApi.Services;
@@ -161,6 +162,34 @@ public class TaskWebApiService
         catch (Exception ex)
         {
             TaskServiceLoggerMessages.ErrorGettingTasksByTag(this.logger, ex.Message, ex);
+            throw;
+        }
+    }
+
+    public async Task<CommentDto> AddCommentAsync(AddCommentDto addCommentDto)
+    {
+        try
+        {
+            var response = await this.httpClient.PostAsJsonAsync($"api/Tasks/{addCommentDto.TaskId}/comments", addCommentDto);
+
+            _ = response.EnsureSuccessStatusCode();
+
+            var commentDto = await response.Content.ReadFromJsonAsync<CommentDto>();
+            if (commentDto == null)
+            {
+                throw new InvalidOperationException("Failed to deserialize the comment response.");
+            }
+
+            return commentDto;
+        }
+        catch (HttpRequestException ex)
+        {
+            TaskServiceLoggerMessages.HTTPErrorWhileAddingComment(this.logger, ex.Message, ex);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            TaskServiceLoggerMessages.ErrorGettingWhileAddingComment(this.logger, ex.Message, ex);
             throw;
         }
     }

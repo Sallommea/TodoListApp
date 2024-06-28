@@ -143,3 +143,53 @@ p {
         outline: none;
         box-shadow: 0 0 0 2px rgba(74, 74, 74, 0.2);
     }
+
+/* Comments Section */
+#comments-section {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.comment {
+    background-color: #f8f9fa;
+    border-left: 4px solid #007bff;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
+
+.comment-author {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.comment-date {
+    color: #6c757d;
+}
+
+.comment-content {
+    font-size: 1em;
+    line-height: 1.5;
+}
+
+/* Comment Form */
+form textarea {
+    resize: vertical;
+}
+
+/* Custom button styles */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }

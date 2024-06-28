@@ -43,4 +43,13 @@ public static partial class TaskLoggerMessages
 
     [LoggerMessage(EventId = 14, Level = LogLevel.Error, Message = "Invalid Operation Exception occurred while getting tasks with Search Text: {Text}. {Message}")]
     public static partial void IOEGettingSearchedTasks(this ILogger logger, string text, string message, Exception ex);
+
+    [LoggerMessage(EventId = 15, Level = LogLevel.Error, Message = "HTTP Error occured while adding comment. {Message}")]
+    public static partial void IOExceptionWhileAddingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 16, Level = LogLevel.Error, Message = "Unexpected Error occurred while while adding comment. {Message}")]
+    public static partial void ErrorGettingWhileAddingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 17, Level = LogLevel.Error, Message = "HTTP Error adding comment to task {TaskId}. {Message}")]
+    public static partial void HTTPErrorWhileAddingCommentToTask(this ILogger logger, int taskId, string message, Exception ex);
 }

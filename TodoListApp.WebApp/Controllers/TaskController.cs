@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.WebApi.Services;
+using TodoListApp.WebApi.Models.Comments;
 using TodoListApp.WebApi.Models.Tasks;
 using TodoListApp.WebApp.Logging;
 using TodoListApp.WebApp.Models;
@@ -243,6 +244,43 @@ public class TaskController : Controller
         catch (Exception ex)
         {
             TaskLoggerMessages.ErrorGettingSearchedTasks(this.logger, searchText, ex.Message, ex);
+            throw;
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddComment(AddCommentDto addCommentDto)
+    {
+        try
+        {
+            _ = await this.taskWebApiService.AddCommentAsync(addCommentDto);
+            return this.RedirectToAction("TaskDetails", new { taskId = addCommentDto.TaskId });
+        }
+        catch (HttpRequestException ex)
+        {
+            TaskLoggerMessages.HTTPErrorWhileAddingCommentToTask(this.logger, addCommentDto.TaskId, ex.Message, ex);
+            if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return this.NotFound("The task was not found.");
+            }
+            else if (ex.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                this.ModelState.AddModelError(string.Empty, "Invalid data submitted.");
+                return this.View("TaskDetails", new { taskId = addCommentDto.TaskId });
+            }
+            else
+            {
+                return this.StatusCode(500, "An error occurred while adding the comment. Please try again later.");
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            TaskLoggerMessages.IOExceptionWhileAddingComment(this.logger, ex.Message, ex);
+            return this.StatusCode(500, "An error occurred while processing the response. Please try again later.");
+        }
+        catch (Exception ex)
+        {
+            TaskLoggerMessages.ErrorGettingWhileAddingComment(this.logger, ex.Message, ex);
             throw;
         }
     }

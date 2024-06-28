@@ -44,4 +44,10 @@ public static partial class TaskServiceLoggerMessages
 
     [LoggerMessage(EventId = 14, Level = LogLevel.Error, Message = "Unexpected Error occurred while while getting tasks by tag. {Message}")]
     public static partial void ErrorGettingTasksByTag(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 15, Level = LogLevel.Error, Message = "HTTP Error occured while adding comment. {Message}")]
+    public static partial void HTTPErrorWhileAddingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 16, Level = LogLevel.Error, Message = "Unexpected Error occurred while while adding comment. {Message}")]
+    public static partial void ErrorGettingWhileAddingComment(this ILogger logger, string message, Exception ex);
 }

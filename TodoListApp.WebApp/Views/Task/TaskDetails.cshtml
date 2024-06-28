@@ -91,4 +91,102 @@
     <div>
         @Model.Description
     </div>
+
+    <hr class="my-4">
+    <h4 class="my-4">Comments</h4>
+    <div id="comments-section">
+        @if (Model.Comments != null && Model.Comments.Any())
+        {
+            foreach (var comment in Model.Comments)
+            {
+                <div class="comment mb-3" id="comment-@comment.Id">
+                    <div class="comment-header d-flex justify-content-between align-items-center">
+                        <span class="comment-author">@comment.UserName</span>
+                        <span class="comment-date local-datetime" data-utc-datetime="@comment.CreatedDate.ToString("yyyy-MM-ddTHH:mm:ssZ")">
+                            @comment.CreatedDate.ToString("yyyy-MM-ddTHH:mm:ssZ")
+                        </span>
+                    </div>
+                    <div class="comment-content mt-2">
+                        <p>@comment.Content</p>
+                    </div>
+                    <div class="comment-actions mt-2">
+                        <button class="btn btn-sm btn-outline-primary" onclick="showEditForm(@comment.Id)">Edit</button>
+                        <form asp-controller="Task" asp-action="DeleteComment" method="post" style="display: inline;">
+                            <input type="hidden" name="commentId" value="@comment.Id" />
+                            <input type="hidden" name="taskId" value="@Model.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this comment?');">Delete</button>
+                        </form>
+                    </div>
+                    <div class="edit-comment-form d-none mt-2" id="edit-form-@comment.Id">
+                        <form asp-controller="Task" asp-action="EditComment" method="post">
+                            <input type="hidden" name="CommentId" value="@comment.Id" />
+                            <input type="hidden" name="TaskId" value="@Model.Id" />
+                            <textarea name="Content" class="form-control mb-2" required>@comment.Content</textarea>
+                            <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="hideEditForm(@comment.Id)">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No comments yet.</p>
+        }
+    </div>
+
+    <div class="add-comment-section mt-4">
+        <h5>Add a Comment</h5>
+        <form asp-controller="Task" asp-action="AddComment" method="post">
+            <input type="hidden" name="TaskId" value="@Model.Id" />
+            <div class="form-group">
+                <textarea name="Content" class="form-control" rows="3" placeholder="Write your comment here..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">Add Comment</button>
+        </form>
+    </div>
 </div>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function formatDate(date) {
+                return date.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            }
+
+            document.querySelectorAll('.local-datetime').forEach(function (element) {
+                var utcDateString = element.getAttribute('data-utc-datetime');
+                if (utcDateString) {
+                    var utcDate = new Date(utcDateString);
+                    var localDate = new Date(utcDate);
+
+                    element.textContent = formatDate(localDate);
+                    element.title = "UTC: " + formatDate(utcDate);
+
+                } else {
+                    console.error('No UTC date string found for element:', element);
+                }
+            });
+        });
+
+        function showEditForm(commentId) {
+            document.getElementById('edit-form-' + commentId).classList.remove('d-none');
+            document.getElementById('comment-' + commentId).querySelector('.comment-content').classList.add('d-none');
+            document.getElementById('comment-' + commentId).querySelector('.comment-actions').classList.add('d-none');
+        }
+
+        function hideEditForm(commentId) {
+            document.getElementById('edit-form-' + commentId).classList.add('d-none');
+            document.getElementById('comment-' + commentId).querySelector('.comment-content').classList.remove('d-none');
+            document.getElementById('comment-' + commentId).querySelector('.comment-actions').classList.remove('d-none');
+        }
+    </script>
+}
