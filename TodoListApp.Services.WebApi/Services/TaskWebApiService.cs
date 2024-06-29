@@ -193,4 +193,53 @@ public class TaskWebApiService
             throw;
         }
     }
+
+    public async Task<CommentDto> EditCommentAsync(EditCommentDto editCommentDto)
+    {
+        try
+        {
+            var response = await this.httpClient.PutAsJsonAsync(
+                $"api/Tasks/{editCommentDto.TaskId}/comments/{editCommentDto.CommentId}",
+                editCommentDto);
+
+            _ = response.EnsureSuccessStatusCode();
+
+            var updatedComment = await response.Content.ReadFromJsonAsync<CommentDto>();
+            if (updatedComment == null)
+            {
+                throw new InvalidOperationException("Failed to deserialize the updated comment response.");
+            }
+
+            return updatedComment;
+        }
+        catch (HttpRequestException ex)
+        {
+            TaskServiceLoggerMessages.HTTPErrorWhileEditingComment(this.logger, ex.Message, ex);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            TaskServiceLoggerMessages.ErrorGettingWhileEditingComment(this.logger, ex.Message, ex);
+            throw;
+        }
+    }
+
+    public async Task DeleteCommentAsync(int taskId, int commentId)
+    {
+        try
+        {
+            var response = await this.httpClient.DeleteAsync($"api/Tasks/{taskId}/comments/{commentId}");
+            _ = response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException ex)
+        {
+            TaskServiceLoggerMessages.HTTPErrorWhileDeletingComment(this.logger, ex.Message, ex);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            TaskServiceLoggerMessages.ErrorWhileDeletingComment(this.logger, ex.Message, ex);
+            throw;
+        }
+    }
 }

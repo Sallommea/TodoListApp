@@ -110,20 +110,20 @@
                         <p>@comment.Content</p>
                     </div>
                     <div class="comment-actions mt-2">
-                        <button class="btn btn-sm btn-outline-primary" onclick="showEditForm(@comment.Id)">Edit</button>
+                        <button class="action-button edit-button" onclick="showEditForm(@comment.Id)">Edit</button>
                         <form asp-controller="Task" asp-action="DeleteComment" method="post" style="display: inline;">
-                            <input type="hidden" name="commentId" value="@comment.Id" />
                             <input type="hidden" name="taskId" value="@Model.Id" />
-                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this comment?');">Delete</button>
+                            <input type="hidden" name="commentId" value="@comment.Id" />
+                            <button type="submit" class="action-button delete-button" onclick="return confirm('Are you sure you want to delete this comment?');">Delete</button>
                         </form>
                     </div>
                     <div class="edit-comment-form d-none mt-2" id="edit-form-@comment.Id">
                         <form asp-controller="Task" asp-action="EditComment" method="post">
-                            <input type="hidden" name="CommentId" value="@comment.Id" />
                             <input type="hidden" name="TaskId" value="@Model.Id" />
+                            <input type="hidden" name="CommentId" value="@comment.Id" />
                             <textarea name="Content" class="form-control mb-2" required>@comment.Content</textarea>
-                            <button type="submit" class="btn btn-sm btn-primary">Save</button>
-                            <button type="button" class="btn btn-sm btn-secondary" onclick="hideEditForm(@comment.Id)">Cancel</button>
+                            <button type="submit" class="action-button save-button">Save</button>
+                            <button type="button" class="action-button cancel-button" onclick="hideEditForm(@comment.Id)">Cancel</button>
                         </form>
                     </div>
                 </div>
@@ -131,6 +131,7 @@
         }
         else
         {
+
             <p>No comments yet.</p>
         }
     </div>
@@ -140,9 +141,9 @@
         <form asp-controller="Task" asp-action="AddComment" method="post">
             <input type="hidden" name="TaskId" value="@Model.Id" />
             <div class="form-group">
-                <textarea name="Content" class="form-control" rows="3" placeholder="Write your comment here..." required></textarea>
+                <textarea name="Content" class="comment-textarea" rows="3" placeholder="Write your comment here..." required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary mt-2">Add Comment</button>
+            <button type="submit" class="action-button add-button">Add Comment</button>
         </form>
     </div>
 </div>

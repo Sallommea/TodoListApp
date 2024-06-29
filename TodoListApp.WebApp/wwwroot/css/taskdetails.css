@@ -178,18 +178,75 @@ p {
     line-height: 1.5;
 }
 
+.comment-content p {
+        font-weight: 400;
+    }
+
 /* Comment Form */
 form textarea {
     resize: vertical;
 }
 
-/* Custom button styles */
-.btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
+.form-control:focus {
+    box-shadow: none;
+    border-color: #ced4da;
 }
 
-    .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #0056b3;
-    }
+.btn:focus {
+    box-shadow: none;
+}
+
+.action-button {
+    background: none;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.edit-button {
+    color: #4a90e2;
+}
+
+.delete-button {
+    color: #e25555;
+}
+
+.save-button {
+    color: #4a90e2;
+}
+
+.cancel-button {
+    color: #888;
+}
+
+.add-button {
+    color: #4a90e2;
+}
+
+.action-button:hover {
+    opacity: 0.7;
+}
+
+.inline-form {
+    display: inline;
+}
+
+.edit-comment-form {
+    margin-top: 10px;
+}
+
+.hidden {
+    display: none;
+}
+
+.comment-textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    outline: none; 
+    transition: border-color 0.3s ease; 
+}

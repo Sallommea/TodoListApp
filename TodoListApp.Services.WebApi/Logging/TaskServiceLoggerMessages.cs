@@ -50,4 +50,16 @@ public static partial class TaskServiceLoggerMessages
 
     [LoggerMessage(EventId = 16, Level = LogLevel.Error, Message = "Unexpected Error occurred while while adding comment. {Message}")]
     public static partial void ErrorGettingWhileAddingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 17, Level = LogLevel.Error, Message = "HTTP Error occured while editing comment. {Message}")]
+    public static partial void HTTPErrorWhileEditingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 18, Level = LogLevel.Error, Message = "Unexpected Error occurred while while editing comment. {Message}")]
+    public static partial void ErrorGettingWhileEditingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 19, Level = LogLevel.Error, Message = "HTTP Error occured while deleting comment. {Message}")]
+    public static partial void HTTPErrorWhileDeletingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 20, Level = LogLevel.Error, Message = "Unexpected Error occurred while while deleting comment. {Message}")]
+    public static partial void ErrorWhileDeletingComment(this ILogger logger, string message, Exception ex);
 }

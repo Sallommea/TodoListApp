@@ -101,6 +101,11 @@ public class TaskController : Controller
         try
         {
             var taskDetails = await this.taskWebApiService.GetTaskDetailsAsync(taskId);
+            if (this.TempData["ErrorMessage"] != null)
+            {
+                this.ViewBag.ErrorMessage = this.TempData["ErrorMessage"];
+            }
+
             return this.View(taskDetails);
         }
         catch (HttpRequestException ex)
@@ -281,6 +286,72 @@ public class TaskController : Controller
         catch (Exception ex)
         {
             TaskLoggerMessages.ErrorGettingWhileAddingComment(this.logger, ex.Message, ex);
+            throw;
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditComment(EditCommentDto editCommentDto)
+    {
+        if (!this.ModelState.IsValid)
+        {
+            return this.View("TaskDetails", new { taskId = editCommentDto.TaskId });
+        }
+
+        try
+        {
+            _ = await this.taskWebApiService.EditCommentAsync(editCommentDto);
+            return this.RedirectToAction("TaskDetails", new { taskId = editCommentDto.TaskId });
+        }
+        catch (HttpRequestException ex)
+        {
+            if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return this.NotFound("The task or comment was not found.");
+            }
+            else if (ex.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                this.ModelState.AddModelError(string.Empty, "Invalid data submitted.");
+                return this.View("TaskDetails", new { taskId = editCommentDto.TaskId });
+            }
+            else
+            {
+                this.TempData["ErrorMessage"] = "An error occurred while editing the comment. Please try again later.";
+                return this.RedirectToAction("TaskDetails", new { taskId = editCommentDto.TaskId });
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            TaskLoggerMessages.IOExceptionWhileEditingComment(this.logger, ex.Message, ex);
+            return this.StatusCode(500, "An error occurred while processing the response. Please try again later.");
+        }
+        catch (Exception ex)
+        {
+            TaskLoggerMessages.ErrorGettingWhileEditingComment(this.logger, ex.Message, ex);
+            throw;
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteComment(int taskId, int commentId)
+    {
+        try
+        {
+            await this.taskWebApiService.DeleteCommentAsync(taskId, commentId);
+            return this.RedirectToAction("TaskDetails", new { taskId = taskId });
+        }
+        catch (HttpRequestException)
+        {
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while deleting comment");
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TaskLoggerMessages.IOEWhileDeletingComment(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred while deleting comment." });
+        }
+        catch (Exception ex)
+        {
+            TaskLoggerMessages.ErrorDeletingComment(this.logger, ex.Message, ex);
             throw;
         }
     }

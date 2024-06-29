@@ -52,4 +52,16 @@ public static partial class TaskLoggerMessages
 
     [LoggerMessage(EventId = 17, Level = LogLevel.Error, Message = "HTTP Error adding comment to task {TaskId}. {Message}")]
     public static partial void HTTPErrorWhileAddingCommentToTask(this ILogger logger, int taskId, string message, Exception ex);
+
+    [LoggerMessage(EventId = 18, Level = LogLevel.Error, Message = "HTTP Error occured while editing comment. {Message}")]
+    public static partial void IOExceptionWhileEditingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 19, Level = LogLevel.Error, Message = "Unexpected Error occurred while editing comment. {Message}")]
+    public static partial void ErrorGettingWhileEditingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 20, Level = LogLevel.Error, Message = "HTTP Error occured while deleting comment. {Message}")]
+    public static partial void IOEWhileDeletingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 21, Level = LogLevel.Error, Message = "Unexpected Error occurred while deleting comment. {Message}")]
+    public static partial void ErrorDeletingComment(this ILogger logger, string message, Exception ex);
 }
