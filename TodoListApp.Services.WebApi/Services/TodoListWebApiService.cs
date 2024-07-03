@@ -17,10 +17,15 @@ namespace TodoListApp.Services.WebApi.Services
             this.logger = logger;
         }
 
-        public async Task<PaginatedListResult<TodoListDto>> GetPaginatedTodoListsAsync(int pageNumber, int itemsPerPage)
+        public async Task<PaginatedListResult<TodoListDto>> GetPaginatedTodoListsAsync(int pageNumber, int itemsPerPage, string token)
         {
             try
             {
+                if (!string.IsNullOrEmpty(token))
+                {
+                    this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
                 var response = await this.httpClient.GetAsync($"api/TodoList?pageNumber={pageNumber}&itemsPerPage={itemsPerPage}");
                 _ = response.EnsureSuccessStatusCode();
 
@@ -39,10 +44,15 @@ namespace TodoListApp.Services.WebApi.Services
             }
         }
 
-        public async Task DeleteTodoListAsync(int id)
+        public async Task DeleteTodoListAsync(int id, string token)
         {
             try
             {
+                if (!string.IsNullOrEmpty(token))
+                {
+                    this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
                 var response = await this.httpClient.DeleteAsync($"api/TodoList/{id}");
                 _ = response.EnsureSuccessStatusCode();
             }
@@ -58,10 +68,15 @@ namespace TodoListApp.Services.WebApi.Services
             }
         }
 
-        public async Task<int> AddTodoListAsync(CreateTodoList createTodoList)
+        public async Task<int> AddTodoListAsync(CreateTodoList createTodoList, string token)
         {
             try
             {
+                if (!string.IsNullOrEmpty(token))
+                {
+                    this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
                 var response = await this.httpClient.PostAsJsonAsync("api/TodoList", createTodoList);
                 _ = response.EnsureSuccessStatusCode();
                 return await response.Content.ReadFromJsonAsync<int>();
@@ -78,10 +93,15 @@ namespace TodoListApp.Services.WebApi.Services
             }
         }
 
-        public async Task<TodoDetailsDto> GetTodoListAsync(int id, int pageNumber = 1, int itemsPerPage = 10)
+        public async Task<TodoDetailsDto> GetTodoListAsync(int id, string token, int pageNumber = 1, int itemsPerPage = 10)
         {
             try
             {
+                if (!string.IsNullOrEmpty(token))
+                {
+                    this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
                 var response = await this.httpClient.GetAsync($"api/TodoList/{id}?pageNumber={pageNumber}&itemsPerPage={itemsPerPage}");
 
                 var todoDetails = await response.Content.ReadFromJsonAsync<TodoDetailsDto>();
@@ -105,10 +125,15 @@ namespace TodoListApp.Services.WebApi.Services
             }
         }
 
-        public async Task UpdateTodoListAsync(UpdateTodo updateTodo)
+        public async Task UpdateTodoListAsync(UpdateTodo updateTodo, string token)
         {
             try
             {
+                if (!string.IsNullOrEmpty(token))
+                {
+                    this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
                 var response = await this.httpClient.PutAsJsonAsync($"api/TodoList/{updateTodo.Id}", updateTodo);
                 _ = response.EnsureSuccessStatusCode();
             }

@@ -10,22 +10,23 @@ public class TagRepository : ITagRepository
         this.context = context;
     }
 
-    public async Task<IEnumerable<TagEntity>> GetAllTagsAsync()
+    public async Task<IEnumerable<TagEntity>> GetAllTagsAsync(string userId)
     {
         return await this.context.Tags
+            .Where(t => t.UserId == userId)
             .Distinct()
             .ToListAsync();
     }
 
-    public async Task<TagEntity?> GetTagByNameAsync(string normalizedTagName)
+    public async Task<TagEntity?> GetTagByNameAsync(string normalizedTagName, string userId)
     {
         return await this.context.Tags
-            .FirstOrDefaultAsync(t => t.Name == normalizedTagName);
+            .FirstOrDefaultAsync(t => t.Name == normalizedTagName && t.UserId == userId);
     }
 
-    public async Task<TagEntity> CreateTagAsync(string normalizedTagName)
+    public async Task<TagEntity> CreateTagAsync(string normalizedTagName, string userId)
     {
-        var tag = new TagEntity { Name = normalizedTagName };
+        var tag = new TagEntity { Name = normalizedTagName, UserId = userId };
         _ = await this.context.Tags.AddAsync(tag);
         _ = await this.context.SaveChangesAsync();
         return tag;
@@ -48,7 +49,7 @@ public class TagRepository : ITagRepository
             .FirstOrDefaultAsync(tt => tt.TaskId == taskId && tt.TagId == tagId);
     }
 
-    public async Task<bool> DeleteTagAsync(int taskId, int tagId)
+    public async Task<bool> DeleteTagAsync(int taskId, int tagId, string userId)
     {
         var taskTag = await this.context.TaskTags
            .FirstOrDefaultAsync(tt => tt.TaskId == taskId && tt.TagId == tagId);
@@ -66,7 +67,8 @@ public class TagRepository : ITagRepository
 
         if (!isTagUsedElsewhere)
         {
-            var tag = await this.context.Tags.FindAsync(tagId);
+            var tag = await this.context.Tags
+               .FirstOrDefaultAsync(t => t.Id == tagId && t.UserId == userId);
             if (tag != null)
             {
                 _ = this.context.Tags.Remove(tag);

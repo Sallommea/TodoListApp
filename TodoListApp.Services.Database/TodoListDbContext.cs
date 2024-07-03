@@ -1,7 +1,8 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace TodoListApp.Services.Database;
-public class TodoListDbContext : DbContext
+public class TodoListDbContext : IdentityDbContext<User>
 {
     public TodoListDbContext(DbContextOptions<TodoListDbContext> options)
            : base(options)
@@ -18,9 +19,11 @@ public class TodoListDbContext : DbContext
 
     public DbSet<CommentEntity> Comments { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        _ = modelBuilder.Entity<TodoListEntity>(entity =>
+        base.OnModelCreating(builder);
+
+        _ = builder.Entity<TodoListEntity>(entity =>
         {
             _ = entity.HasKey(e => e.Id);
             _ = entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
@@ -30,16 +33,20 @@ public class TodoListDbContext : DbContext
                 .WithOne(t => t.TodoList)
                 .HasForeignKey(t => t.TodoListId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            _ = entity.HasOne(e => e.User)
+              .WithMany(u => u.Todos)
+              .HasForeignKey(e => e.UserId)
+              .OnDelete(DeleteBehavior.Restrict);
         });
 
-        _ = modelBuilder.Entity<TaskEntity>(entity =>
+        _ = builder.Entity<TaskEntity>(entity =>
         {
             _ = entity.HasKey(e => e.Id);
             _ = entity.Property(e => e.Title).IsRequired().HasMaxLength(100);
             _ = entity.Property(e => e.Description).HasMaxLength(500);
             _ = entity.Property(e => e.CreatedDate).IsRequired();
             _ = entity.Property(e => e.Status).IsRequired();
-            _ = entity.Property(e => e.Assignee).IsRequired();
 
             _ = entity.HasOne(e => e.TodoList)
                 .WithMany(t => t.Tasks)
@@ -50,9 +57,14 @@ public class TodoListDbContext : DbContext
                 .WithOne(tt => tt.Task)
                 .HasForeignKey(tt => tt.TaskId)
                 .IsRequired(false);
+
+            _ = entity.HasOne(e => e.User)
+              .WithMany()
+              .HasForeignKey(e => e.UserId)
+              .OnDelete(DeleteBehavior.Restrict);
         });
 
-        _ = modelBuilder.Entity<TagEntity>(entity =>
+        _ = builder.Entity<TagEntity>(entity =>
         {
             _ = entity.HasKey(e => e.Id);
             _ = entity.Property(e => e.Name).IsRequired().HasMaxLength(50);
@@ -61,9 +73,14 @@ public class TodoListDbContext : DbContext
                 .WithOne(tt => tt.Tag)
                 .HasForeignKey(tt => tt.TagId)
                 .IsRequired();
+
+            _ = entity.HasOne(e => e.User)
+              .WithMany()
+              .HasForeignKey(e => e.UserId)
+              .OnDelete(DeleteBehavior.Restrict);
         });
 
-        _ = modelBuilder.Entity<TaskTagEntity>(entity =>
+        _ = builder.Entity<TaskTagEntity>(entity =>
         {
             _ = entity.HasKey(tt => new { tt.TaskId, tt.TagId });
 
@@ -78,17 +95,21 @@ public class TodoListDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        _ = modelBuilder.Entity<CommentEntity>(entity =>
+        _ = builder.Entity<CommentEntity>(entity =>
         {
             _ = entity.HasKey(e => e.Id);
             _ = entity.Property(e => e.Content).IsRequired().HasMaxLength(1500);
             _ = entity.Property(e => e.CreatedDate).IsRequired();
-            _ = entity.Property(e => e.UserName).IsRequired().HasMaxLength(100);
             _ = entity.Property(e => e.UserId).IsRequired(false);
             _ = entity.HasOne(e => e.Task)
                 .WithMany(t => t.Comments)
                 .HasForeignKey(e => e.TaskId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            _ = entity.HasOne(e => e.User)
+              .WithMany()
+              .HasForeignKey(e => e.UserId)
+              .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

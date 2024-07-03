@@ -21,11 +21,11 @@ public class TodoListService : ITodoListService
         this.logger = logger;
     }
 
-    public async Task<PaginatedListResult<TodoListDto>> GetPaginatedTodoListsAsync(int pageNumber, int itemsPerPage)
+    public async Task<PaginatedListResult<TodoListDto>> GetPaginatedTodoListsAsync(string userId, int pageNumber, int itemsPerPage)
     {
         try
         {
-            var todoLists = await this.todoListRepo.GetAllTodoListsAsync();
+            var todoLists = await this.todoListRepo.GetAllTodoListsAsync(userId);
             var totalRecords = todoLists.Count();
             var paginatedTodoLists = todoLists
             .Skip((pageNumber - 1) * itemsPerPage)
@@ -53,11 +53,11 @@ public class TodoListService : ITodoListService
         }
     }
 
-    public async Task<TodoDetailsDto?> GetTodoListWithTasksAsync(int todoListId, int taskPageNumber, int tasksPerPage)
+    public async Task<TodoDetailsDto?> GetTodoListWithTasksAsync(int todoListId, string userId, int taskPageNumber, int tasksPerPage)
     {
         try
         {
-            var result = await this.todoListRepo.GetTodoListWithTasksAsync(todoListId);
+            var result = await this.todoListRepo.GetTodoListWithTasksAsync(todoListId, userId);
 
             if (result is null)
             {
@@ -121,7 +121,7 @@ public class TodoListService : ITodoListService
         }
     }
 
-    public async Task<TodoListEntity> AddTodoListAsync(CreateTodoList todoList)
+    public async Task<TodoListEntity> AddTodoListAsync(CreateTodoList todoList, string userId)
     {
         try
         {
@@ -132,7 +132,7 @@ public class TodoListService : ITodoListService
                 TaskCount = 0,
             };
 
-            await this.todoListRepo.AddTodoListAsync(entity);
+            await this.todoListRepo.AddTodoListAsync(entity, userId);
             return entity;
         }
         catch (DbUpdateException ex)
@@ -147,11 +147,11 @@ public class TodoListService : ITodoListService
         }
     }
 
-    public async Task DeleteTodoListAsync(int id)
+    public async Task DeleteTodoListAsync(int id, string userId)
     {
         try
         {
-            await this.todoListRepo.DeleteTodoListAsync(id);
+            await this.todoListRepo.DeleteTodoListAsync(id, userId);
         }
         catch (KeyNotFoundException ex)
         {
@@ -165,7 +165,7 @@ public class TodoListService : ITodoListService
         }
     }
 
-    public async Task UpdateTodoListAsync(UpdateTodo updateTodo)
+    public async Task UpdateTodoListAsync(UpdateTodo updateTodo, string userId)
     {
         try
         {
@@ -176,7 +176,7 @@ public class TodoListService : ITodoListService
                 Description = updateTodo.Description,
             };
 
-            await this.todoListRepo.UpdateTodoListAsync(entity);
+            await this.todoListRepo.UpdateTodoListAsync(entity, userId);
         }
         catch (KeyNotFoundException ex)
         {

@@ -18,10 +18,15 @@ public class TaskWebApiService
         this.logger = logger;
     }
 
-    public async Task<int> AddTaskAsync(CreateTaskDto createTask)
+    public async Task<int> AddTaskAsync(CreateTaskDto createTask, string token)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await this.httpClient.PostAsJsonAsync("api/Tasks", createTask);
             _ = response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<int>();
@@ -38,10 +43,14 @@ public class TaskWebApiService
         }
     }
 
-    public async Task DeleteTaskAsync(int taskId)
+    public async Task DeleteTaskAsync(int taskId, string token)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
             var response = await this.httpClient.DeleteAsync($"api/Tasks/{taskId}");
             _ = response.EnsureSuccessStatusCode();
         }
@@ -57,10 +66,15 @@ public class TaskWebApiService
         }
     }
 
-    public async Task<TaskDetailsDto> GetTaskDetailsAsync(int taskId)
+    public async Task<TaskDetailsDto> GetTaskDetailsAsync(int taskId, string token)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await this.httpClient.GetAsync($"api/Tasks/{taskId}");
 
             var taskDetails = await response.Content.ReadFromJsonAsync<TaskDetailsDto>();
@@ -84,10 +98,15 @@ public class TaskWebApiService
         }
     }
 
-    public async Task UpdateTaskAsync(int taskId, UpdateTaskDto updateTaskDto)
+    public async Task UpdateTaskAsync(int taskId, UpdateTaskDto updateTaskDto, string token)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await this.httpClient.PutAsJsonAsync($"api/tasks/{taskId}", updateTaskDto);
             _ = response.EnsureSuccessStatusCode();
         }
@@ -103,10 +122,15 @@ public class TaskWebApiService
         }
     }
 
-    public async Task<PaginatedListResult<TaskSearchResultDto>> GetPaginatedSearchedTasksAsync(string searchText, int pageNumber = 1, int itemsPerPage = 10)
+    public async Task<PaginatedListResult<TaskSearchResultDto>> GetPaginatedSearchedTasksAsync(string searchText, string token, int pageNumber = 1, int itemsPerPage = 10)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await this.httpClient.GetAsync($"api/tasks/bysearchtext?searchText={Uri.EscapeDataString(searchText)}&pageNumber={pageNumber}&itemsPerPage={itemsPerPage}");
 
             _ = response.EnsureSuccessStatusCode();
@@ -132,10 +156,15 @@ public class TaskWebApiService
         }
     }
 
-    public async Task<PaginatedListResult<TaskDto>> GetTasksByTagAsync(int tagId, int pageNumber, int itemsPerPage)
+    public async Task<PaginatedListResult<TaskDto>> GetTasksByTagAsync(int tagId, string token, int pageNumber, int itemsPerPage)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await this.httpClient.GetAsync($"api/Tasks/bytag/{tagId}?pageNumber={pageNumber}&pageSize={itemsPerPage}");
 
             if (response.IsSuccessStatusCode)
@@ -166,10 +195,15 @@ public class TaskWebApiService
         }
     }
 
-    public async Task<CommentDto> AddCommentAsync(AddCommentDto addCommentDto)
+    public async Task<CommentDto> AddCommentAsync(AddCommentDto addCommentDto, string token)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await this.httpClient.PostAsJsonAsync($"api/Tasks/{addCommentDto.TaskId}/comments", addCommentDto);
 
             _ = response.EnsureSuccessStatusCode();
@@ -194,10 +228,15 @@ public class TaskWebApiService
         }
     }
 
-    public async Task<CommentDto> EditCommentAsync(EditCommentDto editCommentDto)
+    public async Task<CommentDto> EditCommentAsync(EditCommentDto editCommentDto, string token)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await this.httpClient.PutAsJsonAsync(
                 $"api/Tasks/{editCommentDto.TaskId}/comments/{editCommentDto.CommentId}",
                 editCommentDto);
@@ -224,10 +263,14 @@ public class TaskWebApiService
         }
     }
 
-    public async Task DeleteCommentAsync(int taskId, int commentId)
+    public async Task DeleteCommentAsync(int taskId, int commentId, string token)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
             var response = await this.httpClient.DeleteAsync($"api/Tasks/{taskId}/comments/{commentId}");
             _ = response.EnsureSuccessStatusCode();
         }

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.WebApi.Services;
 using TodoListApp.WebApi.Models.Tasks;
@@ -22,6 +23,8 @@ public class AssignedTasksController : Controller
     {
         try
         {
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+
             bool resetPagination = false;
 
             var currentStatus = this.TempData["CurrentStatus"] as int?;
@@ -50,7 +53,7 @@ public class AssignedTasksController : Controller
             this.ViewBag.Status = status;
             this.ViewBag.SortCriteria = sortCriteria;
 
-            var result = await this.assignedTaskWebApiService.GetTasksAssignedToMeAsync(pageNumber, tasksPerPage, status, sortCriteria);
+            var result = await this.assignedTaskWebApiService.GetTasksAssignedToMeAsync(token, pageNumber, tasksPerPage, status, sortCriteria);
             return this.View(result);
         }
         catch (HttpRequestException)
@@ -74,13 +77,15 @@ public class AssignedTasksController : Controller
     {
         try
         {
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+
             var updateTaskStatus = new UpdateTaskStatus
             {
                 TaskId = taskId,
                 Status = newStatus,
             };
 
-            await this.assignedTaskWebApiService.UpdateTaskStatusAsync(updateTaskStatus);
+            await this.assignedTaskWebApiService.UpdateTaskStatusAsync(updateTaskStatus, token);
 
             return this.RedirectToAction(nameof(this.Index), new { pageNumber, tasksPerPage, status, sortCriteria });
         }

@@ -22,9 +22,6 @@ public class TaskEntity
     [Required]
     public Status Status { get; set; }
 
-    [Required]
-    public string Assignee { get; set; } = string.Empty;
-
     [ForeignKey("TodoListEntity")]
     public int TodoListId { get; set; }
 
@@ -35,6 +32,11 @@ public class TaskEntity
     public ICollection<TaskTagEntity> TaskTags { get; set; } = new List<TaskTagEntity>();
 
     public ICollection<CommentEntity> Comments { get; set; } = new List<CommentEntity>();
+
+    [ForeignKey("User")]
+    public string? UserId { get; set; }
+
+    public User? User { get; set; }
 }
 
 public enum Status

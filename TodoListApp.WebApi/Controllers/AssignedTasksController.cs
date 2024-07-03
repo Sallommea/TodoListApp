@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.Database.Models;
 using TodoListApp.Services.Interfaces;
@@ -7,6 +9,7 @@ using TodoListApp.WebApi.Models.Tasks;
 namespace TodoListApp.WebApi.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class AssignedTasksController : ControllerBase
 {
     private readonly IAssignedTasksService assignedTasksService;
@@ -21,6 +24,12 @@ public class AssignedTasksController : ControllerBase
     [HttpGet("assigned-to-me")]
     public async Task<ActionResult<PaginatedListResult<AssignedTasksdto>>> GetTasksAssignedToMeAsync(int pageNumber = 1, int tasksPerPage = 10, [FromQuery] Status? status = null, [FromQuery] string? sortCriteria = null)
     {
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         if (pageNumber <= 0)
         {
             AssignedTasksControllerLoggerMessages.InvalidPageNumber(this.logger, pageNumber);
@@ -35,8 +44,7 @@ public class AssignedTasksController : ControllerBase
 
         try
         {
-            var assignee = "DefaultUser"; // to be replaced by the actual user's identity after implementing authorization
-            var tasks = await this.assignedTasksService.GetTasksByAssigneeAsync(assignee, pageNumber, tasksPerPage, status, sortCriteria);
+            var tasks = await this.assignedTasksService.GetTasksByAssigneeAsync(userId, pageNumber, tasksPerPage, status, sortCriteria);
             return this.Ok(tasks);
         }
         catch (InvalidOperationException ioe)
@@ -53,6 +61,12 @@ public class AssignedTasksController : ControllerBase
     [HttpPut("update-status")]
     public async Task<IActionResult> UpdateTaskStatus([FromBody] UpdateTaskStatus updateTaskStatusDto)
     {
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         if (!this.ModelState.IsValid)
         {
             return this.BadRequest(this.ModelState);
@@ -60,7 +74,7 @@ public class AssignedTasksController : ControllerBase
 
         try
         {
-            var result = await this.assignedTasksService.UpdateTaskStatusAsync(updateTaskStatusDto);
+            var result = await this.assignedTasksService.UpdateTaskStatusAsync(updateTaskStatusDto, userId);
             if (!result)
             {
                 AssignedTasksControllerLoggerMessages.InvalidTaskIdForTaskStatusUpdate(this.logger, updateTaskStatusDto.TaskId);

@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.Exceptions;
 using TodoListApp.Services.Interfaces;
@@ -7,6 +9,7 @@ using TodoListApp.WebApi.Models.Tags;
 namespace TodoListApp.WebApi.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class TagController : ControllerBase
 {
     private readonly ITagService tagService;
@@ -21,9 +24,15 @@ public class TagController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TagDto>>> GetAllTags()
     {
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         try
         {
-            var tags = await this.tagService.GetAllTagsAsync();
+            var tags = await this.tagService.GetAllTagsAsync(userId);
 
             if (!tags.Any())
             {
@@ -57,9 +66,15 @@ public class TagController : ControllerBase
             return this.BadRequest("Tag name cannot be empty.");
         }
 
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         try
         {
-            var tagDto = await this.tagService.AddTagToTaskAsync(tagName, taskId);
+            var tagDto = await this.tagService.AddTagToTaskAsync(tagName, taskId, userId);
             TagControllerLoggerMessages.TagAddedToTask(this.logger, tagName, taskId);
             return this.Ok(tagDto);
         }
@@ -78,6 +93,12 @@ public class TagController : ControllerBase
     [HttpDelete("{taskId}/tags/{tagId}")]
     public async Task<IActionResult> DeleteTag(int taskId, int tagId)
     {
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         try
         {
             if (taskId <= 0 || tagId <= 0)
@@ -85,7 +106,7 @@ public class TagController : ControllerBase
                 return this.BadRequest("Invalid taskId or tagId.");
             }
 
-            var result = await this.tagService.DeleteTagAsync(taskId, tagId);
+            var result = await this.tagService.DeleteTagAsync(taskId, tagId, userId);
 
             if (result)
             {

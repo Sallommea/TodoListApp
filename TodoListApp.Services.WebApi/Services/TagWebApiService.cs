@@ -17,10 +17,15 @@ public class TagWebApiService
         this.logger = logger;
     }
 
-    public async Task<IEnumerable<TagDto>> GetAllTagsAsync()
+    public async Task<IEnumerable<TagDto>> GetAllTagsAsync(string token)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await this.httpClient.GetAsync("api/Tag");
 
             if (response.IsSuccessStatusCode)
@@ -51,10 +56,15 @@ public class TagWebApiService
         }
     }
 
-    public async Task<TagDto> AddTagToTaskAsync(string tagName, int taskId)
+    public async Task<TagDto> AddTagToTaskAsync(string tagName, int taskId, string token)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await this.httpClient.PostAsync($"api/Tag/AddTagToTask?tagName={HttpUtility.UrlEncode(tagName)}&taskId={taskId}", null);
 
             if (response.IsSuccessStatusCode)
@@ -95,10 +105,15 @@ public class TagWebApiService
         }
     }
 
-    public async Task DeleteTagAsync(int taskId, int tagId)
+    public async Task DeleteTagAsync(int taskId, int tagId, string token)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await this.httpClient.DeleteAsync($"api/Tag/{taskId}/tags/{tagId}");
             _ = response.EnsureSuccessStatusCode();
         }

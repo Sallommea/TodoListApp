@@ -7,7 +7,7 @@ public class CommentDto
 
     public DateTime CreatedDate { get; set; }
 
-    public string UserName { get; set; } = "Anonymous";
+    public string UserFirstName { get; set; } = string.Empty;
 
-    public string? UserId { get; set; }
+    public string UserLastName { get; set; } = string.Empty;
 }

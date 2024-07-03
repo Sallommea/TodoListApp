@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.WebApi.Services;
 using TodoListApp.WebApi.Models;
@@ -17,11 +19,13 @@ public class TodoListController : Controller
     }
 
 #pragma warning disable S6967 // ModelState.IsValid should be called in controller actions
+    [Authorize]
     public async Task<IActionResult> Index(int pageNumber = 1)
     {
         try
         {
-            var paginatedTodoLists = await this.todoListWebApiService.GetPaginatedTodoListsAsync(pageNumber, 9);
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            var paginatedTodoLists = await this.todoListWebApiService.GetPaginatedTodoListsAsync(pageNumber, 9, token);
 
             var viewModel = new TodoListViewModel
             {
@@ -50,12 +54,14 @@ public class TodoListController : Controller
         }
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Delete(int id)
     {
         try
         {
-            await this.todoListWebApiService.DeleteTodoListAsync(id);
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            await this.todoListWebApiService.DeleteTodoListAsync(id, token);
             return this.RedirectToAction("Index");
         }
         catch (KeyNotFoundException)
@@ -79,16 +85,19 @@ public class TodoListController : Controller
     }
 
     [HttpGet]
+    [Authorize]
     public IActionResult CreateTodoList()
     {
         return this.View();
     }
 
+    [Authorize]
     public async Task<IActionResult> Edit(int id)
     {
         try
         {
-            var todoDetails = await this.todoListWebApiService.GetTodoListAsync(id);
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            var todoDetails = await this.todoListWebApiService.GetTodoListAsync(id, token);
 
             if (todoDetails == null)
             {
@@ -121,13 +130,15 @@ public class TodoListController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Create(CreateTodoList createTodoList)
     {
         if (this.ModelState.IsValid)
         {
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
             try
             {
-                _ = await this.todoListWebApiService.AddTodoListAsync(createTodoList);
+                _ = await this.todoListWebApiService.AddTodoListAsync(createTodoList, token);
                 return this.RedirectToAction(nameof(this.Index));
             }
             catch (HttpRequestException)
@@ -149,11 +160,13 @@ public class TodoListController : Controller
         return this.View("CreateTodoList", createTodoList);
     }
 
+    [Authorize]
     public async Task<IActionResult> Details(int id, int pageNumber = 1, int itemsPerPage = 2)
     {
         try
         {
-            var todoDetails = await this.todoListWebApiService.GetTodoListAsync(id, pageNumber, itemsPerPage);
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            var todoDetails = await this.todoListWebApiService.GetTodoListAsync(id, token, pageNumber, itemsPerPage);
             if (todoDetails == null)
             {
                 return this.NotFound();
@@ -178,6 +191,7 @@ public class TodoListController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> UpdateTodo(UpdateTodo updateTodo)
     {
         if (!this.ModelState.IsValid)
@@ -187,7 +201,8 @@ public class TodoListController : Controller
 
         try
         {
-            await this.todoListWebApiService.UpdateTodoListAsync(updateTodo);
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            await this.todoListWebApiService.UpdateTodoListAsync(updateTodo, token);
             return this.RedirectToAction("Details", new { id = updateTodo.Id });
         }
         catch (HttpRequestException)

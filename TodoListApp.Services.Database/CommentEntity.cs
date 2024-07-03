@@ -14,10 +14,10 @@ public class CommentEntity
     [Required]
     public DateTime CreatedDate { get; set; }
 
-    [Required]
-    public string UserName { get; set; } = "Anonymous";
-
+    [ForeignKey("User")]
     public string? UserId { get; set; }
+
+    public User? User { get; set; }
 
     [ForeignKey("TaskEntity")]
     public int TaskId { get; set; }

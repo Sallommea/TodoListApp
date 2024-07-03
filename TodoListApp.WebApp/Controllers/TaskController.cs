@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.WebApi.Services;
@@ -33,6 +34,7 @@ public class TaskController : Controller
         {
             try
             {
+                var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
                 if (createTask.DueDate.HasValue)
                 {
                     var dueDate = createTask.DueDate.Value;
@@ -45,7 +47,7 @@ public class TaskController : Controller
                     createTask.DueDate = DateTime.SpecifyKind(dueDate, DateTimeKind.Utc);
                 }
 
-                _ = await this.taskWebApiService.AddTaskAsync(createTask);
+                _ = await this.taskWebApiService.AddTaskAsync(createTask, token);
                 return this.RedirectToAction("Details", "TodoList", new { id = createTask.TodoListId });
             }
             catch (HttpRequestException)
@@ -72,7 +74,8 @@ public class TaskController : Controller
     {
         try
         {
-            await this.taskWebApiService.DeleteTaskAsync(id);
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            await this.taskWebApiService.DeleteTaskAsync(id, token);
             return this.RedirectToAction("Details", "TodoList", new { id = todoListId });
         }
         catch (HttpRequestException)
@@ -100,7 +103,8 @@ public class TaskController : Controller
 
         try
         {
-            var taskDetails = await this.taskWebApiService.GetTaskDetailsAsync(taskId);
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            var taskDetails = await this.taskWebApiService.GetTaskDetailsAsync(taskId, token);
             if (this.TempData["ErrorMessage"] != null)
             {
                 this.ViewBag.ErrorMessage = this.TempData["ErrorMessage"];
@@ -128,7 +132,8 @@ public class TaskController : Controller
     {
         try
         {
-            var task = await this.taskWebApiService.GetTaskDetailsAsync(id);
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            var task = await this.taskWebApiService.GetTaskDetailsAsync(id, token);
             if (task == null)
             {
                 return this.NotFound();
@@ -172,6 +177,7 @@ public class TaskController : Controller
 
         try
         {
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
             if (updateTaskDto.DueDate.HasValue)
             {
                 var dueDate = updateTaskDto.DueDate.Value;
@@ -184,7 +190,7 @@ public class TaskController : Controller
                 updateTaskDto.DueDate = DateTime.SpecifyKind(dueDate, DateTimeKind.Utc);
             }
 
-            await this.taskWebApiService.UpdateTaskAsync(id, updateTaskDto);
+            await this.taskWebApiService.UpdateTaskAsync(id, updateTaskDto, token);
             return this.RedirectToAction("TaskDetails", new { taskId = id });
         }
         catch (HttpRequestException)
@@ -209,6 +215,7 @@ public class TaskController : Controller
     {
         try
         {
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
             var viewModel = new TaskSearchViewModel
             {
                 SearchText = searchText,
@@ -218,7 +225,7 @@ public class TaskController : Controller
             };
             if (!string.IsNullOrWhiteSpace(searchText))
             {
-                var searchResult = await this.taskWebApiService.GetPaginatedSearchedTasksAsync(searchText, pageNumber, itemsPerPage);
+                var searchResult = await this.taskWebApiService.GetPaginatedSearchedTasksAsync(searchText, token, pageNumber, itemsPerPage);
 
                 viewModel.Tasks = searchResult.ResultList!;
                 viewModel.TotalPages = searchResult.TotalPages;
@@ -258,7 +265,8 @@ public class TaskController : Controller
     {
         try
         {
-            _ = await this.taskWebApiService.AddCommentAsync(addCommentDto);
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            _ = await this.taskWebApiService.AddCommentAsync(addCommentDto, token);
             return this.RedirectToAction("TaskDetails", new { taskId = addCommentDto.TaskId });
         }
         catch (HttpRequestException ex)
@@ -300,7 +308,8 @@ public class TaskController : Controller
 
         try
         {
-            _ = await this.taskWebApiService.EditCommentAsync(editCommentDto);
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            _ = await this.taskWebApiService.EditCommentAsync(editCommentDto, token);
             return this.RedirectToAction("TaskDetails", new { taskId = editCommentDto.TaskId });
         }
         catch (HttpRequestException ex)
@@ -337,7 +346,8 @@ public class TaskController : Controller
     {
         try
         {
-            await this.taskWebApiService.DeleteCommentAsync(taskId, commentId);
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            await this.taskWebApiService.DeleteCommentAsync(taskId, commentId, token);
             return this.RedirectToAction("TaskDetails", new { taskId = taskId });
         }
         catch (HttpRequestException)

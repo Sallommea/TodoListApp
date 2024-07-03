@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TodoListApp.Services.Database;
 public class TodoListEntity
@@ -16,4 +17,9 @@ public class TodoListEntity
     public int TaskCount { get; set; }
 
     public ICollection<TaskEntity>? Tasks { get; set; }
+
+    [ForeignKey("User")]
+    public string? UserId { get; set; }
+
+    public User? User { get; set; }
 }

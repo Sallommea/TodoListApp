@@ -9,6 +9,4 @@ public class AddCommentDto
     [Required(ErrorMessage = "Content is required.")]
     [StringLength(1500, MinimumLength = 1, ErrorMessage = "Content must be between 1 and 1500 characters.")]
     public string Content { get; set; } = string.Empty;
-
-    public string? UserName { get; set; }
 }

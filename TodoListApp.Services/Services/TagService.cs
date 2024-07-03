@@ -1,5 +1,6 @@
 using System.Globalization;
 using Microsoft.Extensions.Logging;
+using TodoListApp.Services.Database;
 using TodoListApp.Services.Database.Repositories;
 using TodoListApp.Services.Exceptions;
 using TodoListApp.Services.Interfaces;
@@ -18,9 +19,9 @@ public class TagService : ITagService
         this.logger = logger;
     }
 
-    public async Task<IEnumerable<TagDto>> GetAllTagsAsync()
+    public async Task<IEnumerable<TagDto>> GetAllTagsAsync(string userId)
     {
-        var tags = await this.tagRepository.GetAllTagsAsync();
+        var tags = await this.tagRepository.GetAllTagsAsync(userId);
 
         if (!tags.Any())
         {
@@ -35,16 +36,16 @@ public class TagService : ITagService
         });
     }
 
-    public async Task<TagDto> AddTagToTaskAsync(string tagName, int taskId)
+    public async Task<TagDto> AddTagToTaskAsync(string tagName, int taskId, string userId)
     {
         try
         {
             string normalizedTagName = tagName.Trim().ToLower(CultureInfo.CurrentCulture);
-            var existingTag = await this.tagRepository.GetTagByNameAsync(normalizedTagName);
+            var existingTag = await this.tagRepository.GetTagByNameAsync(normalizedTagName, userId);
 
             if (existingTag == null)
             {
-                existingTag = await this.tagRepository.CreateTagAsync(normalizedTagName);
+                existingTag = await this.tagRepository.CreateTagAsync(normalizedTagName, userId);
 
                 if (existingTag == null)
                 {
@@ -76,11 +77,11 @@ public class TagService : ITagService
         }
     }
 
-    public async Task<bool> DeleteTagAsync(int taskId, int tagId)
+    public async Task<bool> DeleteTagAsync(int taskId, int tagId, string userId)
     {
         try
         {
-            return await this.tagRepository.DeleteTagAsync(taskId, tagId);
+            return await this.tagRepository.DeleteTagAsync(taskId, tagId, userId);
         }
         catch (Exception ex)
         {

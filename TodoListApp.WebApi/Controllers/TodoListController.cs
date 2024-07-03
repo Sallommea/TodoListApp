@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoListApp.Services.Exceptions;
@@ -9,6 +11,7 @@ using TodoListApp.WebApi.Models;
 namespace TodoListApp.WebApi.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class TodoListController : ControllerBase
 {
     private readonly ITodoListService todoListService;
@@ -36,10 +39,17 @@ public class TodoListController : ControllerBase
             return this.BadRequest(new { message = "Items per page must be greater than zero." });
         }
 
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         this.logger.FetchingPaginatedTodoLists(pageNumber, itemsPerPage);
+
         try
         {
-            var paginatedTodoLists = await this.todoListService.GetPaginatedTodoListsAsync(pageNumber, itemsPerPage);
+            var paginatedTodoLists = await this.todoListService.GetPaginatedTodoListsAsync(userId, pageNumber, itemsPerPage);
 
             this.logger.SuccessfullyFetchedPaginatedTodoLists();
 
@@ -77,9 +87,15 @@ public class TodoListController : ControllerBase
             return this.BadRequest(new { message = "Tasks per page must be greater than zero." });
         }
 
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         try
         {
-            var todoListDto = await this.todoListService.GetTodoListWithTasksAsync(id, pageNumber, itemsPerPage);
+            var todoListDto = await this.todoListService.GetTodoListWithTasksAsync(id, userId, pageNumber, itemsPerPage);
             if (todoListDto == null)
             {
                 this.logger.TodoListNotFound(id);
@@ -113,9 +129,15 @@ public class TodoListController : ControllerBase
             return this.BadRequest(this.ModelState);
         }
 
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         try
         {
-            var createdTodoList = await this.todoListService.AddTodoListAsync(createTodoList);
+            var createdTodoList = await this.todoListService.AddTodoListAsync(createTodoList, userId);
             this.logger.TodoListAdded(createTodoList.Name);
             return this.CreatedAtAction(nameof(this.PostTodoList), new { id = createdTodoList.Id }, createdTodoList.Id);
         }
@@ -157,9 +179,15 @@ public class TodoListController : ControllerBase
             return this.BadRequest(this.ModelState);
         }
 
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         try
         {
-            await this.todoListService.UpdateTodoListAsync(updateTodo);
+            await this.todoListService.UpdateTodoListAsync(updateTodo, userId);
             this.logger.TodoListUpdated(updateTodo.Id, updateTodo.Name);
             return this.NoContent();
         }
@@ -187,9 +215,15 @@ public class TodoListController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTodoList(int id)
     {
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         try
         {
-            await this.todoListService.DeleteTodoListAsync(id);
+            await this.todoListService.DeleteTodoListAsync(id, userId);
             this.logger.TodoListDeleted(id);
             return this.NoContent();
         }

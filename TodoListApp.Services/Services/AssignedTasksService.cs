@@ -17,11 +17,11 @@ public class AssignedTasksService : IAssignedTasksService
         this.logger = logger;
     }
 
-    public async Task<PaginatedListResult<AssignedTasksdto>> GetTasksByAssigneeAsync(string assignee, int pageNumber, int tasksPerPage, Status? status = null, string? sortCriteria = null)
+    public async Task<PaginatedListResult<AssignedTasksdto>> GetTasksByAssigneeAsync(string userId, int pageNumber, int tasksPerPage, Status? status = null, string? sortCriteria = null)
     {
         try
         {
-            var tasks = await this.assignedTasksRepository.GetTasksByAssigneeAsync(assignee, pageNumber, tasksPerPage, (Database.Status?)status, sortCriteria);
+            var tasks = await this.assignedTasksRepository.GetTasksByAssigneeAsync(userId, pageNumber, tasksPerPage, (Database.Status?)status, sortCriteria);
 
             if (tasks.TotalRecords == 0)
             {
@@ -50,7 +50,6 @@ public class AssignedTasksService : IAssignedTasksService
                 CreatedDate = t.CreatedDate,
                 DueDate = t.DueDate,
                 Status = (Status)t.Status,
-                Assignee = t.Assignee,
                 TodoListId = t.TodoListId,
                 IsExpired = t.IsExpired,
             }).ToList();
@@ -64,16 +63,16 @@ public class AssignedTasksService : IAssignedTasksService
         }
         catch (Exception ex)
         {
-            AssignedTasksLoggerMessages.UnexpectedErrorOccurredWhileGettingUserTasks(this.logger, assignee, ex);
+            AssignedTasksLoggerMessages.UnexpectedErrorOccurredWhileGettingUserTasks(this.logger, userId, ex);
             throw;
         }
     }
 
-    public async Task<bool> UpdateTaskStatusAsync(UpdateTaskStatus updateTaskStatusDto)
+    public async Task<bool> UpdateTaskStatusAsync(UpdateTaskStatus updateTaskStatusDto, string userId)
     {
         try
         {
-            var result = await this.assignedTasksRepository.UpdateTaskStatusAsync(updateTaskStatusDto.TaskId, (Database.Status)updateTaskStatusDto.Status);
+            var result = await this.assignedTasksRepository.UpdateTaskStatusAsync(updateTaskStatusDto.TaskId, (Database.Status)updateTaskStatusDto.Status, userId);
             if (!result)
             {
                 AssignedTasksLoggerMessages.InvalidTaskIdForTaskStatusUpdate(this.logger, updateTaskStatusDto.TaskId);

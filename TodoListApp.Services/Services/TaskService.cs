@@ -21,11 +21,11 @@ public class TaskService : ITaskService
         this.logger = logger;
     }
 
-    public async Task<TaskDetailsDto?> GetTaskDetailsAsync(int taskId)
+    public async Task<TaskDetailsDto?> GetTaskDetailsAsync(int taskId, string userId)
     {
         try
         {
-            var task = await this.taskRepository.GetTaskByIdAsync(taskId);
+            var task = await this.taskRepository.GetTaskByIdAsync(taskId, userId);
             if (task == null)
             {
                 TaskLoggerMessages.TaskIdNotFoundToGetTaskDetails(this.logger, taskId);
@@ -40,7 +40,6 @@ public class TaskService : ITaskService
                 CreatedDate = task.CreatedDate,
                 DueDate = task.DueDate,
                 Status = (WebApi.Models.Tasks.Status)task.Status,
-                Assignee = task.Assignee,
                 TodoListId = task.TodoListId,
                 IsExpired = task.IsExpired,
                 Tags = task.TaskTags?.Select(tt => new TagDto
@@ -53,7 +52,8 @@ public class TaskService : ITaskService
                     Id = c.Id,
                     Content = c.Content,
                     CreatedDate = c.CreatedDate,
-                    UserId = c.UserId,
+                    UserFirstName = c.User!.Firstname,
+                    UserLastName = c.User.Lastname,
                 }).ToList() ?? new List<CommentDto>(),
             };
 
@@ -70,11 +70,11 @@ public class TaskService : ITaskService
         }
     }
 
-    public async Task<PaginatedListResult<TaskDto>> GetTasksByTagIdAsync(int tagId, int pageNumber, int pageSize)
+    public async Task<PaginatedListResult<TaskDto>> GetTasksByTagIdAsync(int tagId, string userId, int pageNumber, int pageSize)
     {
         try
         {
-            var tasks = await this.taskRepository.GetTasksByTagIdAsync(tagId, pageNumber, pageSize);
+            var tasks = await this.taskRepository.GetTasksByTagIdAsync(tagId, userId, pageNumber, pageSize);
 
             var taskDtos = (tasks.ResultList ?? new List<TaskEntity>()).Select(t => new TaskDto
             {
@@ -100,7 +100,7 @@ public class TaskService : ITaskService
         }
     }
 
-    public async Task<TaskDetailsDto> CreateTaskAsync(CreateTaskDto createTaskDto)
+    public async Task<TaskDetailsDto> CreateTaskAsync(CreateTaskDto createTaskDto, string userId)
     {
         var currentDate = DateTime.UtcNow;
 
@@ -111,14 +111,13 @@ public class TaskService : ITaskService
             CreatedDate = DateTime.UtcNow,
             DueDate = createTaskDto.DueDate,
             Status = Database.Status.NotStarted,
-            Assignee = "DefaultUser",
             TodoListId = createTaskDto.TodoListId,
             IsExpired = createTaskDto.DueDate.HasValue && createTaskDto.DueDate.Value < currentDate,
         };
 
         try
         {
-            var createdTask = await this.taskRepository.AddTaskAsync(task);
+            var createdTask = await this.taskRepository.AddTaskAsync(task, userId);
 
             var taskDto = new TaskDetailsDto
             {
@@ -128,7 +127,6 @@ public class TaskService : ITaskService
                 CreatedDate = createdTask.CreatedDate,
                 DueDate = createdTask.DueDate,
                 Status = (WebApi.Models.Tasks.Status)createdTask.Status,
-                Assignee = createdTask.Assignee,
                 TodoListId = createdTask.TodoListId,
                 IsExpired = createdTask.IsExpired,
             };
@@ -148,11 +146,11 @@ public class TaskService : ITaskService
         }
     }
 
-    public async Task<bool> DeleteTaskAsync(int taskId)
+    public async Task<bool> DeleteTaskAsync(int taskId, string userId)
     {
         try
         {
-            var result = await this.taskRepository.DeleteTaskAsync(taskId);
+            var result = await this.taskRepository.DeleteTaskAsync(taskId, userId);
             if (!result)
             {
                 TaskLoggerMessages.TaskIdNotFoundToDelete(this.logger, taskId);
@@ -169,11 +167,11 @@ public class TaskService : ITaskService
         }
     }
 
-    public async Task<bool> UpdateTaskAsync(int taskId, UpdateTaskDto updateTaskDto)
+    public async Task<bool> UpdateTaskAsync(int taskId, UpdateTaskDto updateTaskDto, string userId)
     {
         try
         {
-            var existingTask = await this.taskRepository.GetTaskByIdAsync(taskId);
+            var existingTask = await this.taskRepository.GetTaskByIdAsync(taskId, userId);
             if (existingTask == null)
             {
                 return false;
@@ -187,7 +185,7 @@ public class TaskService : ITaskService
             var currentDateTime = DateTime.UtcNow;
             existingTask.IsExpired = updateTaskDto.DueDate.HasValue && updateTaskDto.DueDate.Value < currentDateTime;
 
-            await this.taskRepository.UpdateTaskAsync(taskId, existingTask);
+            await this.taskRepository.UpdateTaskAsync(taskId, existingTask, userId);
             return true;
         }
         catch (KeyNotFoundException)
@@ -202,11 +200,11 @@ public class TaskService : ITaskService
         }
     }
 
-    public async Task<PaginatedListResult<TaskSearchResultDto>> GetPaginatedSearchedTasksAsync(int pageNumber, int itemsPerPage, string searchText)
+    public async Task<PaginatedListResult<TaskSearchResultDto>> GetPaginatedSearchedTasksAsync(int pageNumber, int itemsPerPage, string searchText, string userId)
     {
         try
         {
-            var tasks = await this.taskRepository.SearchTasksByTitleAsync(pageNumber, itemsPerPage, searchText);
+            var tasks = await this.taskRepository.SearchTasksByTitleAsync(pageNumber, itemsPerPage, searchText, userId);
             var tasksSearched = (tasks.ResultList ?? new List<TaskEntity>()).Select(t => new TaskSearchResultDto
             {
                 Id = t.Id,
@@ -233,11 +231,11 @@ public class TaskService : ITaskService
         }
     }
 
-    public async Task<CommentDto> AddCommentAsync(AddCommentDto addCommentDto)
+    public async Task<CommentDto> AddCommentAsync(AddCommentDto addCommentDto, string userId)
     {
         try
         {
-            var task = await this.taskRepository.GetTaskByIdAsync(addCommentDto.TaskId);
+            var task = await this.taskRepository.GetTaskByIdAsync(addCommentDto.TaskId, userId);
             if (task == null)
             {
                 TaskLoggerMessages.TaskIdNotFoundForAddingComment(this.logger, addCommentDto.TaskId);
@@ -249,17 +247,15 @@ public class TaskService : ITaskService
                 TaskId = addCommentDto.TaskId,
                 Content = addCommentDto.Content,
                 CreatedDate = DateTime.UtcNow,
-                UserName = addCommentDto.UserName ?? "Anonymous",
             };
 
-            await this.taskRepository.AddCommentAsync(comment);
+            await this.taskRepository.AddCommentAsync(comment, userId);
 
             return new CommentDto
             {
                 Id = comment.Id,
                 Content = comment.Content,
                 CreatedDate = comment.CreatedDate,
-                UserName = comment.UserName,
             };
         }
         catch (TaskException)
@@ -273,11 +269,11 @@ public class TaskService : ITaskService
         }
     }
 
-    public async Task<CommentDto> EditCommentAsync(EditCommentDto editCommentDto)
+    public async Task<CommentDto> EditCommentAsync(EditCommentDto editCommentDto, string userId)
     {
         try
         {
-            var comment = await this.taskRepository.GetCommentByIdAsync(editCommentDto.CommentId);
+            var comment = await this.taskRepository.GetCommentByIdAsync(editCommentDto.CommentId, userId);
             if (comment == null)
             {
                 TaskLoggerMessages.CommentIdNotFoundForEditingComment(this.logger, editCommentDto.CommentId);
@@ -292,14 +288,13 @@ public class TaskService : ITaskService
 
             comment.Content = editCommentDto.Content;
 
-            await this.taskRepository.UpdateCommentAsync(comment);
+            await this.taskRepository.UpdateCommentAsync(comment, userId);
 
             return new CommentDto
             {
                 Id = comment.Id,
                 Content = comment.Content,
                 CreatedDate = comment.CreatedDate,
-                UserName = comment.UserName,
             };
         }
         catch (TaskException)
@@ -313,11 +308,11 @@ public class TaskService : ITaskService
         }
     }
 
-    public async Task DeleteCommentAsync(int taskId, int commentId)
+    public async Task DeleteCommentAsync(int taskId, int commentId, string userId)
     {
         try
         {
-            var comment = await this.taskRepository.GetCommentByIdAsync(commentId);
+            var comment = await this.taskRepository.GetCommentByIdAsync(commentId, userId);
             if (comment == null)
             {
                 TaskLoggerMessages.CommentIdNotFoundForDeletingComment(this.logger, commentId);
@@ -330,7 +325,7 @@ public class TaskService : ITaskService
                 throw new TaskException($"Comment does not belong to the specified task.");
             }
 
-            await this.taskRepository.DeleteCommentAsync(comment);
+            await this.taskRepository.DeleteCommentAsync(commentId, userId);
         }
         catch (TaskException)
         {

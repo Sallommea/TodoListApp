@@ -18,6 +18,7 @@ public class AssignedTaskWebApiService
     }
 
     public async Task<PaginatedListResult<AssignedTasksdto>> GetTasksAssignedToMeAsync(
+        string token,
         int pageNumber = 1,
         int tasksPerPage = 10,
         Status? status = null,
@@ -43,6 +44,11 @@ public class AssignedTaskWebApiService
 
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await this.httpClient.GetAsync(url);
 
             if (response.IsSuccessStatusCode)
@@ -65,10 +71,15 @@ public class AssignedTaskWebApiService
         }
     }
 
-    public async Task UpdateTaskStatusAsync(UpdateTaskStatus updateTaskStatusDto)
+    public async Task UpdateTaskStatusAsync(UpdateTaskStatus updateTaskStatusDto, string token)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await this.httpClient.PutAsJsonAsync("api/AssignedTasks/update-status", updateTaskStatusDto);
 
             if (!response.IsSuccessStatusCode)

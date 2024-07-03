@@ -11,7 +11,7 @@ public class AssignedTasksRepository : IAssignedTasksRepository
         this.dbContext = dbContext;
     }
 
-    public async Task<PaginatedListResult<TaskEntity>> GetTasksByAssigneeAsync(string assignee, int pageNumber, int tasksPerPage, Status? status = null, string? sortCriteria = null)
+    public async Task<PaginatedListResult<TaskEntity>> GetTasksByAssigneeAsync(string userId, int pageNumber, int tasksPerPage, Status? status = null, string? sortCriteria = null)
     {
         var query = this.dbContext.Tasks.AsQueryable();
 
@@ -45,7 +45,7 @@ public class AssignedTasksRepository : IAssignedTasksRepository
             query = query.OrderByDescending(t => t.Id);
         }
 
-        query = query.Where(t => t.Assignee == assignee);
+        query = query.Where(t => t.UserId == userId);
 
         var totalRecords = await query.CountAsync();
 
@@ -74,9 +74,11 @@ public class AssignedTasksRepository : IAssignedTasksRepository
         };
     }
 
-    public async Task<bool> UpdateTaskStatusAsync(int taskId, Status newStatus)
+    public async Task<bool> UpdateTaskStatusAsync(int taskId, Status newStatus, string userId)
     {
-        var task = await this.dbContext.Tasks.FindAsync(taskId);
+        var task = await this.dbContext.Tasks
+            .FirstOrDefaultAsync(t => t.Id == taskId && t.UserId == userId);
+
         if (task == null)
         {
             return false;

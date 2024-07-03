@@ -1,4 +1,6 @@
 using System.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.Exceptions;
 using TodoListApp.Services.Interfaces;
@@ -10,6 +12,7 @@ using TodoListApp.WebApi.Models.Tasks;
 namespace TodoListApp.WebApi.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class TasksController : ControllerBase
 {
     private readonly ITaskService taskService;
@@ -29,9 +32,15 @@ public class TasksController : ControllerBase
             return this.BadRequest("Page number and items per page must be greater than zero.");
         }
 
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         try
         {
-            var paginatedTasks = await this.taskService.GetPaginatedSearchedTasksAsync(pageNumber, itemsPerPage, searchText);
+            var paginatedTasks = await this.taskService.GetPaginatedSearchedTasksAsync(pageNumber, itemsPerPage, searchText, userId);
             TaskControllerLoggerMessages.SearchedTasksRetrieved(this.logger);
             return this.Ok(paginatedTasks);
         }
@@ -54,9 +63,15 @@ public class TasksController : ControllerBase
             return this.BadRequest(new { message = "Invalid task ID." });
         }
 
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         try
         {
-            var taskDetails = await this.taskService.GetTaskDetailsAsync(taskId);
+            var taskDetails = await this.taskService.GetTaskDetailsAsync(taskId, userId);
 
             return this.Ok(taskDetails);
         }
@@ -84,9 +99,15 @@ public class TasksController : ControllerBase
             return this.BadRequest("Page number and page size must be positive integers.");
         }
 
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         try
         {
-            var result = await this.taskService.GetTasksByTagIdAsync(tagId, pageNumber, pageSize);
+            var result = await this.taskService.GetTasksByTagIdAsync(tagId, userId, pageNumber, pageSize);
 
             return this.Ok(result);
         }
@@ -109,9 +130,15 @@ public class TasksController : ControllerBase
             return this.BadRequest(this.ModelState);
         }
 
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         try
         {
-            var createdTask = await this.taskService.CreateTaskAsync(createTaskDto);
+            var createdTask = await this.taskService.CreateTaskAsync(createTaskDto, userId);
             TaskControllerLoggerMessages.TaskCreatedSuccessfully(this.logger, createdTask.Id, createdTask.TodoListId);
             return this.Ok(createdTask.Id);
         }
@@ -145,9 +172,15 @@ public class TasksController : ControllerBase
             return this.BadRequest(new { message = "Invalid task ID." });
         }
 
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         try
         {
-            var result = await this.taskService.DeleteTaskAsync(taskId);
+            var result = await this.taskService.DeleteTaskAsync(taskId, userId);
             if (!result)
             {
                 TaskControllerLoggerMessages.TaskIdNotFoundToDelete(this.logger, taskId);
@@ -177,6 +210,12 @@ public class TasksController : ControllerBase
             return this.BadRequest(new { message = "Invalid task ID." });
         }
 
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         if (!this.ModelState.IsValid)
         {
             return this.BadRequest(this.ModelState);
@@ -184,7 +223,7 @@ public class TasksController : ControllerBase
 
         try
         {
-            var result = await this.taskService.UpdateTaskAsync(taskId, updateTaskDto);
+            var result = await this.taskService.UpdateTaskAsync(taskId, updateTaskDto, userId);
             if (!result)
             {
                 TaskControllerLoggerMessages.TaskIdNotFoundToUpdate(this.logger, taskId);
@@ -212,6 +251,12 @@ public class TasksController : ControllerBase
             return this.BadRequest("Task ID in the URL does not match the task ID in the request body.");
         }
 
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         if (!this.ModelState.IsValid)
         {
             return this.BadRequest(this.ModelState);
@@ -219,7 +264,7 @@ public class TasksController : ControllerBase
 
         try
         {
-            var comment = await this.taskService.AddCommentAsync(addCommentDto);
+            var comment = await this.taskService.AddCommentAsync(addCommentDto, userId);
             return this.CreatedAtAction(nameof(this.GetTaskDetails), new { taskId = comment.Id }, comment);
         }
         catch (TaskException ex)
@@ -241,6 +286,12 @@ public class TasksController : ControllerBase
     [HttpPut("{taskId}/comments/{commentId}")]
     public async Task<ActionResult<CommentDto>> EditComment(int taskId, int commentId, [FromBody] EditCommentDto editCommentDto)
     {
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         if (taskId != editCommentDto.TaskId || commentId != editCommentDto.CommentId)
         {
             return this.BadRequest("Task ID or Comment ID in the URL does not match the IDs in the request body.");
@@ -253,7 +304,7 @@ public class TasksController : ControllerBase
 
         try
         {
-            var updatedComment = await this.taskService.EditCommentAsync(editCommentDto);
+            var updatedComment = await this.taskService.EditCommentAsync(editCommentDto, userId);
             return this.Ok(updatedComment);
         }
         catch (TaskException ex)
@@ -275,9 +326,15 @@ public class TasksController : ControllerBase
     [HttpDelete("{taskId}/comments/{commentId}")]
     public async Task<ActionResult> DeleteComment(int taskId, int commentId)
     {
+        string? userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return this.Unauthorized();
+        }
+
         try
         {
-            await this.taskService.DeleteCommentAsync(taskId, commentId);
+            await this.taskService.DeleteCommentAsync(taskId, commentId, userId);
             return this.NoContent();
         }
         catch (TaskException ex)

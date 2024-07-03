@@ -1,3 +1,4 @@
+using System.ComponentModel.Design;
 using Microsoft.EntityFrameworkCore;
 using TodoListApp.Services.Database.Models;
 
@@ -11,11 +12,13 @@ public class TaskRepository : ITaskRepository
         this.dbContext = dbContext;
     }
 
-    public async Task<TaskEntity> AddTaskAsync(TaskEntity task)
+    public async Task<TaskEntity> AddTaskAsync(TaskEntity task, string userId)
     {
+        task.UserId = userId;
         _ = await this.dbContext.Tasks.AddAsync(task);
 
-        var todoList = await this.dbContext.TodoLists.FindAsync(task.TodoListId);
+        var todoList = await this.dbContext.TodoLists
+              .FirstOrDefaultAsync(tl => tl.Id == task.TodoListId && tl.UserId == userId);
         if (todoList != null)
         {
             todoList.TaskCount++;
@@ -30,9 +33,10 @@ public class TaskRepository : ITaskRepository
         return task;
     }
 
-    public async Task<bool> DeleteTaskAsync(int taskId)
+    public async Task<bool> DeleteTaskAsync(int taskId, string userId)
     {
-        var task = await this.dbContext.Tasks.FindAsync(taskId);
+        var task = await this.dbContext.Tasks
+           .FirstOrDefaultAsync(t => t.Id == taskId && t.UserId == userId);
         if (task == null)
         {
             return false;
@@ -40,7 +44,8 @@ public class TaskRepository : ITaskRepository
 
         _ = this.dbContext.Tasks.Remove(task);
 
-        var todoList = await this.dbContext.TodoLists.FindAsync(task.TodoListId);
+        var todoList = await this.dbContext.TodoLists
+           .FirstOrDefaultAsync(tl => tl.Id == task.TodoListId && tl.UserId == userId);
         if (todoList != null && todoList.TaskCount > 0)
         {
             todoList.TaskCount--;
@@ -51,21 +56,22 @@ public class TaskRepository : ITaskRepository
         return true;
     }
 
-    public async Task<TaskEntity?> GetTaskByIdAsync(int taskId)
+    public async Task<TaskEntity?> GetTaskByIdAsync(int taskId, string userId)
     {
         return await this.dbContext.Tasks
          .Include(t => t.TaskTags)
         .ThenInclude(tt => tt.Tag)
          .Include(t => t.Comments)
-        .FirstOrDefaultAsync(t => t.Id == taskId);
+         .ThenInclude(c => c.User)
+        .FirstOrDefaultAsync(t => t.Id == taskId && t.UserId == userId);
     }
 
-    public async Task<PaginatedListResult<TaskEntity>> GetTasksByTagIdAsync(int tagId, int pageNumber, int pageSize)
+    public async Task<PaginatedListResult<TaskEntity>> GetTasksByTagIdAsync(int tagId, string userId, int pageNumber, int pageSize)
     {
         var query = this.dbContext.Tasks
             .Include(t => t.TaskTags)
             .ThenInclude(tt => tt.Tag)
-            .Where(t => t.TaskTags.Any(tt => tt.TagId == tagId))
+            .Where(t => t.TaskTags.Any(tt => tt.TagId == tagId && t.UserId == userId))
             .OrderByDescending(t => t.CreatedDate);
 
         var totalCount = await query.CountAsync();
@@ -83,9 +89,10 @@ public class TaskRepository : ITaskRepository
         };
     }
 
-    public async Task UpdateTaskAsync(int taskId, TaskEntity task)
+    public async Task UpdateTaskAsync(int taskId, TaskEntity task, string userId)
     {
-        var existingTask = await this.dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == taskId);
+        var existingTask = await this.dbContext.Tasks
+            .FirstOrDefaultAsync(t => t.Id == taskId && t.UserId == userId);
 
         if (existingTask == null)
         {
@@ -100,10 +107,10 @@ public class TaskRepository : ITaskRepository
         _ = await this.dbContext.SaveChangesAsync();
     }
 
-    public async Task<PaginatedListResult<TaskEntity>> SearchTasksByTitleAsync(int pageNumber, int tasksPerPage, string searchText)
+    public async Task<PaginatedListResult<TaskEntity>> SearchTasksByTitleAsync(int pageNumber, int tasksPerPage, string searchText, string userId)
     {
         var result = new PaginatedListResult<TaskEntity>();
-        var query = this.dbContext.Tasks.AsQueryable();
+        var query = this.dbContext.Tasks.Where(t => t.UserId == userId);
 
         if (!string.IsNullOrEmpty(searchText))
         {
@@ -121,26 +128,43 @@ public class TaskRepository : ITaskRepository
         return result;
     }
 
-    public async Task AddCommentAsync(CommentEntity comment)
+    public async Task AddCommentAsync(CommentEntity comment, string userId)
     {
+        comment.UserId = userId;
         _ = await this.dbContext.Comments.AddAsync(comment);
         _ = await this.dbContext.SaveChangesAsync();
     }
 
-    public async Task<CommentEntity?> GetCommentByIdAsync(int commentId)
+    public async Task<CommentEntity?> GetCommentByIdAsync(int commentId, string userId)
     {
-        return await this.dbContext.Comments.FindAsync(commentId);
+        return await this.dbContext.Comments
+         .FirstOrDefaultAsync(c => c.Id == commentId && c.UserId == userId);
     }
 
-    public async Task UpdateCommentAsync(CommentEntity comment)
+    public async Task UpdateCommentAsync(CommentEntity comment, string userId)
     {
-        _ = this.dbContext.Comments.Update(comment);
+        var existingComment = await this.dbContext.Comments
+          .FirstOrDefaultAsync(c => c.Id == comment.Id && c.UserId == userId);
+        if (existingComment == null)
+        {
+            throw new KeyNotFoundException($"Comment with ID {comment.Id} not found for this user.");
+        }
+
+        existingComment.Content = comment.Content;
         _ = await this.dbContext.SaveChangesAsync();
     }
 
-    public async Task DeleteCommentAsync(CommentEntity comment)
+    public async Task DeleteCommentAsync(int commentId, string userId)
     {
-        this.dbContext.Comments.Remove(comment);
-        await this.dbContext.SaveChangesAsync();
+        var comment = await this.dbContext.Comments
+          .FirstOrDefaultAsync(c => c.Id == commentId && c.UserId == userId);
+
+        if (comment == null)
+        {
+            throw new KeyNotFoundException($"Comment with ID {commentId} not found for this user.");
+        }
+
+        _ = this.dbContext.Comments.Remove(comment);
+        _ = await this.dbContext.SaveChangesAsync();
     }
 }

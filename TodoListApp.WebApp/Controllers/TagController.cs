@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.WebApi.Services;
 using TodoListApp.WebApp.Logging;
@@ -23,7 +24,8 @@ public class TagController : Controller
     {
         try
         {
-            var tags = await this.tagWebApiService.GetAllTagsAsync();
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            var tags = await this.tagWebApiService.GetAllTagsAsync(token);
             var model = new TagIndexViewModel
             {
                 Tags = tags,
@@ -34,7 +36,7 @@ public class TagController : Controller
 
             if (tagId.HasValue)
             {
-                var paginatedTasks = await this.taskWebApiService.GetTasksByTagAsync(tagId.Value, pageNumber, pageSize);
+                var paginatedTasks = await this.taskWebApiService.GetTasksByTagAsync(tagId.Value, token, pageNumber, pageSize);
                 model.Tasks = paginatedTasks.ResultList!;
                 model.TotalPages = paginatedTasks.TotalPages ?? 0;
                 model.TotalRecord = paginatedTasks.TotalRecords ?? 0;
@@ -73,7 +75,8 @@ public class TagController : Controller
 
         try
         {
-            _ = await this.tagWebApiService.AddTagToTaskAsync(tagName, taskId);
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            _ = await this.tagWebApiService.AddTagToTaskAsync(tagName, taskId, token);
 
             this.TempData["SuccessMessage"] = "Tag added successfully.";
         }
@@ -102,7 +105,8 @@ public class TagController : Controller
     {
         try
         {
-            await this.tagWebApiService.DeleteTagAsync(taskId, tagId);
+            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            await this.tagWebApiService.DeleteTagAsync(taskId, tagId, token);
         }
         catch (HttpRequestException ex)
         {
