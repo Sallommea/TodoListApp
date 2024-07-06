@@ -25,6 +25,11 @@ public class TodoListController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             var paginatedTodoLists = await this.todoListWebApiService.GetPaginatedTodoListsAsync(pageNumber, 9, token);
 
             var viewModel = new TodoListViewModel
@@ -61,6 +66,11 @@ public class TodoListController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             await this.todoListWebApiService.DeleteTodoListAsync(id, token);
             return this.RedirectToAction("Index");
         }
@@ -97,6 +107,11 @@ public class TodoListController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             var todoDetails = await this.todoListWebApiService.GetTodoListAsync(id, token);
 
             if (todoDetails == null)
@@ -135,9 +150,14 @@ public class TodoListController : Controller
     {
         if (this.ModelState.IsValid)
         {
-            var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
             try
             {
+                var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+                if (string.IsNullOrEmpty(token))
+                {
+                    return this.RedirectToAction("Login", "Account");
+                }
+
                 _ = await this.todoListWebApiService.AddTodoListAsync(createTodoList, token);
                 return this.RedirectToAction(nameof(this.Index));
             }
@@ -166,6 +186,11 @@ public class TodoListController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             var todoDetails = await this.todoListWebApiService.GetTodoListAsync(id, token, pageNumber, itemsPerPage);
             if (todoDetails == null)
             {
@@ -202,6 +227,11 @@ public class TodoListController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             await this.todoListWebApiService.UpdateTodoListAsync(updateTodo, token);
             return this.RedirectToAction("Details", new { id = updateTodo.Id });
         }

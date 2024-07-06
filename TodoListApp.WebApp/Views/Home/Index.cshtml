@@ -1,8 +1,43 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Welcome to TodoListApp";
+}
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/css/landpage.css?v=@DateTime.Now.Ticks" />
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="landing-page">
+    <section class="hero-section text-center">
+        <h1 class="display-4">Organize Your Life</h1>
+        <p class="lead">Simple, effective task management at your fingertips.</p>
+        <div class="cta-buttons">
+            <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg">Get Started</a>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary btn-lg">Login</a>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <ion-icon name="list-outline" class="feature-icon"></ion-icon>
+                    <h3>Create & Organize</h3>
+                    <p>Easily add and categorize your tasks.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <ion-icon name="time-outline" class="feature-icon"></ion-icon>
+                    <h3>Set Priorities</h3>
+                    <p>Focus on what matters most to you.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <ion-icon name="checkmark-done-outline" class="feature-icon"></ion-icon>
+                    <h3>Track Progress</h3>
+                    <p>See your productivity improve over time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>

@@ -58,4 +58,7 @@ public static partial class LoggerMessages
 
     [LoggerMessage(EventId = 19, Level = LogLevel.Error, Message = "An error occurred while retrieving the todo list with tasks.")]
     public static partial void UnexpectedErrorOccurredWhileGettingTodoDetails(this ILogger logger, Exception ex);
+
+    [LoggerMessage(EventId = 20, Level = LogLevel.Error, Message = "Invalid Operation occured while retrieving the todo lists: {Message}")]
+    public static partial void InvalidOperationOccurredWhileGettingTodoLists(this ILogger logger, string message, Exception ex);
 }

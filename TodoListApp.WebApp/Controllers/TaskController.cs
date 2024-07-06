@@ -35,6 +35,11 @@ public class TaskController : Controller
             try
             {
                 var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+                if (string.IsNullOrEmpty(token))
+                {
+                    return this.RedirectToAction("Login", "Account");
+                }
+
                 if (createTask.DueDate.HasValue)
                 {
                     var dueDate = createTask.DueDate.Value;
@@ -75,7 +80,13 @@ public class TaskController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             await this.taskWebApiService.DeleteTaskAsync(id, token);
+
             return this.RedirectToAction("Details", "TodoList", new { id = todoListId });
         }
         catch (HttpRequestException)
@@ -104,6 +115,11 @@ public class TaskController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             var taskDetails = await this.taskWebApiService.GetTaskDetailsAsync(taskId, token);
             if (this.TempData["ErrorMessage"] != null)
             {
@@ -133,6 +149,11 @@ public class TaskController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             var task = await this.taskWebApiService.GetTaskDetailsAsync(id, token);
             if (task == null)
             {
@@ -178,6 +199,11 @@ public class TaskController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             if (updateTaskDto.DueDate.HasValue)
             {
                 var dueDate = updateTaskDto.DueDate.Value;
@@ -216,6 +242,11 @@ public class TaskController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             var viewModel = new TaskSearchViewModel
             {
                 SearchText = searchText,
@@ -266,6 +297,11 @@ public class TaskController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             _ = await this.taskWebApiService.AddCommentAsync(addCommentDto, token);
             return this.RedirectToAction("TaskDetails", new { taskId = addCommentDto.TaskId });
         }
@@ -309,6 +345,11 @@ public class TaskController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             _ = await this.taskWebApiService.EditCommentAsync(editCommentDto, token);
             return this.RedirectToAction("TaskDetails", new { taskId = editCommentDto.TaskId });
         }
@@ -347,6 +388,11 @@ public class TaskController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             await this.taskWebApiService.DeleteCommentAsync(taskId, commentId, token);
             return this.RedirectToAction("TaskDetails", new { taskId = taskId });
         }

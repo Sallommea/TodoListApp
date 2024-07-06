@@ -87,7 +87,8 @@ h1 {
     }
 
 #sidebar.expand .sidebar-logo,
-#sidebar.expand a.sidebar-link span {
+#sidebar.expand a.sidebar-link span,
+#sidebar.expand button.sidebar-link span {
     opacity: 1;
 }
 
@@ -96,6 +97,14 @@ a.sidebar-link span,
     opacity: 0;
     transition: width 0.16s ease-in-out, opacity 0.16s ease-in-out;
 }
+
+button.sidebar-link span,
+.sidebar-logo {
+    opacity: 0;
+    transition: width 0.16s ease-in-out, opacity 0.16s ease-in-out;
+}
+
+
 #sidebar.expand .sidebar-search {
     width: 70%;
     opacity: 1;
@@ -125,7 +134,16 @@ a.sidebar-link span,
 }
 
 a.sidebar-link,
-div.sidebar-link {
+div.sidebar-link{
+    padding: .625rem 1.625rem;
+    color: #212529;
+    display: block;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    border-left: 3px solid transparent;
+}
+
+button.sidebar-link {
     padding: .625rem 1.625rem;
     color: #212529;
     display: block;
@@ -142,6 +160,13 @@ div.sidebar-link {
         vertical-align: middle;
         color: #212529;
     }
+
+button.sidebar-link ion-icon,
+button.sidebar-link span {
+    display: inline-block;
+    vertical-align: middle;
+    color: #212529;
+}
 
 .sidebar-link ion-icon {
     font-size: 1.1rem;

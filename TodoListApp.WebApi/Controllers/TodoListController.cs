@@ -62,7 +62,8 @@ public class TodoListController : ControllerBase
         }
         catch (InvalidOperationException ioe)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+            LoggerMessages.InvalidOperationOccurredWhileGettingTodoLists(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured");
         }
         catch (Exception ex)
         {

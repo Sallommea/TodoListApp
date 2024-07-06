@@ -25,6 +25,11 @@ public class TagController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             var tags = await this.tagWebApiService.GetAllTagsAsync(token);
             var model = new TagIndexViewModel
             {
@@ -76,6 +81,11 @@ public class TagController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             _ = await this.tagWebApiService.AddTagToTaskAsync(tagName, taskId, token);
 
             this.TempData["SuccessMessage"] = "Tag added successfully.";
@@ -106,6 +116,11 @@ public class TagController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
+
             await this.tagWebApiService.DeleteTagAsync(taskId, tagId, token);
         }
         catch (HttpRequestException ex)

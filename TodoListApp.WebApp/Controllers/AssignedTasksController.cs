@@ -24,6 +24,10 @@ public class AssignedTasksController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
 
             bool resetPagination = false;
 
@@ -78,6 +82,10 @@ public class AssignedTasksController : Controller
         try
         {
             var token = this.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                return this.RedirectToAction("Login", "Account");
+            }
 
             var updateTaskStatus = new UpdateTaskStatus
             {

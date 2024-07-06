@@ -51,6 +51,7 @@ public class TaskWebApiService
             {
                 this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             }
+
             var response = await this.httpClient.DeleteAsync($"api/Tasks/{taskId}");
             _ = response.EnsureSuccessStatusCode();
         }
@@ -271,6 +272,7 @@ public class TaskWebApiService
             {
                 this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             }
+
             var response = await this.httpClient.DeleteAsync($"api/Tasks/{taskId}/comments/{commentId}");
             _ = response.EnsureSuccessStatusCode();
         }
