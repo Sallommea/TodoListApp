@@ -101,7 +101,7 @@
             {
                 <div class="comment mb-3" id="comment-@comment.Id">
                     <div class="comment-header d-flex justify-content-between align-items-center">
-                        <span class="comment-author">@comment.UserFirstName</span>
+                        <span class="comment-author">@comment.UserFirstName @comment.UserLastName</span>
                         <span class="comment-date local-datetime" data-utc-datetime="@comment.CreatedDate.ToString("yyyy-MM-ddTHH:mm:ssZ")">
                             @comment.CreatedDate.ToString("yyyy-MM-ddTHH:mm:ssZ")
                         </span>
