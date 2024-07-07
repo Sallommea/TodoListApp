@@ -59,7 +59,7 @@ public class AuthController : ControllerBase
         catch (InvalidOperationException ioe)
         {
             Logging.AuthLoggerMessages.InvalidOperationWhileRegistering(this.logger, ioe.Message, ioe);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured");
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while registering an user");
         }
         catch (Exception ex)
         {
@@ -91,7 +91,7 @@ public class AuthController : ControllerBase
         catch (InvalidOperationException ioe)
         {
             Logging.AuthLoggerMessages.InvalidOperationWhileSigningIn(this.logger, ioe.Message, ioe);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured");
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while signing in");
         }
         catch (Exception ex)
         {

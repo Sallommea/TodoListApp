@@ -62,7 +62,7 @@ public class TaskController : Controller
             catch (InvalidOperationException ioe)
             {
                 TaskLoggerMessages.IOErrorWhileAddingTask(this.logger, ioe.Message, ioe);
-                return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: while creating the task." });
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred while creating the task." });
             }
             catch (Exception ex)
             {
@@ -178,7 +178,7 @@ public class TaskController : Controller
         catch (InvalidOperationException ioe)
         {
             TaskLoggerMessages.IOErrorFetchingTaskUpdate(this.logger, id, ioe.Message, ioe);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: " + ioe.Message });
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred. Please try again later" });
         }
         catch (Exception ex)
         {
@@ -227,7 +227,7 @@ public class TaskController : Controller
         catch (InvalidOperationException ioe)
         {
             TaskLoggerMessages.IOErrorUpdatingTask(this.logger, id, ioe.Message, ioe);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: " + ioe.Message });
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred. Please try again later " });
         }
         catch (Exception ex)
         {
@@ -282,7 +282,7 @@ public class TaskController : Controller
         catch (InvalidOperationException ioe)
         {
             TaskLoggerMessages.IOEGettingSearchedTasks(this.logger, searchText, ioe.Message, ioe);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred." });
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred. Please try again later" });
         }
         catch (Exception ex)
         {

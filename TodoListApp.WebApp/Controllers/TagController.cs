@@ -98,11 +98,11 @@ public class TagController : Controller
         catch (InvalidOperationException ioe)
         {
             TagLoggerMessages.IOEAddingTagToTask(this.logger, ioe.Message, ioe);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: while adding tag to task" });
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred while adding tag to task" });
         }
         catch (Exception ex)
         {
-            this.TempData["ErrorMessage"] = $"An unexpected error occurred: {ex.Message}";
+            this.TempData["ErrorMessage"] = $"An unexpected error occurred. Please try again later";
             TagLoggerMessages.ErrorAddingTagToTask(this.logger, ex.Message, ex);
             throw;
         }

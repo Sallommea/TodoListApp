@@ -38,30 +38,48 @@ public static partial class TaskControllerLoggerMessages
     [LoggerMessage(EventId = 12, Level = LogLevel.Information, Message = "Task with ID {TaskId} not found to update task.")]
     public static partial void TaskIdNotFoundToUpdate(this ILogger logger, int taskId);
 
-    [LoggerMessage(EventId = 14, Level = LogLevel.Information, Message = "Serviece retrieved searched tasks successfully.")]
+    [LoggerMessage(EventId = 13, Level = LogLevel.Information, Message = "Serviece retrieved searched tasks successfully.")]
     public static partial void SearchedTasksRetrieved(this ILogger logger);
 
-    [LoggerMessage(EventId = 15, Level = LogLevel.Error, Message = "An unexpected error occurred while retrieving task searched with {SearchText}. Error: {Message}")]
+    [LoggerMessage(EventId = 14, Level = LogLevel.Error, Message = "An unexpected error occurred while retrieving task searched with {SearchText}. Error: {Message}")]
     public static partial void UnexpectedErrorOccurredWhileSearchingTasks(this ILogger logger, string message, string searchText, Exception ex);
 
-    [LoggerMessage(EventId = 16, Level = LogLevel.Error, Message = "An unexpected error occurred while retrieving tasks by Tag Id: {TagId}. Error: {Message}")]
+    [LoggerMessage(EventId = 15, Level = LogLevel.Error, Message = "An unexpected error occurred while retrieving tasks by Tag Id: {TagId}. Error: {Message}")]
     public static partial void UnexpectedErrorgGettingTasksbyTagId(this ILogger logger, int tagId, string message, Exception ex);
 
-    [LoggerMessage(EventId = 17, Level = LogLevel.Error, Message = "An invalid operation exception occured while adding the comment. Error: {Message}")]
+    [LoggerMessage(EventId = 16, Level = LogLevel.Error, Message = "An invalid operation exception occured while adding the comment. Error: {Message}")]
     public static partial void IOExceptionWhileAddingComment(this ILogger logger, string message, Exception ex);
 
-    [LoggerMessage(EventId = 18, Level = LogLevel.Error, Message = "An unexpected error occurred adding the comment. Error: {Message}")]
+    [LoggerMessage(EventId = 17, Level = LogLevel.Error, Message = "An unexpected error occurred adding the comment. Error: {Message}")]
     public static partial void UnexpectedErrorWhileAddingComment(this ILogger logger, string message, Exception ex);
 
-    [LoggerMessage(EventId = 19, Level = LogLevel.Error, Message = "An invalid operation exception occured while editing the comment. Error: {Message}")]
+    [LoggerMessage(EventId = 18, Level = LogLevel.Error, Message = "An invalid operation exception occured while editing the comment. Error: {Message}")]
     public static partial void IOExceptionWhileEditingComment(this ILogger logger, string message, Exception ex);
 
-    [LoggerMessage(EventId = 20, Level = LogLevel.Error, Message = "An unexpected error occurred editing the comment. Error: {Message}")]
+    [LoggerMessage(EventId = 19, Level = LogLevel.Error, Message = "An unexpected error occurred editing the comment. Error: {Message}")]
     public static partial void UnexpectedErrorWhileEditingComment(this ILogger logger, string message, Exception ex);
 
-    [LoggerMessage(EventId = 21, Level = LogLevel.Error, Message = "An invalid operation exception occured while deleting the comment. Error: {Message}")]
+    [LoggerMessage(EventId = 20, Level = LogLevel.Error, Message = "An invalid operation exception occured while deleting the comment. Error: {Message}")]
     public static partial void IOExceptionWhileDeletingComment(this ILogger logger, string message, Exception ex);
 
-    [LoggerMessage(EventId = 22, Level = LogLevel.Error, Message = "An unexpected error occurred deleting the comment. Error: {Message}")]
+    [LoggerMessage(EventId = 21, Level = LogLevel.Error, Message = "An unexpected error occurred deleting the comment. Error: {Message}")]
     public static partial void UnexpectedErrorWhileDeletingComment(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 22, Level = LogLevel.Error, Message = "Invalid Operation occured while getting searched Tasks: {Message}")]
+    public static partial void InvalidOperationOccurredGettingSearchedTasks(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 23, Level = LogLevel.Error, Message = "Invalid Operation occured while getting task details: {Message}")]
+    public static partial void InvalidOperationOccurredGettingTaskDetails(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 24, Level = LogLevel.Error, Message = "Invalid Operation occured while getting tasks by tag: {Message}")]
+    public static partial void InvalidOperationOccurredGettingTasksByTag(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 25, Level = LogLevel.Error, Message = "Invalid Operation occured while creating task: {Message}")]
+    public static partial void InvalidOperationCreatingTask(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 26, Level = LogLevel.Error, Message = "Invalid Operation occured while deleting task: {Message}")]
+    public static partial void InvalidOperationDeletingTask(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 27, Level = LogLevel.Error, Message = "Invalid Operation occured while updating task: {Message}")]
+    public static partial void InvalidOperationUpdatingTask(this ILogger logger, string message, Exception ex);
 }

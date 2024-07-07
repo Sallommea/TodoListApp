@@ -19,4 +19,10 @@ public static partial class AssignedTasksControllerLoggerMessages
 
     [LoggerMessage(EventId = 6, Level = LogLevel.Error, Message = "An error occurred while updating task status: {Message}")]
     public static partial void UnexpectedErrorOccurredWhileUpdatingTaskStatus(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 7, Level = LogLevel.Error, Message = "An invalid operation exception occured while getting assigned tasks. Error: {Message}")]
+    public static partial void IOExceptionWhileGettingAssignedTasks(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 8, Level = LogLevel.Error, Message = "An invalid operation exception occured while updating task status. Error: {Message}")]
+    public static partial void IOExceptionWhileUpdatingTaskStatus(this ILogger logger, string message, Exception ex);
 }

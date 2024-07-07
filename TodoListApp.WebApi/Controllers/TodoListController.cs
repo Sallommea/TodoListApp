@@ -112,7 +112,8 @@ public class TodoListController : ControllerBase
         }
         catch (InvalidOperationException ioe)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+            LoggerMessages.InvalidOperationOccurredWhileGettingTodoList(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while getting todolist");
         }
         catch (Exception ex)
         {
@@ -157,7 +158,8 @@ public class TodoListController : ControllerBase
         }
         catch (InvalidOperationException ioe)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+            LoggerMessages.InvalidOperationOccurredWhilePostingTodoList(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while posting todo list");
         }
         catch (Exception ex)
         {
@@ -203,7 +205,8 @@ public class TodoListController : ControllerBase
         }
         catch (InvalidOperationException ioe)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+            LoggerMessages.InvalidOperationOccurredWhileUpdatingTodoList(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while updating todo");
         }
         catch (Exception ex)
         {
@@ -239,7 +242,8 @@ public class TodoListController : ControllerBase
         }
         catch (InvalidOperationException ioe)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+            LoggerMessages.InvalidOperationOccurredWhileDeletingTodoList(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while deleting todo list");
         }
         catch (Exception ex)
         {

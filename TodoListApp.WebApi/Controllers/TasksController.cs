@@ -46,7 +46,8 @@ public class TasksController : ControllerBase
         }
         catch (InvalidOperationException ioe)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+            TaskControllerLoggerMessages.InvalidOperationOccurredGettingSearchedTasks(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while getting searched tasks");
         }
         catch (Exception ex)
         {
@@ -82,7 +83,8 @@ public class TasksController : ControllerBase
         }
         catch (InvalidOperationException ioe)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+            TaskControllerLoggerMessages.InvalidOperationOccurredGettingTaskDetails(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while getting task details");
         }
         catch (Exception ex)
         {
@@ -113,7 +115,8 @@ public class TasksController : ControllerBase
         }
         catch (InvalidOperationException ioe)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+            TaskControllerLoggerMessages.InvalidOperationOccurredGettingTasksByTag(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while getting tasks by tag");
         }
         catch (Exception ex)
         {
@@ -154,7 +157,8 @@ public class TasksController : ControllerBase
         }
         catch (InvalidOperationException ioe)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+            TaskControllerLoggerMessages.InvalidOperationCreatingTask(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while creating task");
         }
         catch (Exception ex)
         {
@@ -192,7 +196,8 @@ public class TasksController : ControllerBase
         }
         catch (InvalidOperationException ioe)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+            TaskControllerLoggerMessages.InvalidOperationDeletingTask(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while deleting task");
         }
         catch (Exception ex)
         {
@@ -234,7 +239,8 @@ public class TasksController : ControllerBase
         }
         catch (InvalidOperationException ioe)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+            TaskControllerLoggerMessages.InvalidOperationUpdatingTask(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while updating task");
         }
         catch (Exception ex)
         {
@@ -274,7 +280,7 @@ public class TasksController : ControllerBase
         catch (InvalidOperationException ioe)
         {
             TaskControllerLoggerMessages.IOExceptionWhileAddingComment(this.logger, ioe.Message, ioe);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured");
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while adding comment");
         }
         catch (Exception ex)
         {
@@ -314,7 +320,7 @@ public class TasksController : ControllerBase
         catch (InvalidOperationException ioe)
         {
             TaskControllerLoggerMessages.IOExceptionWhileEditingComment(this.logger, ioe.Message, ioe);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured");
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while updating comment");
         }
         catch (Exception ex)
         {
@@ -344,7 +350,7 @@ public class TasksController : ControllerBase
         catch (InvalidOperationException ioe)
         {
             TaskControllerLoggerMessages.IOExceptionWhileDeletingComment(this.logger, ioe.Message, ioe);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured");
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while deleting comment");
         }
         catch (Exception ex)
         {

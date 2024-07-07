@@ -61,4 +61,16 @@ public static partial class LoggerMessages
 
     [LoggerMessage(EventId = 20, Level = LogLevel.Error, Message = "Invalid Operation occured while retrieving the todo lists: {Message}")]
     public static partial void InvalidOperationOccurredWhileGettingTodoLists(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 21, Level = LogLevel.Error, Message = "Invalid Operation occured while retrieving the todo list: {Message}")]
+    public static partial void InvalidOperationOccurredWhileGettingTodoList(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 22, Level = LogLevel.Error, Message = "Invalid Operation occured while posting the todo list: {Message}")]
+    public static partial void InvalidOperationOccurredWhilePostingTodoList(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 23, Level = LogLevel.Error, Message = "Invalid Operation occured while updating the todo list: {Message}")]
+    public static partial void InvalidOperationOccurredWhileUpdatingTodoList(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 24, Level = LogLevel.Error, Message = "Invalid Operation occured while deleting the todo list: {Message}")]
+    public static partial void InvalidOperationOccurredWhileDeletingTodoList(this ILogger logger, string message, Exception ex);
 }

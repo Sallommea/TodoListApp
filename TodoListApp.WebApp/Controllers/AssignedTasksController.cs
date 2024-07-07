@@ -67,7 +67,7 @@ public class AssignedTasksController : Controller
         catch (InvalidOperationException ioe)
         {
             AssignedTasksLoggerMessages.IOErrorWhileFetchingAssignedTasks(this.logger, ioe.Message, ioe);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: " + ioe.Message });
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred " });
         }
         catch (Exception ex)
         {
@@ -104,7 +104,7 @@ public class AssignedTasksController : Controller
         catch (InvalidOperationException ioe)
         {
             AssignedTasksLoggerMessages.IOEWhileChangingStatus(this.logger, taskId, ioe.Message, ioe);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred: " + ioe.Message });
+            return this.StatusCode(StatusCodes.Status500InternalServerError, new { message = "An invalid operation occurred while changing task status" });
         }
         catch (Exception ex)
         {

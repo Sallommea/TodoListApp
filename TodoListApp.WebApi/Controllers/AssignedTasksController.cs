@@ -49,7 +49,8 @@ public class AssignedTasksController : ControllerBase
         }
         catch (InvalidOperationException ioe)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+            AssignedTasksControllerLoggerMessages.IOExceptionWhileGettingAssignedTasks(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while getting assigned tasks");
         }
         catch (Exception ex)
         {
@@ -86,7 +87,8 @@ public class AssignedTasksController : ControllerBase
         }
         catch (InvalidOperationException ioe)
         {
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+            AssignedTasksControllerLoggerMessages.IOExceptionWhileUpdatingTaskStatus(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while updating task status");
         }
         catch (Exception ex)
         {

@@ -28,4 +28,13 @@ public static partial class TagControllerLoggerMessages
 
     [LoggerMessage(EventId = 11, Level = LogLevel.Error, Message = "An unexpected error occurred while deleting tag: {Message}")]
     public static partial void UnexpectedErrorOccurredWhileDeletingTag(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 12, Level = LogLevel.Error, Message = "An invalid operation exception occured while getting tags. Error: {Message}")]
+    public static partial void IOExceptionWhileGettingTags(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 13, Level = LogLevel.Error, Message = "An invalid operation exception occured while adding tag to a task. Error: {Message}")]
+    public static partial void IOExceptionWhileAddingTagToTask(this ILogger logger, string message, Exception ex);
+
+    [LoggerMessage(EventId = 14, Level = LogLevel.Error, Message = "An invalid operation exception occured while deleting tag. Error: {Message}")]
+    public static partial void IOExceptionWhileDeletingTag(this ILogger logger, string message, Exception ex);
 }

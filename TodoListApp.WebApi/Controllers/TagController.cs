@@ -47,8 +47,8 @@ public class TagController : ControllerBase
         }
         catch (InvalidOperationException ioe)
         {
-            TagControllerLoggerMessages.UnexpectedErrorOccurredWhileGettingAllTags(this.logger, ioe.Message, ioe);
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured" + ioe.Message);
+            TagControllerLoggerMessages.IOExceptionWhileGettingTags(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while getting tags");
         }
         catch (Exception ex)
         {
@@ -82,6 +82,11 @@ public class TagController : ControllerBase
         {
             TagControllerLoggerMessages.ServiceExceptionOccurredWhileAddingTag(this.logger, se.Message, se);
             return this.StatusCode(StatusCodes.Status500InternalServerError, se.Message);
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TagControllerLoggerMessages.IOExceptionWhileAddingTagToTask(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while adding a tag to task");
         }
         catch (Exception ex)
         {
@@ -122,6 +127,11 @@ public class TagController : ControllerBase
         catch (ServiceException se)
         {
             return this.StatusCode(StatusCodes.Status500InternalServerError, se.Message);
+        }
+        catch (InvalidOperationException ioe)
+        {
+            TagControllerLoggerMessages.IOExceptionWhileDeletingTag(this.logger, ioe.Message, ioe);
+            return this.StatusCode(StatusCodes.Status500InternalServerError, "An invalid operation occured while deleting tag");
         }
         catch (Exception ex)
         {
