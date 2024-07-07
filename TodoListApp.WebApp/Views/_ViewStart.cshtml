@@ -1,6 +1,6 @@
 @{
     var path = Context.Request.Path.Value;
-    if (User.Identity.IsAuthenticated && path != "/Account/Login" && path != "/" && path != "/Account/Register")
+    if ((User?.Identity?.IsAuthenticated ?? false) && path != "/Account/Login" && path != "/" && path != "/Account/Register")
     {
         Layout = "_Layout";
     }
