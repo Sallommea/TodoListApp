@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.WebApi.Services;
 using TodoListApp.WebApi.Models.Tasks;
@@ -19,6 +20,7 @@ public class AssignedTasksController : Controller
     }
 
 #pragma warning disable S6967 // ModelState.IsValid should be called in controller actions
+    [Authorize]
     public async Task<IActionResult> Index(int pageNumber = 1, int tasksPerPage = 6, Status? status = null, string? sortCriteria = null)
     {
         try
@@ -77,6 +79,7 @@ public class AssignedTasksController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> ChangeStatus(int taskId, Status newStatus, int pageNumber = 1, int tasksPerPage = 2, Status? status = null, string? sortCriteria = null)
     {
         try

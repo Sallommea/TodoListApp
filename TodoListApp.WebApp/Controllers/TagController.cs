@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.WebApi.Services;
 using TodoListApp.WebApp.Logging;
@@ -20,6 +21,7 @@ public class TagController : Controller
 
 #pragma warning disable S6967 // ModelState.IsValid should be called in controller actions
 
+    [Authorize]
     public async Task<IActionResult> Index(int? tagId = null, int pageNumber = 1, int pageSize = 5)
     {
         try
@@ -70,6 +72,7 @@ public class TagController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> AddTagToTask(int taskId, string tagName)
     {
         if (string.IsNullOrWhiteSpace(tagName))
@@ -111,6 +114,7 @@ public class TagController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> DeleteTag(int taskId, int tagId)
     {
         try

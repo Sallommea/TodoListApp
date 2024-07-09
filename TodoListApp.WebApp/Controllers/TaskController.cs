@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoListApp.Services.WebApi.Services;
 using TodoListApp.WebApi.Models.Comments;
@@ -28,6 +29,7 @@ public class TaskController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Create(CreateTaskDto createTask)
     {
         if (this.ModelState.IsValid)
@@ -75,6 +77,7 @@ public class TaskController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> DeleteTask(int id, int todoListId)
     {
         try
@@ -105,6 +108,7 @@ public class TaskController : Controller
         }
     }
 
+    [Authorize]
     public async Task<IActionResult> TaskDetails(int taskId)
     {
         if (taskId <= 0)
@@ -144,6 +148,7 @@ public class TaskController : Controller
         }
     }
 
+    [Authorize]
     public async Task<IActionResult> EditTask(int id)
     {
         try
@@ -188,6 +193,7 @@ public class TaskController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> UpdateTask(int id, UpdateTaskDto updateTaskDto)
     {
         if (!this.ModelState.IsValid)
@@ -237,6 +243,7 @@ public class TaskController : Controller
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Search(string searchText, int pageNumber = 1, int itemsPerPage = 4)
     {
         try
@@ -292,6 +299,7 @@ public class TaskController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> AddComment(AddCommentDto addCommentDto)
     {
         try
@@ -335,6 +343,7 @@ public class TaskController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> EditComment(EditCommentDto editCommentDto)
     {
         if (!this.ModelState.IsValid)
@@ -383,6 +392,7 @@ public class TaskController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> DeleteComment(int taskId, int commentId)
     {
         try
