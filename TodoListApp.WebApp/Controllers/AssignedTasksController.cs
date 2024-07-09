@@ -19,7 +19,7 @@ public class AssignedTasksController : Controller
     }
 
 #pragma warning disable S6967 // ModelState.IsValid should be called in controller actions
-    public async Task<IActionResult> Index(int pageNumber = 1, int tasksPerPage = 2, Status? status = null, string? sortCriteria = null)
+    public async Task<IActionResult> Index(int pageNumber = 1, int tasksPerPage = 6, Status? status = null, string? sortCriteria = null)
     {
         try
         {

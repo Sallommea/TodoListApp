@@ -90,16 +90,19 @@
             </table>
         </div>
         <p>Page @Model.CurrentTaskPage of @Model.TotalTaskPages</p>
-  <nav class="mt-5" aria-label="Page navigation">
-    <ul class="pagination justify-content-center">
-        @for (int i = 1; i <= Model.TotalTaskPages; i++)
-        {
-            <li class="page-item @(i == Model.CurrentTaskPage ? "active" : "")">
-                <a class="page-link" asp-controller="TodoList" asp-action="Details" asp-route-pageNumber="@i">@i</a>
-            </li>
-        }
-    </ul>
-</nav>
+                    @if (Model.TotalTaskPages > 1)
+                    {
+                        <nav class="mt-5" aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                @for (int i = 1; i <= Model.TotalTaskPages; i++)
+                                {
+                                    <li class="page-item @(i == Model.CurrentTaskPage ? "active" : "")">
+                                        <a class="page-link" asp-controller="TodoList" asp-action="Details" asp-route-pageNumber="@i">@i</a>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                    }
     }
     else
     {

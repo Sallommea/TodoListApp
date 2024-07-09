@@ -1,4 +1,3 @@
-using System.ComponentModel.Design;
 using Microsoft.EntityFrameworkCore;
 using TodoListApp.Services.Database.Models;
 
