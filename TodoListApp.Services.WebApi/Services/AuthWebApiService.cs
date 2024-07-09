@@ -58,14 +58,23 @@ public class AuthWebApiService
         try
         {
             var response = await this.httpClient.PostAsJsonAsync("/api/auth/register", model);
-            _ = response.EnsureSuccessStatusCode();
 
-            var apiResponse = await response.Content.ReadFromJsonAsync<ApiAuthResponse>();
-            return new AuthResult
+            if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                var errorResult = await response.Content.ReadFromJsonAsync<AuthResult>();
+                return new AuthResult
+                {
+                    Success = false,
+                    Message = errorResult?.Message ?? "Email already in use",
+                };
+            }
+
+            var apiResponse = await response.Content.ReadFromJsonAsync<AuthResult>();
+            return apiResponse ?? new AuthResult
             {
                 Success = true,
-                Token = apiResponse?.Token ?? string.Empty,
-                Message = apiResponse?.Message ?? "Registration successful",
+                Token = string.Empty,
+                Message = "Registration successful",
             };
         }
         catch (HttpRequestException ex)

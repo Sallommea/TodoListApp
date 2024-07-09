@@ -46,15 +46,20 @@ public class AuthController : ControllerBase
             {
                 var token = this.jwtGenerator.GenerateToken(user);
 
-                return this.Ok(new { Token = token, Message = "User registered successfully" });
+                return this.Ok(new AuthResult { Success = true, Token = token, Message = "User registered successfully" });
             }
 
             foreach (var error in result.Errors)
             {
+                if (error.Code == "DuplicateEmail")
+                {
+                    return this.Conflict(new AuthResult { Success = false, Message = "Email already in use" });
+                }
+
                 this.ModelState.AddModelError(string.Empty, error.Description);
             }
 
-            return this.BadRequest(this.ModelState);
+            return this.BadRequest(new AuthResult { Success = false, Message = "Registration failed" });
         }
         catch (InvalidOperationException ioe)
         {
