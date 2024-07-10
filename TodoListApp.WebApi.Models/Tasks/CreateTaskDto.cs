@@ -17,7 +17,7 @@ public class CreateTaskDto : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (this.DueDate.HasValue && this.DueDate.Value < DateTime.UtcNow)
+        if (this.DueDate.HasValue && this.DueDate.Value.Date < DateTime.UtcNow.Date)
         {
             yield return new ValidationResult("DueDate cannot be in the past.", new[] { nameof(this.DueDate) });
         }
